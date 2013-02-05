@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Steam</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.css"/>
+		<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
+		<script src="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.js"></script>
+		<style type="text/css">
+			.messagePane {
+				width: 310px;
+				height: 330px;
+				margin: 5px;
+				overflow: auto;
+				word-wrap: break-word;
+			}
+			
+			.messageC {
+				width: 100%;
+			}
+			
+			.message {
+				display: inline;
+			}
+			
+			.sender {
+				color: #235DA9;
+				display: inline;
+			}
+		</style>
+		<script>
+			var socket = null;
+			
+			setInterval(function () {
+				if (socket != null)
+					send({ Type: "ping" });
+			}, 1000);
+			
+			function connect() {
+				socket = new WebSocket("ws://192.168.0.10:1200/");
+				
+				socket.onopen = function (event) {
+					openFriends();
+				};
+				
+				socket.onclose = function (event) {
+					$('#error').html("");
+					$.mobile.changePage("#connecting");
+					socket = null;
+					
+					setTimeout(function () {
+						connect();
+					}, 1000);
+				};
+				
+				socket.onerror = function (event) {
+					$('#error').html(event.data);
+					$.mobile.changePage("#connecting");
+					socket = null;
+					
+					setTimeout(function () {
+						connect();
+					}, 1000);
+				};
+				
+				socket.onmessage = function (event) {
+					var data = JSON.parse(event.data);
+					console.log(data);
+					switch (data.Type)
+					{
+						case "friendList": {
+							$('#friendList').html("");
+							for (var i = 0; i < data.Friends.length; i++) {
+								var f = data.Friends[i];
+								$('#friendList').append('<li><a href="#" id="' + f.Id + '">' + f.Name +'</a></li>');
+							}
+							
+							$('#friendList > li').click(function (event) {
+								openChat(event.target.id);
+							});
+							
+							$.mobile.changePage("#friends");
+							$('#friendList').listview('refresh');
+							break;
+						}
+						
+						case "conversationList": {
+							$('#convoList').html("");
+							for (var i = 0; i < data.Conversations.length; i++) {
+								var f = data.Conversations[i];
+								$('#convoList').append('<li><a href="#" id="' + f.Id + '">' + f.Name +'</a></li>');
+							}
+							
+							$('#convoList > li').click(function (event) {
+								openChat(event.target.id);
+							});
+							
+							$.mobile.changePage("#convos");
+							$('#convoList').listview('refresh');
+							break;
+						}
+						
+						case "openChat": {
+							$("#chatTitle").html(data.Title);
+							$('#messages').html("");
+							for (var i = 0; i < data.History.length; i++) {
+								var f = data.History[i];
+								addMessage(f.Item1, f.Item2);
+							}
+							
+							$.mobile.changePage("#chat");
+							
+							// make sure we scroll to the bottom
+							setTimeout(function () {
+								$('#messages').scrollTop($('#messages')[0].scrollHeight);
+							}, 500);
+							setTimeout(function () {
+								$('#messages').scrollTop($('#messages')[0].scrollHeight);
+							}, 750);
+							setTimeout(function () {
+								$('#messages').scrollTop($('#messages')[0].scrollHeight);
+							}, 1000);
+							break;
+						}
+						
+						case "message": {
+							addMessage(data.Sender, data.Message);
+							break;
+						}
+					}
+				};
+			}
+			
+			function send(obj) {
+				socket.send(JSON.stringify(obj));
+			}
+			
+			function openFriends() {
+				send({ Type: "friendList" });
+			}
+			
+			function openConversations() {
+				send({ Type: "conversationList" });
+			}
+			
+			function openChat(id) {
+				send({ Type: "openChat", Id: id });
+			}
+			
+			function addMessage(sender, message) {
+				var elem = $('#messages');
+				var atBottom = (elem[0].scrollHeight - elem.scrollTop() == elem.outerHeight());
+				$('#messages').append('<div class="messageC"><div class="message"><div class="sender">' + sender + ': </div>' + message + '</div></div>');
+				if (atBottom)
+					$('#messages').scrollTop($('#messages')[0].scrollHeight);
+			}
+			
+			$(document).ready(function () {
+				connect();
+
+				$('.friendBtn').click(function (event) {
+					openFriends();
+				});
+				
+				$('.convoBtn').click(function (event) {
+					openConversations();
+				});
+				
+				$("#chatSubmit").click(function () {
+					var msg = $("#chatInput").val();
+					if (msg.length == 0) return;
+					send({ Type: "message", Message: msg });
+					$("#chatInput").val("");
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<div id="connecting" data-role="page">
+			<div data-role="header">
+				<h1>Connecting...</h1>
+			</div>
+			<div id="error"></div>
+		</div>
+		
+
+		<div id="friends" data-role="page">
+			<div data-role="header">
+				<a href="#friends" class="friendBtn">Friends</a>
+				<a href="#convos" class="convoBtn">Convos</a>
+				<h1>Friends</h1>
+			</div>
+			<ul id="friendList" data-role="listview">
+				
+			</ul>
+		</div>
+		
+		
+		<div id="convos" data-role="page">
+			<div data-role="header">
+				<a href="#friends" class="friendBtn">Friends</a>
+				<a href="#convos" class="convoBtn">Convos</a>
+				<h1>Conversations</h1>
+			</div>
+			<div data-role="content">
+				<ul id="convoList" data-role="listview">
+					
+				</ul>				
+			</div>
+		</div>
+		
+		
+		<div id="chat" data-role="page">
+			<div data-role="header">
+				<a href="#friends" class="friendBtn">Friends</a>
+				<a href="#convos" class="convoBtn">Convos</a>
+				<h1 id="chatTitle"></h1>
+			</div>
+			<div id="messages" class="messagePane">
+				
+			</div>
+			<div data-role="footer"> 
+				<input id="chatInput" style="width:88%;display:inline-block" type="text" name="chatInput" value="" data-mini="true"/>
+				<a id="chatSubmit" style="float:right" href="#" data-role="button">&gt;</a>
+			</div> 
+		</div>
+	</body>
+</html>
