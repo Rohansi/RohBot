@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Net.Sockets;
+using System.Net;
 using System.Threading;
 using SteamKit2;
 using SteamKit2.Internal;
+using log4net;
 
 namespace SteamMobile
 {
@@ -36,17 +37,19 @@ namespace SteamMobile
         public static ChatInviteEvent OnChatInvite = null;
         public static FriendRequestedEvent OnFriendRequest = null;
 
+        public static ReadOnlyCollection<SteamChat> Chats
+        {
+            get { return new ReadOnlyCollection<SteamChat>(chats); }
+        }
+
+        private static readonly ILog Logger = LogManager.GetLogger("Steam");
+
         private static string username;
         private static string password;
 
         private static List<SteamChat> chats;
-        public static ReadOnlyCollection<SteamChat> Chats
-        {
-            get { return new ReadOnlyCollection<SteamChat>(chats); }
-        } 
 
         private static readonly Thread UpdateThread;
-
         private static readonly Dictionary<SteamID, string> ClanNames = new Dictionary<SteamID, string>(); 
 
         static Steam()
@@ -55,6 +58,11 @@ namespace SteamMobile
 
             UpdateThread = new Thread(Run);
             UpdateThread.Start();
+        }
+
+        public static void Abort()
+        {
+            UpdateThread.Abort();
         }
 
         public static void Reset()
@@ -76,7 +84,7 @@ namespace SteamMobile
             username = user;
             password = pass;
 
-            Client.Connect();
+            Client.Connect(Dns.GetHostAddresses("cm0.steampowered.com").FirstOrDefault());
             Status = ConnectionStatus.Connecting;
         }
 
@@ -84,31 +92,37 @@ namespace SteamMobile
         {
             while (true)
             {
+                if (Status == ConnectionStatus.LoginFailed)
+                {
+                    throw new Exception("Closing");
+                }
+
                 if (Status != ConnectionStatus.Connected && Status != ConnectionStatus.Connecting)
                 {
                     if (!string.IsNullOrEmpty(password))
                     {
                         try
                         {
-                            Console.WriteLine("Connecting...");
+                            Logger.Info("Connecting...");
                             Reset();
                             Login(username, password);
                         }
                         catch
                         {
-                            Console.WriteLine("Login failed");
+                            Logger.Info("Login failed");
+                            throw new Exception("Closing");
                         }
                     }
 
-                    Thread.Sleep(1000);
                     continue;
                 }
 
+                Thread.Sleep(1);
                 var msg = Client.WaitForCallback(true);
 
                 msg.Handle<SteamClient.DisconnectedCallback>(callback =>
                 {
-                    Console.WriteLine("Disconnected");
+                    Logger.Info("Disconnected");
                     Status = ConnectionStatus.Disconnected;
                 });
 
@@ -120,7 +134,7 @@ namespace SteamMobile
                         return;
                     }
 
-                    Console.WriteLine("Logging in...");
+                    Logger.Info("Logging in...");
                     User.LogOn(new SteamUser.LogOnDetails
                     {
                         Username = username,
@@ -133,10 +147,11 @@ namespace SteamMobile
                     if (callback.Result != EResult.OK)
                     {
                         Status = ConnectionStatus.LoginFailed;
+                        Logger.Fatal(string.Format("Login failed: {0}", callback.Result));
                     }
                     else
                     {
-                        Console.WriteLine("Logged in");
+                        Logger.Info("Logged in");
 
                         if (OnLoginSuccess != null)
                             OnLoginSuccess();
@@ -172,7 +187,7 @@ namespace SteamMobile
                     foreach (var friend in callback.FriendList)
                     {
                         var f = friend;
-                        if (friend.Relationship == EFriendRelationship.PendingInvitee && OnFriendRequest != null)
+                        if (friend.Relationship == EFriendRelationship.RequestRecipient && OnFriendRequest != null)
                             OnFriendRequest(f.SteamID);
                     }
                 });
@@ -207,10 +222,7 @@ namespace SteamMobile
                 roomId = SteamUtil.ChatFromClan(roomId);
             }
 
-            if (!roomId.IsChatAccount && !roomId.IsIndividualAccount)
-                throw new ArgumentException("Steam.Join: roomId is not valid");
-
-            if (chats.Count(c => c.RoomId == roomId) > 0)
+            if (chats.Any(c => c.RoomId == roomId))
                 return chats.Find(c => c.RoomId == roomId);
 
             var chat = new SteamChat(roomId);
@@ -259,9 +271,18 @@ namespace SteamMobile
 
         public static void SetPlaying(string gameName)
         {
-            var msg = new ClientMsgProtobuf<CMsgClientGamesPlayed>(EMsg.ClientGamesPlayedWithDataBlob);
-            msg.Body.games_played.Add(new CMsgClientGamesPlayed.GamePlayed { game_id = 9759487592989982720, game_extra_info = gameName });
-            Client.Send(msg);
+            if (string.IsNullOrWhiteSpace(gameName))
+            {
+                var msg = new ClientMsgProtobuf<CMsgClientGamesPlayed>(EMsg.ClientGamesPlayedWithDataBlob);
+                msg.Body.games_played.Add(new CMsgClientGamesPlayed.GamePlayed { game_id = 0, game_extra_info = "" });
+                Client.Send(msg);
+            }
+            else
+            {
+                var msg = new ClientMsgProtobuf<CMsgClientGamesPlayed>(EMsg.ClientGamesPlayedWithDataBlob);
+                msg.Body.games_played.Add(new CMsgClientGamesPlayed.GamePlayed { game_id = 9759487592989982720, game_extra_info = gameName });
+                Client.Send(msg);
+            }
         }
 
         public static string GetClanName(SteamID id)

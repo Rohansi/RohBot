@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using SteamKit2;
+using log4net;
 
 namespace SteamMobile
 {
@@ -13,7 +14,6 @@ namespace SteamMobile
 
     class SteamChat
     {
-
         public delegate void ChatEnterEvent(SteamChat source);
         public delegate void ChatLeaveEvent(SteamChat source);
         public delegate void MessageEvent(SteamChat source, SteamID messageSender, string message);
@@ -52,11 +52,7 @@ namespace SteamMobile
             get { return members.AsReadOnly(); }
         }
 
-        private readonly LinkedList<Tuple<string, string>> history = new LinkedList<Tuple<string, string>>();
-        public ReadOnlyCollection<Tuple<string, string>> History
-        {
-            get { return new ReadOnlyCollection<Tuple<string, string>>(history.ToList()); }
-        } 
+        private static readonly ILog Logger = LogManager.GetLogger("Steam");
 
         public SteamChat(SteamID roomId)
         {
@@ -64,7 +60,7 @@ namespace SteamMobile
             Left = false;
             Response = null;
         }
-
+        
         public void Send(string message)
         {
             if (Left || (RoomId.IsChatAccount && Response != EChatRoomEnterResponse.Success))
@@ -74,8 +70,6 @@ namespace SteamMobile
                 Steam.Friends.SendChatRoomMessage(RoomId, EChatEntryType.ChatMsg, message);
             else
                 Steam.Friends.SendChatMessage(RoomId, EChatEntryType.ChatMsg, message);
-
-            AddHistory(Steam.Friends.GetPersonaName(), message);
         }
 
         public void Leave()
@@ -96,8 +90,6 @@ namespace SteamMobile
 
                 if (OnMessage != null)
                     OnMessage(this, callback.ChatterID, callback.Message);
-
-                AddHistory(Steam.Friends.GetFriendPersonaName(callback.ChatterID), callback.Message);
             });
 
             msg.Handle<SteamFriends.FriendMsgCallback>(callback =>
@@ -107,13 +99,11 @@ namespace SteamMobile
 
                 if (OnMessage != null)
                     OnMessage(this, callback.Sender, callback.Message);
-
-                 AddHistory(Steam.Friends.GetFriendPersonaName(callback.Sender), callback.Message);
             });
 
             msg.Handle<SteamFriends.ChatMemberInfoCallback>(callback =>
             {
-                if (callback.ChatRoomID != RoomId)
+                if (callback.ChatRoomID != RoomId || callback.StateChangeInfo == null)
                     return;
 
                 var state = callback.StateChangeInfo.StateChange;
@@ -163,7 +153,7 @@ namespace SteamMobile
 
                 if (callback.EnterResponse != EChatRoomEnterResponse.Success)
                 {
-                    Console.WriteLine("Failed to join chat: " + callback.EnterResponse);
+                    Logger.Warn("Failed to join chat: " + callback.EnterResponse);
                     Leave();
                     return;
                 }
@@ -180,7 +170,7 @@ namespace SteamMobile
                     return;
 
                 if (callback.Result != EChatActionResult.Success)
-                    Console.WriteLine("Chat action failed: " + callback.Result);
+                    Logger.Warn("Chat action failed: " + callback.Result);
             });
 
             msg.Handle<SteamFriends.PersonaStateCallback>(callback =>
@@ -189,13 +179,6 @@ namespace SteamMobile
                     return;
                 members.Add(callback.FriendID);
             });
-        }
-
-        public void AddHistory(string sender, string message)
-        {
-            if (history.Count >= 50)
-                history.RemoveFirst();
-            history.AddLast(Tuple.Create(sender, message));
         }
     }
 }
