@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using SteamKit2;
@@ -28,16 +29,16 @@ namespace SteamMobile
             switch (packetMsg.MsgType)
             {
                 case EMsg.ClientClanState:
-                {
-                    var clanMsg = new ClientMsgProtobuf<CMsgClientClanState>(packetMsg);
+                    {
+                        var clanMsg = new ClientMsgProtobuf<CMsgClientClanState>(packetMsg);
 
-                    if (clanMsg.Body.name_info == null)
-                        return; // we only care about the name
+                        if (clanMsg.Body.name_info == null)
+                            return; // we only care about the name
 
-                    var callback = new ClanNameCallback(clanMsg.Body);
-                    Client.PostCallback(callback);
-                    break;
-                }
+                        var callback = new ClanNameCallback(clanMsg.Body);
+                        Client.PostCallback(callback);
+                        break;
+                    }
             }
         }
     }

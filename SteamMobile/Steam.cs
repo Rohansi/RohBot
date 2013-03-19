@@ -93,9 +93,7 @@ namespace SteamMobile
             while (true)
             {
                 if (Status == ConnectionStatus.LoginFailed)
-                {
-                    throw new Exception("Closing");
-                }
+                    Thread.Sleep(10000);
 
                 if (Status != ConnectionStatus.Connected && Status != ConnectionStatus.Connecting)
                 {
@@ -107,9 +105,9 @@ namespace SteamMobile
                             Reset();
                             Login(username, password);
                         }
-                        catch
+                        catch (Exception e)
                         {
-                            Logger.Info("Login failed");
+                            Logger.Info("Login failed", e);
                             throw new Exception("Closing");
                         }
                     }
@@ -214,6 +212,12 @@ namespace SteamMobile
 
         public static SteamChat Join(SteamID roomId)
         {
+            if (Status != ConnectionStatus.Connected)
+            {
+                Logger.Warn("Attempt to Join chat when not connected");
+                return null;
+            }
+
             Friends.RequestFriendInfo(roomId);
 
             if (roomId.IsClanAccount)

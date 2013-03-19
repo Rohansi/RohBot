@@ -1,34 +1,13 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Steam</title>
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<meta name="apple-mobile-web-app-capable" content="yes">
-		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.css"/>
-		<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
-		<script src="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.js"></script>
-		<style type="text/css">
-			.messagePane {
-				width: 310px;
-				height: 330px;
-				margin: 5px;
-				overflow: auto;
-				word-wrap: break-word;
-			}
-			
-			.messageC {
-				width: 100%;
-			}
-			
-			.message {
-				display: inline;
-			}
-			
-			.sender {
-				color: #235DA9;
-				display: inline;
-			}
-		</style>
+		<meta charset="utf-8"/>
+		<title>FP Programmers</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<script src="jquery-1.9.1.min.js"></script>
+		<script src="md5-min.js"></script>
+		<link rel="stylesheet" type="text/css" href="main.css"/>
+		
 		<script>
 			var socket = null;
 			
@@ -38,15 +17,15 @@
 			}, 100);
 			
 			function connect() {
-				socket = new WebSocket("ws://192.168.0.10:1200/");
+				socket = new WebSocket("ws://209.141.59.194:12000/");
 				
 				socket.onopen = function (event) {
-					openFriends();
+					addMessage("*", "Connected to RohPod.");
+					login("guest", "");
 				};
 				
 				socket.onclose = function (event) {
-					$('#error').html("");
-					$.mobile.changePage("#connecting");
+					addMessage("*", "Lost connection to RohPod. Retrying...");
 					socket = null;
 					
 					setTimeout(function () {
@@ -55,8 +34,7 @@
 				};
 				
 				socket.onerror = function (event) {
-					$('#error').html(event.data);
-					$.mobile.changePage("#connecting");
+					addMessage("*", "WebSocket error: " + event.data + ". Reconnecting...");
 					socket = null;
 					
 					setTimeout(function () {
@@ -66,61 +44,31 @@
 				
 				socket.onmessage = function (event) {
 					var data = JSON.parse(event.data);
-					console.log(data);
+					
 					switch (data.Type)
 					{
-						case "friendList": {
-							$('#friendList').html("");
-							for (var i = 0; i < data.Friends.length; i++) {
-								var f = data.Friends[i];
-								$('#friendList').append('<li><a href="#" id="' + f.Id + '">' + f.Name +'</a></li>');
+						case "chatLock": {
+							if (data.CanChat) {
+								$("#chatInput").removeAttr('disabled');
+								$("#chatInput").val("");
+							} else {
+								$("#chatInput").attr("disabled","disabled");
+								$("#chatInput").val("Guests can not speak.");
 							}
-							
-							$('#friendList > li').click(function (event) {
-								openChat(event.target.id);
-							});
-							
-							$.mobile.changePage("#friends");
-							$('#friendList').listview('refresh');
-							break;
-						}
-						
-						case "conversationList": {
-							$('#convoList').html("");
-							for (var i = 0; i < data.Conversations.length; i++) {
-								var f = data.Conversations[i];
-								$('#convoList').append('<li><a href="#" id="' + f.Id + '">' + f.Name +'</a></li>');
-							}
-							
-							$('#convoList > li').click(function (event) {
-								openChat(event.target.id);
-							});
-							
-							$.mobile.changePage("#convos");
-							$('#convoList').listview('refresh');
 							break;
 						}
 						
 						case "openChat": {
-							$("#chatTitle").html(data.Title);
-							$('#messages').html("");
 							for (var i = 0; i < data.History.length; i++) {
 								var f = data.History[i];
 								addMessage(f.Item1, f.Item2);
 							}
 							
-							$.mobile.changePage("#chat");
-							
 							// make sure we scroll to the bottom
+							$('#messages').scrollTop($('#messages')[0].scrollHeight);
 							setTimeout(function () {
 								$('#messages').scrollTop($('#messages')[0].scrollHeight);
-							}, 500);
-							setTimeout(function () {
-								$('#messages').scrollTop($('#messages')[0].scrollHeight);
-							}, 750);
-							setTimeout(function () {
-								$('#messages').scrollTop($('#messages')[0].scrollHeight);
-							}, 1000);
+							}, 250);
 							break;
 						}
 						
@@ -136,94 +84,179 @@
 				socket.send(JSON.stringify(obj));
 			}
 			
-			function openFriends() {
-				send({ Type: "friendList" });
+			function login(username, password) {
+				send({ Type: "login", Username: username, Password: hex_md5(password) });
 			}
 			
-			function openConversations() {
-				send({ Type: "conversationList" });
-			}
-			
-			function openChat(id) {
-				send({ Type: "openChat", Id: id });
+			function chat(message) {
+				send({ Type: "message", Message: message });
 			}
 			
 			function addMessage(sender, message) {
 				var elem = $('#messages');
 				var atBottom = (elem[0].scrollHeight - elem.scrollTop() == elem.outerHeight());
-				$('#messages').append('<div class="messageC"><div class="message"><div class="sender">' + sender + ': </div>' + message + '</div></div>');
+				$('#messages').append('<div class="messageC"><div class="message"><div class="sender">' + sender + ': </div>' + linkify(message) + '</div></div>');
 				if (atBottom)
 					$('#messages').scrollTop($('#messages')[0].scrollHeight);
 			}
 			
+			// http://stackoverflow.com/a/7123542/1056845
+			function linkify(str) {
+				var urlPattern = /\b(?:https?|ftp):\/\/[a-z0-9-+&@#\/%?=~_|!:,.;]*[a-z0-9-+&@#\/%=~_|]/gim;
+				var pseudoUrlPattern = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
+				
+				return str
+					.replace(urlPattern, '<a href="$&">$&</a>')
+					.replace(pseudoUrlPattern, '$1<a href="http://$2">$2</a>')
+					.replace(/\n/g, '<br/>'); // line breaks, why not
+			}
+			
 			$(document).ready(function () {
 				connect();
-
-				$('.friendBtn').click(function (event) {
-					openFriends();
-				});
-				
-				$('.convoBtn').click(function (event) {
-					openConversations();
-				});
 				
 				$("#chatSubmit").click(function () {
 					var msg = $("#chatInput").val();
 					if (msg.length == 0) return;
-					send({ Type: "message", Message: msg });
+					if (msg.substring(0, 6) == "/pass ") {
+						var p = msg.substring(6);
+						addMessage("*", "Hash is: " + hex_md5(p));
+						$("#chatInput").val("");
+						return;
+					}
+					if (msg.substring(0, 5) == "/ban ") {
+						var t = msg.substring(5);
+						send({ Type: "ban", Target: t});
+						$("#chatInput").val("");
+						return;
+					}
+					chat(msg);
 					$("#chatInput").val("");
 				});
+				
+				// http://stackoverflow.com/a/3533099/1056845
+				$("#chatInput").keydown(function (e) {
+					if (e.keyCode == 13) {
+						if (e.ctrlKey) {
+							var val = this.value;
+							if (typeof this.selectionStart == "number" && typeof this.selectionEnd == "number") {
+								var start = this.selectionStart;
+								this.value = val.slice(0, start) + "\n" + val.slice(this.selectionEnd);
+								this.selectionStart = this.selectionEnd = start + 1;
+							} else if (document.selection && document.selection.createRange) {
+								this.focus();
+								var range = document.selection.createRange();
+								range.text = "\r\n";
+								range.collapse(false);
+								range.select();
+							}
+						} else {
+							$("#chatSubmit").click();
+						}
+						return false;
+					}
+				});
+				
+				$("#loginToggle").click(function () {
+					$("#login").toggle();
+				});
+				
+				$("#loginCancel").click(function () {
+					$("#loginUsername").val("");
+					$("#loginPassword").val("");
+					$("#login").toggle();
+				});
+				
+				$("#loginForm").submit(function () {
+					var user = $("#loginUsername").val();
+					var pass = $("#loginPassword").val();
+					login(user, pass);
+					$("#loginUsername").val("");
+					$("#loginPassword").val("");
+					$("#login").toggle();
+					return false;
+				});
+				
+				$(window).resize(function () {
+					var w = $(window).width();
+					var h = $(window).height();
+					var m = $("#messages");
+					m.height(h - 90); // header + footer height
+					m.width(w - 3); // container padding-left
+					
+					// scroll to bottom
+					$('#messages').scrollTop($('#messages')[0].scrollHeight);
+				});
+				
+				$(window).resize();
 			});
 		</script>
 	</head>
 	<body>
-		<div id="connecting" data-role="page">
-			<div data-role="header">
-				<h1>Connecting...</h1>
-			</div>
-			<div id="error"></div>
-		</div>
+		<!-- before u whine about how shit this is u fix it -->
+		<table>
+			<tr class="header dark">
+				<td>
+					<div class="padTop">
+						<a class="title">FP Programmers</a>
+					</div>
+				</td>
+				<td style="width:65px">
+					<div style="padding-right:4px">
+						<a id="loginToggle" class="button">Login</a>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<div id="messages" class="container">
+						
+					</div>
+				</td>
+			</tr>
+			<tr class="footer dark">
+				<td>
+					<div class="padBottom">
+						<textarea id="chatInput" class="chatInput" spellcheck="false"></textarea>
+					</div>
+				</td>
+				<td style="width:65px">
+					<div style="padding-right:4px">
+						<a id="chatSubmit" class="button">Send</a>
+					</div>
+				</td>
+			</tr>
+		</table>
 		
-
-		<div id="friends" data-role="page">
-			<div data-role="header">
-				<a href="#friends" class="friendBtn">Friends</a>
-				<a href="#convos" class="convoBtn">Convos</a>
-				<h1>Friends</h1>
-			</div>
-			<ul id="friendList" data-role="listview">
-				
-			</ul>
-		</div>
-		
-		
-		<div id="convos" data-role="page">
-			<div data-role="header">
-				<a href="#friends" class="friendBtn">Friends</a>
-				<a href="#convos" class="convoBtn">Convos</a>
-				<h1>Conversations</h1>
-			</div>
-			<div data-role="content">
-				<ul id="convoList" data-role="listview">
-					
-				</ul>				
-			</div>
-		</div>
-		
-		
-		<div id="chat" data-role="page">
-			<div data-role="header">
-				<a href="#friends" class="friendBtn">Friends</a>
-				<a href="#convos" class="convoBtn">Convos</a>
-				<h1 id="chatTitle"></h1>
-			</div>
-			<div id="messages" class="messagePane">
-				
-			</div>
-			<div data-role="footer"> 
-				<input id="chatInput" style="width:88%;display:inline-block" type="text" name="chatInput" value="" data-mini="true"/>
-				<a id="chatSubmit" style="float:right" href="#" data-role="button">&gt;</a>
-			</div> 
+		<div id="login" class="loginContainer" style="display:none">
+			<form id="loginForm" class="loginContent" action="">
+				<h2>Login</h2>
+				<table>
+					<tr>
+						<td>
+							<label for="user">Username: </label>
+						</td>
+						<td style="padding-right:7px">
+							<input id="loginUsername" name="user" type="text"/>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label for="pass">Password: </label>
+						</td>
+						<td style="padding-right:7px">
+							<input id="loginPassword" name="pass" type="password"/>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<a id="loginCancel" class="button" style="float:left;margin:3px">Cancel</a>
+						</td>
+						<td>
+							<input class="button" style="margin:3px" type="submit" value="Login"/>
+						</td>
+					</tr>
+				</table>
+			</form>
 		</div>
 	</body>
 </html>
