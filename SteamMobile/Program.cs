@@ -21,7 +21,7 @@ namespace SteamMobile
         private static readonly SteamID MainChatId = SteamUtil.ChatFromClan(new SteamID(103582791430091926)); // FPP 103582791430091926 // Test 103582791433607509
         private static SteamChat MainChat;
 
-        private static readonly Dictionary<ulong, LinkedList<Tuple<string, string>>> ChatHistory = new Dictionary<ulong, LinkedList<Tuple<string, string>>>();
+        private static readonly Dictionary<ulong, LinkedList<ChatLine>> ChatHistory = new Dictionary<ulong, LinkedList<ChatLine>>();
 
         private static readonly dynamic Settings = JsonConvert.DeserializeObject(File.ReadAllText("Account.json"));
 
@@ -125,6 +125,13 @@ namespace SteamMobile
             chat.OnEnter = source =>
             {
                 MainChat = chat;
+
+                // TODO: temporary?
+                foreach (var session in sessions.Values)
+                {
+                    session.CurrentChat = MainChat;
+                }
+
             };
             chat.OnLeave = source =>
             {
@@ -168,7 +175,7 @@ namespace SteamMobile
 
             LogMessage(sender, "*", message);
 
-            dynamic msg = new { Type = "message", Sender = "*", Message = WebUtility.HtmlEncode(message) };
+            dynamic msg = new { Type = "message", Date = Util.GetCurrentUnixTimestamp(), Sender = "*", Message = WebUtility.HtmlEncode(message) };
             foreach (var s in sessions)
             {
                 if (sender == s.Value.CurrentChat)
@@ -181,7 +188,7 @@ namespace SteamMobile
             var message = Steam.Friends.GetFriendPersonaName(user) + " entered chat.";
             LogMessage(sender, "*", message);
 
-            dynamic msg = new { Type = "message", Sender = "*", Message = WebUtility.HtmlEncode(message) };
+            dynamic msg = new { Type = "message", Date = Util.GetCurrentUnixTimestamp(), Sender = "*", Message = WebUtility.HtmlEncode(message) };
             foreach (var s in sessions)
             {
                 if (sender == s.Value.CurrentChat)
@@ -276,17 +283,21 @@ namespace SteamMobile
                             if (s.CurrentChat == null || ((string)obj.Message).Length == 0)
                                 return;
 
-                            if ((string)obj.Message == "/chats")
+                            var m = (string)obj.Message;
+
+                            if (m.StartsWith("/list"))
                             {
-                                obj.Message = string.Join(", ", Steam.Chats.Select(c => string.Format("{0} ({1})", c.Title, c.RoomId)));
+                                var list = s.CurrentChat.Members.Select(id => Steam.Friends.GetFriendPersonaName(id)).OrderBy(n => n);
+                                SendChatMessage(session, "*", "In this chat: " + string.Join(", ", list));
+                                return;
                             }
 
-                            if ((string)obj.Message == "/status")
-                            {
-                                obj.Message = Steam.Status.ToString();
-                            }
+                            // fpp filters
+                            m = m.Replace("kick_me", "****");
+                            if (message.Contains("http") && m.Contains("window.location.href"))
+                                m = m.Replace("http", "****");
 
-                            var msg = string.Format("[{0}] {1}", s.Name, (string)obj.Message);
+                            var msg = string.Format("[{0}] {1}", s.Name, m);
                             s.CurrentChat.Send(msg);
                             HandleMessage(s.CurrentChat, Steam.Client.SteamID, msg);
                             break;
@@ -384,11 +395,10 @@ namespace SteamMobile
         {
             name = name.ToLower();
 
-            if (name == "rohan" || name == "guest")
-                return "Cannot ban Rohan or Guest.";
+            string res;
+            if (Session.Ban(name, out res))
+                Kick(name);
 
-            var res = Session.Ban(name);
-            Kick(name);
             return res;
         }
 
@@ -396,12 +406,9 @@ namespace SteamMobile
         {
             name = name.ToLower();
 
-            if (name == "rohan" || name == "guest")
-                return;
-
             foreach (var session in sessions.Values)
             {
-                if (session.Name.ToLower() == name)
+                if (!session.Permissions.HasFlag(Permissions.BanProof) && session.Name.ToLower() == name)
                 {
                     session.Socket.CloseWithHandshake("");
                 }
@@ -411,14 +418,14 @@ namespace SteamMobile
         private static void SendChatBacklog(WebSocketSession session, SteamChat chat)
         {
             var historyId = chat.RoomId.ConvertToUInt64();
-            var history = ChatHistory.ContainsKey(historyId) ? ChatHistory[historyId] : new LinkedList<Tuple<string, string>>();
-            dynamic msg = new { Type = "openChat", Title = chat.Title, History = history.Select(t => Tuple.Create(WebUtility.HtmlEncode(t.Item1), WebUtility.HtmlEncode(t.Item2))) };
+            var history = ChatHistory.ContainsKey(historyId) ? ChatHistory[historyId] : new LinkedList<ChatLine>();
+            dynamic msg = new { Type = "openChat", Title = chat.Title, History = history.Select(t => new ChatLine(t.Date, WebUtility.HtmlEncode(t.Sender), WebUtility.HtmlEncode(t.Message))) };
             SendObject(session, msg);
         }
 
         private static void SendChatMessage(WebSocketSession session, string sender, string message)
         {
-            dynamic msg = new { Type = "message", Sender = sender, Message = message };
+            dynamic msg = new { Type = "message", Date = Util.GetCurrentUnixTimestamp(), Sender = sender, Message = message };
             SendObject(session, msg);
         }
 
@@ -431,12 +438,12 @@ namespace SteamMobile
         private static void LogMessage(SteamChat chat, string sender, string message)
         {
             var id = chat.RoomId.ConvertToUInt64();
-            LinkedList<Tuple<string, string>> history;
+            LinkedList<ChatLine> history;
             if (!ChatHistory.TryGetValue(id, out history))
-                history = new LinkedList<Tuple<string, string>>();
+                history = new LinkedList<ChatLine>();
             if (history.Count >= 150)
                 history.RemoveFirst();
-            history.AddLast(Tuple.Create(sender, message));
+            history.AddLast(new ChatLine(Util.GetCurrentUnixTimestamp(), sender, message));
             ChatHistory[id] = history;
         }
     }

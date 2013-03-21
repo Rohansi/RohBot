@@ -3,12 +3,21 @@
 	<head>
 		<meta charset="utf-8"/>
 		<title>FP Programmers</title>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 		<script src="jquery-1.9.1.min.js"></script>
 		<script src="md5-min.js"></script>
 		<link rel="stylesheet" type="text/css" href="main.css"/>
 		
 		<script>
+			var storage, fail, uid;
+			try {
+				uid = new Date;
+				(storage = window.localStorage).setItem(uid, uid);
+				fail = storage.getItem(uid) != uid;
+				storage.removeItem(uid);
+				fail && (storage = false);
+			} catch(e) {}
+
 			var socket = null;
 			
 			setInterval(function () {
@@ -20,12 +29,22 @@
 				socket = new WebSocket("ws://209.141.59.194:12000/");
 				
 				socket.onopen = function (event) {
-					addMessage("*", "Connected to RohPod.");
-					login("guest", "");
+					addMessage(0, "*", "Connected to RohPod.");
+					
+					if (storage) {
+						var user = storage.getItem("user");
+						var pass = storage.getItem("pass");
+						if (user !== null || pass !== null) {
+							login(user, pass, false);
+							return;
+						}
+					}
+					
+					login("guest", "", true);
 				};
 				
 				socket.onclose = function (event) {
-					addMessage("*", "Lost connection to RohPod. Retrying...");
+					addMessage(0, "*", "Lost connection to RohPod. Retrying...");
 					socket = null;
 					
 					setTimeout(function () {
@@ -34,7 +53,7 @@
 				};
 				
 				socket.onerror = function (event) {
-					addMessage("*", "WebSocket error: " + event.data + ". Reconnecting...");
+					addMessage(0, "*", "WebSocket error: " + event.data + ". Reconnecting...");
 					socket = null;
 					
 					setTimeout(function () {
@@ -44,12 +63,12 @@
 				
 				socket.onmessage = function (event) {
 					var data = JSON.parse(event.data);
-					
+					console.log(data);
 					switch (data.Type)
 					{
 						case "chatLock": {
 							if (data.CanChat) {
-								$("#chatInput").removeAttr('disabled');
+								$("#chatInput").removeAttr("disabled");
 								$("#chatInput").val("");
 							} else {
 								$("#chatInput").attr("disabled","disabled");
@@ -61,19 +80,19 @@
 						case "openChat": {
 							for (var i = 0; i < data.History.length; i++) {
 								var f = data.History[i];
-								addMessage(f.Item1, f.Item2);
+								addMessage(f.Date, f.Sender, f.Message);
 							}
 							
 							// make sure we scroll to the bottom
-							$('#messages').scrollTop($('#messages')[0].scrollHeight);
+							$("#messages").scrollTop($("#messages")[0].scrollHeight);
 							setTimeout(function () {
-								$('#messages').scrollTop($('#messages')[0].scrollHeight);
+								$("#messages").scrollTop($("#messages")[0].scrollHeight);
 							}, 250);
 							break;
 						}
 						
 						case "message": {
-							addMessage(data.Sender, data.Message);
+							addMessage(data.Date, data.Sender, data.Message);
 							break;
 						}
 					}
@@ -84,20 +103,45 @@
 				socket.send(JSON.stringify(obj));
 			}
 			
-			function login(username, password) {
-				send({ Type: "login", Username: username, Password: hex_md5(password) });
+			function login(username, password, hash) {
+				if (hash) password = hex_md5(password);
+				send({ Type: "login", Username: username, Password: password });
 			}
 			
 			function chat(message) {
 				send({ Type: "message", Message: message });
 			}
 			
-			function addMessage(sender, message) {
-				var elem = $('#messages');
+			function addMessage(date, sender, message) {
+				var elem = $("#messages");
 				var atBottom = (elem[0].scrollHeight - elem.scrollTop() == elem.outerHeight());
-				$('#messages').append('<div class="messageC"><div class="message"><div class="sender">' + sender + ': </div>' + linkify(message) + '</div></div>');
+				if (date == 0) date = new Date().getTime() / 1000;
+				sender = sender == "*" ? "" : sender + ": ";
+				$("#messages").append('<div class="messageC"><div class="message"><div class="sender">' + formatTime(date) + ' - ' + sender + '</div>' + linkify(message) + '</div></div>');
 				if (atBottom)
-					$('#messages').scrollTop($('#messages')[0].scrollHeight);
+					$("#messages").scrollTop($("#messages")[0].scrollHeight);
+			}
+			
+			function formatTime(date) {
+				date = new Date(date * 1000);
+				var suffix = "";
+				var hour = date.getHours();
+				
+				if (hour < 12)
+					suffix = "AM";
+				else
+					suffix = "PM";
+				
+				if (hour == 0)
+					hour = 12;
+				if (hour > 12)
+					hour = hour - 12;
+					
+				var min = date.getMinutes();
+				if (min.toString().length == 1)
+					min = "0" + min;
+					
+				return hour + ":" + min + " " + suffix;
 			}
 			
 			// http://stackoverflow.com/a/7123542/1056845
@@ -117,18 +161,20 @@
 				$("#chatSubmit").click(function () {
 					var msg = $("#chatInput").val();
 					if (msg.length == 0) return;
-					if (msg.substring(0, 6) == "/pass ") {
-						var p = msg.substring(6);
-						addMessage("*", "Hash is: " + hex_md5(p));
+					if (msg.substring(0, 1) == "/") {
+						if (msg.substring(0, 6) == "/clear") {
+							$("#messages").html("");
+						} else if (msg.substring(0, 5) == "/ban ") {
+							var t = msg.substring(5);
+							send({ Type: "ban", Target: t});
+						} else {
+							addMessage(0, "*", "Unknown command.");
+						}
+						
 						$("#chatInput").val("");
 						return;
 					}
-					if (msg.substring(0, 5) == "/ban ") {
-						var t = msg.substring(5);
-						send({ Type: "ban", Target: t});
-						$("#chatInput").val("");
-						return;
-					}
+					
 					chat(msg);
 					$("#chatInput").val("");
 				});
@@ -157,6 +203,8 @@
 				});
 				
 				$("#loginToggle").click(function () {
+					$("#loginUsername").val("");
+					$("#loginPassword").val("");
 					$("#login").toggle();
 				});
 				
@@ -169,7 +217,13 @@
 				$("#loginForm").submit(function () {
 					var user = $("#loginUsername").val();
 					var pass = $("#loginPassword").val();
-					login(user, pass);
+					
+					if (storage) {
+						storage.setItem("user", user);
+						storage.setItem("pass", hex_md5(pass));
+					}
+					
+					login(user, pass, true);
 					$("#loginUsername").val("");
 					$("#loginPassword").val("");
 					$("#login").toggle();
@@ -184,7 +238,7 @@
 					m.width(w - 3); // container padding-left
 					
 					// scroll to bottom
-					$('#messages').scrollTop($('#messages')[0].scrollHeight);
+					$("#messages").scrollTop($("#messages")[0].scrollHeight);
 				});
 				
 				$(window).resize();

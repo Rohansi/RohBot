@@ -50,7 +50,9 @@ namespace SteamMobile
         private static List<SteamChat> chats;
 
         private static readonly Thread UpdateThread;
-        private static readonly Dictionary<SteamID, string> ClanNames = new Dictionary<SteamID, string>(); 
+        private static readonly Dictionary<SteamID, string> ClanNames = new Dictionary<SteamID, string>();
+
+        private static bool hasConnected = false;
 
         static Steam()
         {
@@ -101,7 +103,8 @@ namespace SteamMobile
                     {
                         try
                         {
-                            Logger.Info("Connecting...");
+                            if (!hasConnected)
+                                Logger.Info("Connecting...");
                             Reset();
                             Login(username, password);
                         }
@@ -120,7 +123,8 @@ namespace SteamMobile
 
                 msg.Handle<SteamClient.DisconnectedCallback>(callback =>
                 {
-                    Logger.Info("Disconnected");
+                    if (!hasConnected)
+                        Logger.Info("Disconnected");
                     Status = ConnectionStatus.Disconnected;
                 });
 
@@ -132,6 +136,7 @@ namespace SteamMobile
                         return;
                     }
 
+                    hasConnected = true;
                     Logger.Info("Logging in...");
                     User.LogOn(new SteamUser.LogOnDetails
                     {

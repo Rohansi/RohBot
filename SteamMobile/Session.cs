@@ -15,6 +15,7 @@ namespace SteamMobile
         None = 0,
         Chat = 1 << 0,
         Ban = 1 << 1,
+        BanProof = 1 << 2,
 
         // Old
         FriendList = 1 << 13,
@@ -61,23 +62,35 @@ namespace SteamMobile
             return true;
         }
 
-        public static string Ban(string user)
+        public static bool Ban(string user, out string response)
         {
-            if (string.IsNullOrWhiteSpace(user))
-                return "No target specified.";
-
-            if (!user.All(char.IsLetterOrDigit))
-                return "Account does not exist.";
+            if (string.IsNullOrWhiteSpace(user) || !user.All(char.IsLetterOrDigit))
+            {
+                response = "Account does not exist.";
+                return false;
+            }
 
             var file = Path.Combine("accounts/", user.ToLower() + ".json");
             if (!File.Exists(file))
-                return "Account does not exist.";
+            {
+                response = "Account does not exist.";
+                return false;
+            }
 
             dynamic obj = JsonConvert.DeserializeObject(File.ReadAllText(file));
+            var permissions = (Permissions)ushort.Parse((string)obj.Permissions);
+
+            if (permissions.HasFlag(Permissions.BanProof))
+            {
+                response = "Account can not be banned.";
+                return false;
+            }
+
             obj.Banned = true;
             File.WriteAllText(file, JsonConvert.SerializeObject(obj));
 
-            return "Account banned.";
+            response = "Account banned.";
+            return true;
         }
     }
 }
