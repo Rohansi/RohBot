@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using Newtonsoft.Json;
 using SteamKit2;
 using SuperWebSocket;
@@ -12,47 +13,30 @@ namespace SteamMobile
 {
     static class Program
     {
-        private static readonly ILog Logger = LogManager.GetLogger("Steam");
-        private static readonly ILog ChatLogger = LogManager.GetLogger("Chat");
+        public static readonly ILog Logger = LogManager.GetLogger("Steam");
+        public static readonly ILog ChatLogger = LogManager.GetLogger("Chat");
 
         private static WebSocketServer server;
-        private static Dictionary<string, Session> sessions = new Dictionary<string, Session>();
+        public static Dictionary<string, Session> Sessions = new Dictionary<string, Session>();
 
-        private static readonly SteamID MainChatId = SteamUtil.ChatFromClan(new SteamID(103582791430091926)); // FPP 103582791430091926 // Test 103582791433607509
-        private static SteamChat MainChat;
+        //private static readonly SteamID MainChatId = SteamUtil.ChatFromClan(new SteamID(103582791433607509)); // Testin Stuff
+        //private static readonly SteamID MainChatId = SteamUtil.ChatFromClan(new SteamID(103582791430091926)); // FP Programmers
 
-        private static readonly Dictionary<ulong, LinkedList<ChatLine>> ChatHistory = new Dictionary<ulong, LinkedList<ChatLine>>();
+        public static SteamChat MainChat;
 
-        private static readonly dynamic Settings = JsonConvert.DeserializeObject(File.ReadAllText("Account.json"));
+        private static readonly LinkedList<ChatLine> ChatHistory = new LinkedList<ChatLine>();
 
         private static void Main(string[] args)
         {
             try
             {
-                Steam.Login((string)Settings.Username, (string)Settings.Password);
+                Steam.Login(Settings.Username, Settings.Password);
 
                 Steam.OnLoginSuccess = () =>
                 {
-                    Steam.Friends.SetPersonaName((string)Settings.PersonaName);
+                    Steam.Friends.SetPersonaName(Settings.PersonaName);
                     Steam.Friends.SetPersonaState(EPersonaState.Online);
                 };
-
-                Steam.OnChatInvite = (chat, sender) =>
-                {
-                    var ch = Steam.Join(chat);
-                    ch.OnMessage = HandleMessage;
-                    ch.OnUserEnter = HandleEnter;
-                    ch.OnUserLeave = HandleLeave;
-                };
-
-                Steam.OnPrivateEnter = chat =>
-                {
-                    chat.OnMessage = HandleMessage;
-                    chat.OnUserEnter = HandleEnter;
-                    chat.OnUserLeave = HandleLeave;
-                };
-
-                Steam.OnFriendRequest = user => Steam.Friends.AddFriend(user);
 
                 server = new WebSocketServer();
                 if (!server.Setup(12000))
@@ -68,10 +52,16 @@ namespace SteamMobile
 
                 while (true)
                 {
+                    if (Steam.Status != Steam.ConnectionStatus.Connected)
+                        MainChat = null;
+
                     if (Steam.Status == Steam.ConnectionStatus.Connected && MainChat == null)
                         JoinMainChat();
 
-                    System.Threading.Thread.Sleep(5000);
+                    if (Steam.Frozen)
+                        throw new Exception("Steam thread froze");
+
+                    System.Threading.Thread.Sleep(1);
                 }
             }
             catch (Exception e)
@@ -80,58 +70,21 @@ namespace SteamMobile
             }
 
             Logger.Info("Process exiting");
+            server.Stop();
             Steam.Abort();
+
+            Environment.Exit(0);
         }
 
         private static void JoinMainChat()
         {
-            var chat = Steam.Join(MainChatId);
-            chat.OnMessage = (source, sender, message) =>
-            {
-                var o = new
-                {
-                    Time = Util.GetCurrentUnixTimestamp(),
-                    Type = "Msg",
-                    Sender = sender.Render(),
-                    Name = Steam.Friends.GetFriendPersonaName(sender),
-                    Message = message
-                };
-                ChatLogger.Info(JsonConvert.SerializeObject(o));
-                HandleMessage(source, sender, message);
-            };
-            chat.OnUserEnter = (source, user) =>
-            {
-                var o = new
-                {
-                    Time = Util.GetCurrentUnixTimestamp(),
-                    Type = "Join",
-                    Sender = user.Render()
-                };
-                ChatLogger.Info(JsonConvert.SerializeObject(o));
-                HandleEnter(source, user);
-            };
-            chat.OnUserLeave = (source, user, reason) =>
-            {
-                var o = new
-                {
-                    Time = Util.GetCurrentUnixTimestamp(),
-                    Type = "Leave",
-                    Sender = user.Render(),
-                    Reason = reason.ToString()
-                };
-                ChatLogger.Info(JsonConvert.SerializeObject(o));
-                HandleLeave(source, user, reason);
-            };
+            var chat = Steam.Join(Settings.ChatId);
+            chat.OnMessage = HandleMessage;
+            chat.OnUserEnter = HandleEnter;
+            chat.OnUserLeave = HandleLeave;
             chat.OnEnter = source =>
             {
                 MainChat = chat;
-
-                // TODO: temporary?
-                foreach (var session in sessions.Values)
-                {
-                    session.CurrentChat = MainChat;
-                }
-
             };
             chat.OnLeave = source =>
             {
@@ -139,24 +92,41 @@ namespace SteamMobile
             };
         }
 
-        private static void HandleMessage(SteamChat sender, SteamID messageSender, string message)
+        public static void HandleMessage(SteamChat sender, SteamID messageSender, string message)
         {
-            LogMessage(sender, Steam.Friends.GetFriendPersonaName(messageSender), message);
-
-            var s = WebUtility.HtmlEncode(Steam.Friends.GetFriendPersonaName(messageSender));
-            var m = WebUtility.HtmlEncode(message);
-
-            foreach (var sesion in sessions)
+            var o = new
             {
-                if (sender == sesion.Value.CurrentChat)
-                    SendChatMessage(sesion.Value.Socket, s, m);
+                Time = Util.GetCurrentUnixTimestamp(),
+                Type = "Msg",
+                Sender = messageSender.Render(),
+                Name = Steam.Friends.GetFriendPersonaName(messageSender),
+                Message = message
+            };
+            ChatLogger.Info(JsonConvert.SerializeObject(o));
+
+            LogMessage(Steam.Friends.GetFriendPersonaName(messageSender), message);
+
+            var senderName = WebUtility.HtmlEncode(Steam.Friends.GetFriendPersonaName(messageSender));
+            message = WebUtility.HtmlEncode(message);
+
+            foreach (var sesion in Sessions)
+            {
+                SendMessage(sesion.Value.Socket, senderName, message);
             }
         }
 
-        private static void HandleLeave(SteamChat sender, SteamID user, UserLeaveReason reason)
+        private static void HandleLeave(SteamChat sender, SteamID user, UserLeaveReason reason, SteamID sourceUser)
         {
-            var message = Steam.Friends.GetFriendPersonaName(user);
+            var o = new
+            {
+                Time = Util.GetCurrentUnixTimestamp(),
+                Type = "Leave",
+                Sender = user.Render(),
+                Reason = reason.ToString()
+            };
+            ChatLogger.Info(JsonConvert.SerializeObject(o));
 
+            var message = Steam.Friends.GetFriendPersonaName(user);
             switch (reason)
             {
                 case UserLeaveReason.Left:
@@ -166,232 +136,86 @@ namespace SteamMobile
                     message += " disconnected.";
                     break;
                 case UserLeaveReason.Kicked:
-                    message += " was kicked.";
+                    message += string.Format(" was kicked by {0}.", Steam.Friends.GetFriendPersonaName(sourceUser));
                     break;
                 case UserLeaveReason.Banned:
-                    message += " was banned.";
+                    message += string.Format(" was banned by {0}.", Steam.Friends.GetFriendPersonaName(sourceUser));
                     break;
             }
 
-            LogMessage(sender, "*", message);
+            LogMessage("*", message);
 
-            dynamic msg = new { Type = "message", Date = Util.GetCurrentUnixTimestamp(), Sender = "*", Message = WebUtility.HtmlEncode(message) };
-            foreach (var s in sessions)
+            foreach (var s in Sessions.Values)
             {
-                if (sender == s.Value.CurrentChat)
-                    SendObject(s.Value.Socket, msg);
+                SendMessage(s.Socket, "*", message);
             }
         }
 
         private static void HandleEnter(SteamChat sender, SteamID user)
         {
-            var message = Steam.Friends.GetFriendPersonaName(user) + " entered chat.";
-            LogMessage(sender, "*", message);
-
-            dynamic msg = new { Type = "message", Date = Util.GetCurrentUnixTimestamp(), Sender = "*", Message = WebUtility.HtmlEncode(message) };
-            foreach (var s in sessions)
+            var o = new
             {
-                if (sender == s.Value.CurrentChat)
-                    SendObject(s.Value.Socket, msg);
+                Time = Util.GetCurrentUnixTimestamp(),
+                Type = "Join",
+                Sender = user.Render()
+            };
+            ChatLogger.Info(JsonConvert.SerializeObject(o));
+
+            var message = Steam.Friends.GetFriendPersonaName(user) + " entered chat.";
+            LogMessage("*", message);
+
+            foreach (var s in Sessions.Values)
+            {
+                SendMessage(s.Socket, "*", message);
             }
         }
 
         private static void OnConnected(WebSocketSession session)
         {
-            sessions.Add(session.SessionID, new Session(session));
+            Sessions.Add(session.SessionID, new Session(session));
         }
 
         private static void OnDisconnect(WebSocketSession session, SuperSocket.SocketBase.CloseReason reason)
         {
-            sessions.Remove(session.SessionID);
+            Sessions.Remove(session.SessionID);
         }
 
-        private static void OnReceive(WebSocketSession session, string message)
+        private static void OnReceive(WebSocketSession conn, string message)
         {
             try
             {
-                dynamic obj = JsonConvert.DeserializeObject(message);
-
-                if (obj == null)
+                var session = Sessions[conn.SessionID];
+                var packet = Packet.ReadFromMessage(message);
+                
+                if (packet == null)
                     return;
-
-                var s = sessions[session.SessionID];
 
                 // can only login if we haven't already
-                if (!s.Authenticated && (string)obj.Type != "login")
+                if (!session.Authenticated && packet.Type != "login")
                     return;
 
-                switch ((string)obj.Type)
+                switch (packet.Type)
                 {
                     case "login":
-                        {
-                            if (Steam.Status != Steam.ConnectionStatus.Connected)
-                            {
-                                SendChatMessage(session, "*", "RohPod is not connected to Steam.");
-                                session.CloseWithHandshake("");
-                                return;
-                            }
+                        Packets.Login.Handle(session, packet);
+                        break;
 
-                            var user = (string)obj.Username;
-                            var pass = (string)obj.Password;
-
-                            try
-                            {
-                                if (s.Load(user, pass))
-                                {
-                                    Logger.InfoFormat("Login success from {0} for '{1}' using password '{2}'", session.RemoteEndPoint, user, pass);
-                                    SendChatMessage(session, "*", string.Format("Logged in as {0}.", s.Name));
-                                }
-                                else
-                                {
-                                    Logger.InfoFormat("Login failed from {0} for '{1}' using password '{2}'", session.RemoteEndPoint, user, pass);
-                                    SendChatMessage(session, "*", "Login failed.");
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                Logger.WarnFormat("Login error from {0} for '{1}' using password '{2}'\n{3}", session.RemoteEndPoint, user, pass, e);
-                                SendChatMessage(session, "*", "Login failed.");
-                            }
-
-                            if (MainChat == null)
-                            {
-                                SendChatMessage(session, "*", "RohPod is not in its default chatroom.");
-                                session.CloseWithHandshake(""); // TODO: temporary?
-                                return;
-                            }
-
-                            s.CurrentChat = MainChat;
-
-                            if (!s.HasBacklog)
-                            {
-                                SendChatBacklog(session, s.CurrentChat);
-                                s.HasBacklog = true;
-                            }
-
-                            dynamic o = new { Type = "chatLock", CanChat = s.Permissions.HasFlag(Permissions.Chat) };
-                            SendObject(session, o);
-
-                            break;
-                        }
-
-                    case "message":
-                        {
-                            if (!s.Permissions.HasFlag(Permissions.Chat))
-                                return;
-
-                            if (s.CurrentChat == null || ((string)obj.Message).Length == 0)
-                                return;
-
-                            var m = (string)obj.Message;
-
-                            if (m.StartsWith("/list"))
-                            {
-                                var list = s.CurrentChat.Members.Select(id => Steam.Friends.GetFriendPersonaName(id)).OrderBy(n => n);
-                                SendChatMessage(session, "*", "In this chat: " + string.Join(", ", list));
-                                return;
-                            }
-
-                            // fpp filters
-                            m = m.Replace("kick_me", "****");
-                            if (message.Contains("http") && m.Contains("window.location.href"))
-                                m = m.Replace("http", "****");
-
-                            var msg = string.Format("[{0}] {1}", s.Name, m);
-                            s.CurrentChat.Send(msg);
-                            HandleMessage(s.CurrentChat, Steam.Client.SteamID, msg);
-                            break;
-                        }
+                    case "sendMessage":
+                        Packets.SendMessage.Handle(session, packet);
+                        break;
 
                     case "ban":
-                        {
-                            if (!s.Permissions.HasFlag(Permissions.Ban))
-                                return;
-
-                            try
-                            {
-                                var target = (string)obj.Target;
-                                Logger.InfoFormat("User '{0}' banning '{1}'", s.Name, target);
-
-                                var res = Ban(target);
-                                SendChatMessage(session, "*", res);
-                            }
-                            catch (Exception)
-                            {
-                                SendChatMessage(session, "*", "Failed to ban. Check logs.");
-                                throw;
-                            }
-
-                            break;
-                        }
-
-                    /*case "friendList":
-                        {
-                            if (!s.Permissions.HasFlag(Permissions.FriendList))
-                                break;
-
-                            s.CurrentChat = null;
-                            dynamic msg = new
-                            {
-                                Type = "friendList",
-                                Friends = Steam.GetFriends()
-                                                .Where(i => Steam.Friends.GetFriendPersonaState(i) != EPersonaState.Offline)
-                                                .Select(i => new { Id = i.ConvertToUInt64().ToString(), Name = Steam.Friends.GetFriendPersonaName(i) })
-                                                .Concat(Steam.GetClans()
-                                                            .Select(c => new { Id = SteamUtil.ChatFromClan(c).ConvertToUInt64().ToString(), Name = Steam.GetClanName(c) }))
-                            };
-                            SendObject(session, msg);
-                            break;
-                        }
-
-                    case "conversationList":
-                        {
-                            if (!s.Permissions.HasFlag(Permissions.ConversationList))
-                                break;
-
-                            s.CurrentChat = null;
-                            dynamic msg = new
-                            {
-                                Type = "conversationList",
-                                Conversations = Steam.Chats.Select(c => new { Id = c.RoomId.ConvertToUInt64().ToString(), Name = c.Title })
-                            };
-                            SendObject(session, msg);
-                            break;
-                        }
-
-                    case "openChat":
-                        {
-                            if (!s.Permissions.HasFlag(Permissions.OpenChat))
-                                break;
-
-                            var id = new SteamID((ulong)obj.Id);
-                            var chat = Steam.Chats.FirstOrDefault(c => c.RoomId == id);
-
-                            if (chat == null)
-                            {
-                                chat = id == MainChatId ? MainChat : Steam.Join(id);
-
-                                if (chat == null) // TODO: need to notify about this
-                                    break;
-
-                                chat.OnMessage = HandleMessage;
-                                chat.OnUserEnter = HandleEnter;
-                                chat.OnUserLeave = HandleLeave;
-                            }
-
-                            s.CurrentChat = chat;
-                            SendChatBacklog(session, s.CurrentChat);
-                            break;
-                        }*/
+                        Packets.Ban.Handle(session, packet);
+                        break;
                 }
             }
             catch (Exception e)
             {
-                Logger.ErrorFormat("Bad packet from {0}: '{1}' {2}", session.RemoteEndPoint, message, e);
+                Logger.ErrorFormat("Bad packet from {0}: '{1}' {2}", conn.RemoteEndPoint, message, e);
             }
         }
 
-        private static string Ban(string name)
+        public static string Ban(string name)
         {
             name = name.ToLower();
 
@@ -402,11 +226,11 @@ namespace SteamMobile
             return res;
         }
 
-        private static void Kick(string name)
+        public static void Kick(string name)
         {
             name = name.ToLower();
 
-            foreach (var session in sessions.Values)
+            foreach (var session in Sessions.Values)
             {
                 if (!session.Permissions.HasFlag(Permissions.BanProof) && session.Name.ToLower() == name)
                 {
@@ -415,36 +239,36 @@ namespace SteamMobile
             }
         }
 
-        private static void SendChatBacklog(WebSocketSession session, SteamChat chat)
+        public static void SendHistory(WebSocketSession session)
         {
-            var historyId = chat.RoomId.ConvertToUInt64();
-            var history = ChatHistory.ContainsKey(historyId) ? ChatHistory[historyId] : new LinkedList<ChatLine>();
-            dynamic msg = new { Type = "openChat", Title = chat.Title, History = history.Select(t => new ChatLine(t.Date, WebUtility.HtmlEncode(t.Sender), WebUtility.HtmlEncode(t.Message))) };
-            SendObject(session, msg);
+            var msg = new Packets.ChatHistory
+            {
+                Lines = ChatHistory.Select(t => new ChatLine(t.Date, WebUtility.HtmlEncode(t.Sender), WebUtility.HtmlEncode(t.Content)))
+            };
+            Send(session, msg);
         }
 
-        private static void SendChatMessage(WebSocketSession session, string sender, string message)
+        public static void SendMessage(WebSocketSession session, string sender, string message)
         {
-            dynamic msg = new { Type = "message", Date = Util.GetCurrentUnixTimestamp(), Sender = sender, Message = message };
-            SendObject(session, msg);
+            var msg = new Packets.Message
+            {
+                Date = Util.GetCurrentUnixTimestamp(),
+                Sender = WebUtility.HtmlEncode(sender),
+                Content = WebUtility.HtmlEncode(message)
+            };
+            Send(session, msg);
         }
 
-        public static void SendObject(WebSocketSession context, dynamic obj)
+        public static void Send(WebSocketSession context, Packet obj)
         {
-            var str = JsonConvert.SerializeObject(obj);
-            context.Send(str);
+            context.Send(Packet.WriteToMessage(obj));
         }
 
-        private static void LogMessage(SteamChat chat, string sender, string message)
+        public static void LogMessage(string sender, string message)
         {
-            var id = chat.RoomId.ConvertToUInt64();
-            LinkedList<ChatLine> history;
-            if (!ChatHistory.TryGetValue(id, out history))
-                history = new LinkedList<ChatLine>();
-            if (history.Count >= 150)
-                history.RemoveFirst();
-            history.AddLast(new ChatLine(Util.GetCurrentUnixTimestamp(), sender, message));
-            ChatHistory[id] = history;
+            if (ChatHistory.Count >= 150)
+                ChatHistory.RemoveFirst();
+            ChatHistory.AddLast(new ChatLine(Util.GetCurrentUnixTimestamp(), sender, message));
         }
     }
 }

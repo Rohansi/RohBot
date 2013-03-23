@@ -5,22 +5,17 @@ using System.Text;
 
 namespace SteamMobile
 {
-    class ChatLine
+    public class ChatLine
     {
         public readonly long Date;
         public readonly string Sender;
-        public readonly string Message;
+        public readonly string Content;
 
-        public ChatLine(long date, string sender, string message)
+        public ChatLine(long date, string sender, string content)
         {
             Date = date;
             Sender = sender;
-            Message = message;
+            Content = content;
         }
-    }
-
-    class ChatHistory
-    {
-        
     }
 }

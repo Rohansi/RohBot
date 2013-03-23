@@ -18,7 +18,7 @@ namespace SteamMobile
         public delegate void ChatLeaveEvent(SteamChat source);
         public delegate void MessageEvent(SteamChat source, SteamID messageSender, string message);
         public delegate void UserEnterEvent(SteamChat source, SteamID user);
-        public delegate void UserLeaveEvent(SteamChat source, SteamID user, UserLeaveReason reason);
+        public delegate void UserLeaveEvent(SteamChat source, SteamID user, UserLeaveReason reason, SteamID sourceUser = null);
 
         public SteamID RoomId { get; protected set; }
 
@@ -137,7 +137,8 @@ namespace SteamMobile
                         {
                             if (OnUserLeave != null)
                                 OnUserLeave(this, callback.StateChangeInfo.ChatterActedOn,
-                                    state == EChatMemberStateChange.Kicked ? UserLeaveReason.Kicked : UserLeaveReason.Banned);
+                                    state == EChatMemberStateChange.Kicked ? UserLeaveReason.Kicked : UserLeaveReason.Banned,
+                                    callback.StateChangeInfo.ChatterActedBy);
                         }
 
                         members.Remove(callback.StateChangeInfo.ChatterActedOn);

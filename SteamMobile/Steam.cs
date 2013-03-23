@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using SteamKit2;
 using SteamKit2.Internal;
@@ -42,7 +42,14 @@ namespace SteamMobile
             get { return new ReadOnlyCollection<SteamChat>(chats); }
         }
 
+
+        public static bool Frozen
+        {
+            get { return watch.Elapsed.TotalSeconds > 10; }
+        }
+
         private static readonly ILog Logger = LogManager.GetLogger("Steam");
+        private static readonly Stopwatch watch = new Stopwatch();
 
         private static string username;
         private static string password;
@@ -65,6 +72,7 @@ namespace SteamMobile
         public static void Abort()
         {
             UpdateThread.Abort();
+            Client.Disconnect();
         }
 
         public static void Reset()
@@ -86,12 +94,14 @@ namespace SteamMobile
             username = user;
             password = pass;
 
-            Client.Connect(Dns.GetHostAddresses("cm0.steampowered.com").FirstOrDefault());
+            Client.Connect();
             Status = ConnectionStatus.Connecting;
         }
 
         private static void Run()
         {
+            watch.Start();
+
             while (true)
             {
                 if (Status == ConnectionStatus.LoginFailed)
@@ -119,11 +129,16 @@ namespace SteamMobile
                 }
 
                 Thread.Sleep(1);
-                var msg = Client.WaitForCallback(true);
+                var msg = Client.WaitForCallback(true, TimeSpan.FromSeconds(5));
+
+                watch.Restart();
+
+                if (msg == null)
+                    continue;
 
                 msg.Handle<SteamClient.DisconnectedCallback>(callback =>
                 {
-                    if (!hasConnected)
+                    if (hasConnected)
                         Logger.Info("Disconnected");
                     Status = ConnectionStatus.Disconnected;
                 });

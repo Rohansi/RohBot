@@ -63,10 +63,10 @@
 				
 				socket.onmessage = function (event) {
 					var data = JSON.parse(event.data);
-					console.log(data);
+					
 					switch (data.Type)
 					{
-						case "chatLock": {
+						case "clientPermissions": {
 							if (data.CanChat) {
 								$("#chatInput").removeAttr("disabled");
 								$("#chatInput").val("");
@@ -77,10 +77,10 @@
 							break;
 						}
 						
-						case "openChat": {
-							for (var i = 0; i < data.History.length; i++) {
-								var f = data.History[i];
-								addMessage(f.Date, f.Sender, f.Message);
+						case "chatHistory": {
+							for (var i = 0; i < data.Lines.length; i++) {
+								var f = data.Lines[i];
+								addMessage(f.Date, f.Sender, f.Content);
 							}
 							
 							// make sure we scroll to the bottom
@@ -92,7 +92,7 @@
 						}
 						
 						case "message": {
-							addMessage(data.Date, data.Sender, data.Message);
+							addMessage(data.Date, data.Sender, data.Content);
 							break;
 						}
 					}
@@ -100,7 +100,9 @@
 			}
 			
 			function send(obj) {
-				socket.send(JSON.stringify(obj));
+				try {
+					socket.send(JSON.stringify(obj));
+				} catch (err) { } // fuck u dlaor
 			}
 			
 			function login(username, password, hash) {
@@ -109,7 +111,7 @@
 			}
 			
 			function chat(message) {
-				send({ Type: "message", Message: message });
+				send({ Type: "sendMessage", Content: message });
 			}
 			
 			function addMessage(date, sender, message) {
@@ -150,8 +152,8 @@
 				var pseudoUrlPattern = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
 				
 				return str
-					.replace(urlPattern, '<a href="$&">$&</a>')
-					.replace(pseudoUrlPattern, '$1<a href="http://$2">$2</a>')
+					.replace(urlPattern, '<a href="$&" target="_blank">$&</a>')
+					.replace(pseudoUrlPattern, '$1<a href="http://$2" target="_blank">$2</a>')
 					.replace(/\n/g, '<br/>'); // line breaks, why not
 			}
 			
@@ -167,6 +169,12 @@
 						} else if (msg.substring(0, 5) == "/ban ") {
 							var t = msg.substring(5);
 							send({ Type: "ban", Target: t});
+						} else if (msg.substring(0, 5) == "/list") {
+							chat(msg); // serverside command
+						} else if (msg.substring(0, 4) == "/me ") {
+							chat(msg); // serverside command
+						} else if (msg.substring(0, 7) == "/status") {
+							chat(msg); // serverside command
 						} else {
 							addMessage(0, "*", "Unknown command.");
 						}

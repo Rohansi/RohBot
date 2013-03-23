@@ -13,24 +13,19 @@ namespace SteamMobile
     public enum Permissions : ushort
     {
         None = 0,
+
         Chat = 1 << 0,
         Ban = 1 << 1,
         BanProof = 1 << 2,
 
-        // Old
-        FriendList = 1 << 13,
-        ConversationList = 1 << 14,
-        OpenChat = 1 << 15,
-
         All = ushort.MaxValue
     }
 
-    class Session
+    public class Session
     {
         private static readonly ILog Logger = LogManager.GetLogger("Steam");
 
         public readonly WebSocketSession Socket;
-        public SteamChat CurrentChat;
         public bool HasBacklog = false;
 
         public bool Authenticated { get; private set; }
@@ -41,7 +36,6 @@ namespace SteamMobile
         {
             Socket = socket;
             Authenticated = false;
-            CurrentChat = null;
         }
 
         public bool Load(string user, string pass)
