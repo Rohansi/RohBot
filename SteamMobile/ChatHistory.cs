@@ -1,21 +1,44 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Net;
 
 namespace SteamMobile
 {
-    public class ChatLine
+    public abstract class HistoryLine
     {
+        public abstract string Type { get; }
         public readonly long Date;
-        public readonly string Sender;
         public readonly string Content;
 
-        public ChatLine(long date, string sender, string content)
+        protected HistoryLine(long date, string content)
         {
             Date = date;
-            Sender = sender;
-            Content = content;
+            Content = WebUtility.HtmlEncode(content);
+        }
+    }
+
+    public class ChatLine : HistoryLine
+    {
+        public override string Type { get { return "chat"; } }
+
+        public readonly string Sender;
+
+        public ChatLine(long date, string sender, string content)
+            : base(date, content)
+        {
+            Sender = WebUtility.HtmlEncode(sender);
+        }
+
+        
+    }
+
+    public class StatusLine : HistoryLine
+    {
+        public override string Type { get { return "state"; } }
+
+        public StatusLine(long date, string content)
+            : base(date, content)
+        {
+            
         }
     }
 }

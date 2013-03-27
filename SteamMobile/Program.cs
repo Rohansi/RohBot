@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using Newtonsoft.Json;
 using SteamKit2;
 using SuperWebSocket;
@@ -19,14 +17,11 @@ namespace SteamMobile
         private static WebSocketServer server;
         public static Dictionary<string, Session> Sessions = new Dictionary<string, Session>();
 
-        //private static readonly SteamID MainChatId = SteamUtil.ChatFromClan(new SteamID(103582791433607509)); // Testin Stuff
-        //private static readonly SteamID MainChatId = SteamUtil.ChatFromClan(new SteamID(103582791430091926)); // FP Programmers
-
         public static SteamChat MainChat;
 
-        private static readonly LinkedList<ChatLine> ChatHistory = new LinkedList<ChatLine>();
+        private static readonly LinkedList<HistoryLine> ChatHistory = new LinkedList<HistoryLine>();
 
-        private static void Main(string[] args)
+        private static void Main()
         {
             try
             {
@@ -37,6 +32,8 @@ namespace SteamMobile
                     Steam.Friends.SetPersonaName(Settings.PersonaName);
                     Steam.Friends.SetPersonaState(EPersonaState.Online);
                 };
+
+                Steam.OnDisconnected = () => MainChat = null;
 
                 server = new WebSocketServer();
                 if (!server.Setup(12000))
@@ -104,10 +101,8 @@ namespace SteamMobile
             };
             ChatLogger.Info(JsonConvert.SerializeObject(o));
 
-            LogMessage(Steam.Friends.GetFriendPersonaName(messageSender), message);
-
-            var senderName = WebUtility.HtmlEncode(Steam.Friends.GetFriendPersonaName(messageSender));
-            message = WebUtility.HtmlEncode(message);
+            var senderName = Steam.Friends.GetFriendPersonaName(messageSender);
+            LogMessage(senderName, message);
 
             foreach (var sesion in Sessions)
             {
@@ -143,11 +138,11 @@ namespace SteamMobile
                     break;
             }
 
-            LogMessage("*", message);
+            LogStatusChange(message);
 
             foreach (var s in Sessions.Values)
             {
-                SendMessage(s.Socket, "*", message);
+                SendStateChange(s.Socket, message);
             }
         }
 
@@ -162,11 +157,11 @@ namespace SteamMobile
             ChatLogger.Info(JsonConvert.SerializeObject(o));
 
             var message = Steam.Friends.GetFriendPersonaName(user) + " entered chat.";
-            LogMessage("*", message);
+            LogStatusChange(message);
 
             foreach (var s in Sessions.Values)
             {
-                SendMessage(s.Socket, "*", message);
+                SendStateChange(s.Socket, message);
             }
         }
 
@@ -241,9 +236,26 @@ namespace SteamMobile
 
         public static void SendHistory(WebSocketSession session)
         {
-            var msg = new Packets.ChatHistory
+            var msg = new Packets.ChatHistory { Lines = ChatHistory };
+            Send(session, msg);
+        }
+
+        public static void SendStateChange(WebSocketSession session, string message)
+        {
+            var msg = new Packets.StateChange
             {
-                Lines = ChatHistory.Select(t => new ChatLine(t.Date, WebUtility.HtmlEncode(t.Sender), WebUtility.HtmlEncode(t.Content)))
+                Date = Util.GetCurrentUnixTimestamp(),
+                Content = WebUtility.HtmlEncode(message)
+            };
+            Send(session, msg);
+        }
+
+        public static void SendSysMessage(WebSocketSession session, string message)
+        {
+            var msg = new Packets.SysMessage
+            {
+                Date = Util.GetCurrentUnixTimestamp(),
+                Content = WebUtility.HtmlEncode(message)
             };
             Send(session, msg);
         }
@@ -269,6 +281,13 @@ namespace SteamMobile
             if (ChatHistory.Count >= 150)
                 ChatHistory.RemoveFirst();
             ChatHistory.AddLast(new ChatLine(Util.GetCurrentUnixTimestamp(), sender, message));
+        }
+
+        public static void LogStatusChange(string content)
+        {
+            if (ChatHistory.Count >= 150)
+                ChatHistory.RemoveFirst();
+            ChatHistory.AddLast(new StatusLine(Util.GetCurrentUnixTimestamp(), content));
         }
     }
 }

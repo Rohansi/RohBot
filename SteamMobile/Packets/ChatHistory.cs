@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace SteamMobile.Packets
 {
@@ -9,6 +7,6 @@ namespace SteamMobile.Packets
     {
         public override string Type { get { return "chatHistory"; } }
 
-        public IEnumerable<ChatLine> Lines;
+        public IEnumerable<HistoryLine> Lines;
     }
 }

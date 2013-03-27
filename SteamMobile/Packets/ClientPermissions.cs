@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace SteamMobile.Packets
 {
@@ -9,6 +6,7 @@ namespace SteamMobile.Packets
     {
         public override string Type { get { return "clientPermissions"; } }
 
+        public string Username;
         public bool CanChat;
     }
 }

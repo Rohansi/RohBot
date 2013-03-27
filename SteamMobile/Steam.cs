@@ -22,6 +22,7 @@ namespace SteamMobile
         }
 
         public delegate void LoginSuccess();
+        public delegate void Disconnected();
         public delegate void PrivateEnterEvent(SteamChat chat);
         public delegate void ChatInviteEvent(SteamID chat, SteamID invitedBy);
         public delegate void FriendRequestedEvent(SteamID user);
@@ -33,6 +34,7 @@ namespace SteamMobile
         public static ConnectionStatus Status { get; private set; }
 
         public static LoginSuccess OnLoginSuccess = null;
+        public static Disconnected OnDisconnected = null;
         public static PrivateEnterEvent OnPrivateEnter = null;
         public static ChatInviteEvent OnChatInvite = null;
         public static FriendRequestedEvent OnFriendRequest = null;
@@ -41,7 +43,6 @@ namespace SteamMobile
         {
             get { return new ReadOnlyCollection<SteamChat>(chats); }
         }
-
 
         public static bool Frozen
         {
@@ -63,20 +64,29 @@ namespace SteamMobile
 
         static Steam()
         {
-            Reset();
-
             UpdateThread = new Thread(Run);
             UpdateThread.Start();
+
+            Reset();
         }
 
         public static void Abort()
         {
+            if (Status == ConnectionStatus.Connected && OnDisconnected != null)
+                OnDisconnected();
+
             UpdateThread.Abort();
             Client.Disconnect();
         }
 
         public static void Reset()
         {
+            if (!UpdateThread.IsAlive)
+                throw new Exception("Steam thread is dead");
+
+            if (Status == ConnectionStatus.Connected && OnDisconnected != null)
+                OnDisconnected();
+
             if (Client != null)
                 Client.Disconnect();
 
@@ -91,6 +101,9 @@ namespace SteamMobile
 
         public static void Login(string user, string pass)
         {
+            if (!UpdateThread.IsAlive)
+                throw new Exception("Steam thread is dead");
+
             username = user;
             password = pass;
 
@@ -120,8 +133,8 @@ namespace SteamMobile
                         }
                         catch (Exception e)
                         {
-                            Logger.Info("Login failed", e);
-                            throw new Exception("Closing");
+                            Logger.Fatal("Login failed", e);
+                            Environment.Exit(0);
                         }
                     }
 
@@ -139,7 +152,12 @@ namespace SteamMobile
                 msg.Handle<SteamClient.DisconnectedCallback>(callback =>
                 {
                     if (hasConnected)
+                    {
+                        if (OnDisconnected != null)
+                            OnDisconnected();
+
                         Logger.Info("Disconnected");
+                    }
                     Status = ConnectionStatus.Disconnected;
                 });
 
@@ -232,6 +250,9 @@ namespace SteamMobile
 
         public static SteamChat Join(SteamID roomId)
         {
+            if (!UpdateThread.IsAlive)
+                throw new Exception("Steam thread is dead");
+
             if (Status != ConnectionStatus.Connected)
             {
                 Logger.Warn("Attempt to Join chat when not connected");

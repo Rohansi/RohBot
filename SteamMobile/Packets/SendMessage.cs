@@ -18,24 +18,24 @@ namespace SteamMobile.Packets
             if (!session.Permissions.HasFlag(Permissions.Chat))
                 return;
 
-            if (Program.MainChat == null || (packet.Content).Length == 0)
+            if (Program.MainChat == null || packet.Content.Length == 0) // TODO: warn user if mainchat == null
                 return;
 
-            var m = packet.Content;
+            var msg = packet.Content;
 
             // fpp filters
-            m = m.Replace("kick_me", "****");
-            if (m.Contains("http") && m.Contains("window.location.href"))
-                m = m.Replace("http", "****");
+            msg = msg.Replace("kick_me", "****");
+            if (msg.Contains("http") && msg.Contains("window.location.href"))
+                msg = msg.Replace("http", "****");
 
-            if (m.StartsWith("/list"))
+            if (msg.StartsWith("/list"))
             {
                 var list = Program.MainChat.Members.Select(id => Steam.Friends.GetFriendPersonaName(id)).OrderBy(n => n);
                 Program.SendMessage(session.Socket, "*", "In this chat: " + string.Join(", ", list));
                 return;
             }
 
-            if (m.StartsWith("/status"))
+            if (msg.StartsWith("/status"))
             {
                 var str = new StringBuilder();
                 str.AppendFormat("Steam Status: {0}\n", Steam.Status);
@@ -44,25 +44,30 @@ namespace SteamMobile.Packets
                 return;
             }
 
-            if (m.StartsWith("/me "))
+            if (msg.StartsWith("/me "))
             {
-                var action = m.Substring(4);
-                m = session.Name + " " + action;
-                Program.MainChat.Send(m);
-                Program.HandleMessage(Program.MainChat, Steam.Client.SteamID, m);
+                var action = msg.Substring(4);
+                msg = session.Name + " " + action;
+                Program.MainChat.Send(msg);
+                Program.HandleMessage(Program.MainChat, Steam.Client.SteamID, msg);
                 return;
             }
 
-            /*if (m.StartsWith("/sessions"))
+            if (msg.StartsWith("/sessions"))
             {
-                var sess = sessions.Values.Select(ss => ss.Name).ToList();
-                var req = sess.Distinct().Select(na => na + (sess.Count(sss => )));
+                var sessions = Program.Sessions.Values.Select(ss => ss.Name).ToList();
+                var req = sessions.Distinct().Select(name =>
+                {
+                    var count = sessions.Count(s => s == name);
+                    return name + (count > 1 ? string.Format(" ({0})", count) : "");
+                });
+                Program.SendMessage(session.Socket, "*", "Active sessions: " + string.Join(", ", req));
                 return;
-            }*/
+            }
 
-            var msg = string.Format("[{0}] {1}", session.Name, m);
-            Program.MainChat.Send(msg);
-            Program.HandleMessage(Program.MainChat, Steam.Client.SteamID, msg);
+            var finalMessage = string.Format("[{0}] {1}", session.Name, msg);
+            Program.MainChat.Send(finalMessage);
+            Program.HandleMessage(Program.MainChat, Steam.Client.SteamID, finalMessage);
         }
     }
 }

@@ -23,10 +23,10 @@
 			setInterval(function () {
 				if (socket != null)
 					send({ Type: "ping" });
-			}, 100);
+			}, 500);
 			
 			function connect() {
-				socket = new WebSocket("ws://209.141.59.194:12000/");
+				socket = new WebSocket("ws://fpp.literallybrian.com:12000/"); // ws://209.141.59.194:12000/
 				
 				socket.onopen = function (event) {
 					addMessage(0, "*", "Connected to RohPod.");
@@ -79,8 +79,16 @@
 						
 						case "chatHistory": {
 							for (var i = 0; i < data.Lines.length; i++) {
-								var f = data.Lines[i];
-								addMessage(f.Date, f.Sender, f.Content);
+								var line = data.Lines[i];
+								
+								switch (line.Type) {
+									case "chat":
+										addMessage(line.Date, line.Sender, line.Content);
+										break;
+									case "state":
+										addMessage(line.Date, "*", line.Content);
+										break;
+								}
 							}
 							
 							// make sure we scroll to the bottom
@@ -95,6 +103,16 @@
 							addMessage(data.Date, data.Sender, data.Content);
 							break;
 						}
+						
+						case "sysMessage": {
+							addMessage(data.Date, "*", data.Content);
+							break;
+						}
+						
+						case "stateChange": {
+							addMessage(data.Date, "*", data.Content);
+							break;
+						}
 					}
 				};
 			}
@@ -102,7 +120,7 @@
 			function send(obj) {
 				try {
 					socket.send(JSON.stringify(obj));
-				} catch (err) { } // fuck u dlaor
+				} catch (err) { }
 			}
 			
 			function login(username, password, hash) {
@@ -175,6 +193,20 @@
 							chat(msg); // serverside command
 						} else if (msg.substring(0, 7) == "/status") {
 							chat(msg); // serverside command
+						} else if (msg.substring(0, 9) == "/sessions") {
+							chat(msg); // serverside command
+						} else if (msg.substring(0, 6) == "/radio") {
+							var radioOn = $("#radio").length > 0;
+							if (radioOn) {
+								$("#radio").remove();
+								addMessage(0, "*", "Radio disabled!");
+							} else {
+								$("#radioContainer").html('<audio id="radio" src="http://fpp.literallybrian.com:8000/stream.ogg"></audio>');
+								var radio = $("#radio")[0];
+								radio.load();
+								radio.play();
+								addMessage(0, "*", "Radio enabled!");
+							}
 						} else {
 							addMessage(0, "*", "Unknown command.");
 						}
@@ -320,5 +352,7 @@
 				</table>
 			</form>
 		</div>
+		
+		<div id="radioContainer" style="display:none"></div>
 	</body>
 </html>

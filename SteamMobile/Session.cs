@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Newtonsoft.Json;
 using SuperWebSocket;
 using log4net;
@@ -18,13 +17,13 @@ namespace SteamMobile
         Ban = 1 << 1,
         BanProof = 1 << 2,
 
+        Admin = 1 << 15,
+
         All = ushort.MaxValue
     }
 
     public class Session
     {
-        private static readonly ILog Logger = LogManager.GetLogger("Steam");
-
         public readonly WebSocketSession Socket;
         public bool HasBacklog = false;
 

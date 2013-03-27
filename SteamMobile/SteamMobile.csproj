@@ -92,6 +92,8 @@
     <Compile Include="Packet.cs" />
     <Compile Include="Packets\Ban.cs" />
     <Compile Include="Packets\ChatHistory.cs" />
+    <Compile Include="Packets\StateChange.cs" />
+    <Compile Include="Packets\SysMessage.cs" />
     <Compile Include="Packets\Login.cs" />
     <Compile Include="Packets\Message.cs" />
     <Compile Include="Packets\ClientPermissions.cs" />
