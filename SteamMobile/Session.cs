@@ -33,8 +33,10 @@ namespace SteamMobile
 
         public Session(WebSocketSession socket)
         {
+            Name = "NOLOGIN";
             Socket = socket;
             Authenticated = false;
+            Permissions = Permissions.None;
         }
 
         public bool Load(string user, string pass)

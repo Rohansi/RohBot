@@ -20,11 +20,11 @@ namespace SteamMobile.Packets
                 Program.Logger.InfoFormat("User '{0}' banning '{1}'", session.Name, packet.Target);
 
                 var res = Program.Ban(packet.Target);
-                Program.SendMessage(session.Socket, "*", res);
+                Program.SendMessage(session, "*", res);
             }
             catch (Exception)
             {
-                Program.SendMessage(session.Socket, "*", "Failed to ban. Check logs.");
+                Program.SendMessage(session, "*", "Failed to ban. Check logs.");
                 throw;
             }
         }

@@ -88,6 +88,9 @@
 									case "state":
 										addMessage(line.Date, "*", line.Content);
 										break;
+									case "whisper":
+										addMessage(line.Date, line.Sender + " -> " + line.Receiver, line.Content);
+										break;
 								}
 							}
 							
@@ -100,7 +103,19 @@
 						}
 						
 						case "message": {
-							addMessage(data.Date, data.Sender, data.Content);
+							var line = data.Line;
+								
+							switch (line.Type) {
+								case "chat":
+									addMessage(line.Date, line.Sender, line.Content);
+									break;
+								case "state":
+									addMessage(line.Date, "*", line.Content);
+									break;
+								case "whisper":
+									addMessage(line.Date, line.Sender + " -> " + line.Receiver, line.Content);
+									break;
+							}
 							break;
 						}
 						
@@ -194,6 +209,8 @@
 						} else if (msg.substring(0, 7) == "/status") {
 							chat(msg); // serverside command
 						} else if (msg.substring(0, 9) == "/sessions") {
+							chat(msg); // serverside command
+						} else if (msg.substring(0, 2) == "/w") {
 							chat(msg); // serverside command
 						} else if (msg.substring(0, 6) == "/radio") {
 							var radioOn = $("#radio").length > 0;

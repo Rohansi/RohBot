@@ -79,14 +79,8 @@ namespace SteamMobile
             chat.OnMessage = HandleMessage;
             chat.OnUserEnter = HandleEnter;
             chat.OnUserLeave = HandleLeave;
-            chat.OnEnter = source =>
-            {
-                MainChat = chat;
-            };
-            chat.OnLeave = source =>
-            {
-                MainChat = null;
-            };
+            chat.OnEnter = source => MainChat = chat;
+            chat.OnLeave = source => MainChat = null;
         }
 
         public static void HandleMessage(SteamChat sender, SteamID messageSender, string message)
@@ -96,18 +90,20 @@ namespace SteamMobile
                 Time = Util.GetCurrentUnixTimestamp(),
                 Type = "Msg",
                 Sender = messageSender.Render(),
-                Name = Steam.Friends.GetFriendPersonaName(messageSender),
+                Name = SteamName.Get(messageSender),
                 Message = message
             };
             ChatLogger.Info(JsonConvert.SerializeObject(o));
 
-            var senderName = Steam.Friends.GetFriendPersonaName(messageSender);
-            LogMessage(senderName, message);
+            var senderName = SteamName.Get(messageSender);
+            LogMessage(new ChatLine(Util.GetCurrentUnixTimestamp(), senderName, message));
 
             foreach (var sesion in Sessions)
             {
-                SendMessage(sesion.Value.Socket, senderName, message);
+                SendMessage(sesion.Value, senderName, message);
             }
+
+            Command.Handle(CommandTarget.FromSteam(sender), message, "~");
         }
 
         private static void HandleLeave(SteamChat sender, SteamID user, UserLeaveReason reason, SteamID sourceUser)
@@ -121,7 +117,7 @@ namespace SteamMobile
             };
             ChatLogger.Info(JsonConvert.SerializeObject(o));
 
-            var message = Steam.Friends.GetFriendPersonaName(user);
+            var message = SteamName.Get(user);
             switch (reason)
             {
                 case UserLeaveReason.Left:
@@ -131,18 +127,18 @@ namespace SteamMobile
                     message += " disconnected.";
                     break;
                 case UserLeaveReason.Kicked:
-                    message += string.Format(" was kicked by {0}.", Steam.Friends.GetFriendPersonaName(sourceUser));
+                    message += string.Format(" was kicked by {0}.", SteamName.Get(sourceUser));
                     break;
                 case UserLeaveReason.Banned:
-                    message += string.Format(" was banned by {0}.", Steam.Friends.GetFriendPersonaName(sourceUser));
+                    message += string.Format(" was banned by {0}.", SteamName.Get(sourceUser));
                     break;
             }
 
-            LogStatusChange(message);
+            LogMessage(new StatusLine(Util.GetCurrentUnixTimestamp(), message));
 
             foreach (var s in Sessions.Values)
             {
-                SendStateChange(s.Socket, message);
+                SendStateChange(s, message);
             }
         }
 
@@ -156,12 +152,12 @@ namespace SteamMobile
             };
             ChatLogger.Info(JsonConvert.SerializeObject(o));
 
-            var message = Steam.Friends.GetFriendPersonaName(user) + " entered chat.";
-            LogStatusChange(message);
+            var message = SteamName.Get(user) + " entered chat.";
+            LogMessage(new StatusLine(Util.GetCurrentUnixTimestamp(), message));
 
             foreach (var s in Sessions.Values)
             {
-                SendStateChange(s.Socket, message);
+                SendStateChange(s, message);
             }
         }
 
@@ -177,11 +173,12 @@ namespace SteamMobile
 
         private static void OnReceive(WebSocketSession conn, string message)
         {
+            var session = Sessions[conn.SessionID];
+
             try
             {
-                var session = Sessions[conn.SessionID];
                 var packet = Packet.ReadFromMessage(message);
-                
+
                 if (packet == null)
                     return;
 
@@ -202,11 +199,15 @@ namespace SteamMobile
                     case "ban":
                         Packets.Ban.Handle(session, packet);
                         break;
+
+                    case "userData":
+                        Packets.UserData.Handle(session, packet);
+                        break;
                 }
             }
             catch (Exception e)
             {
-                Logger.ErrorFormat("Bad packet from {0}: '{1}' {2}", conn.RemoteEndPoint, message, e);
+                Logger.ErrorFormat("Bad packet from {0}:{1}: '{2}' {3}", session.Name, conn.RemoteEndPoint.Address, message, e);
             }
         }
 
@@ -234,23 +235,48 @@ namespace SteamMobile
             }
         }
 
-        public static void SendHistory(WebSocketSession session)
+        public static void SendHistory(Session session)
         {
-            var msg = new Packets.ChatHistory { Lines = ChatHistory };
+            var lines = ChatHistory.Where(l =>
+            {
+                var w = l as WhisperLine;
+                if (w != null)
+                    return (w.Sender == session.Name || w.Receiver == session.Name);
+                return true;
+            });
+
+            var msg = new Packets.ChatHistory { Lines = lines };
             Send(session, msg);
         }
 
-        public static void SendStateChange(WebSocketSession session, string message)
+        public static void SendMessage(Session session, string sender, string message)
         {
-            var msg = new Packets.StateChange
+            var msg = new Packets.Message
             {
-                Date = Util.GetCurrentUnixTimestamp(),
-                Content = WebUtility.HtmlEncode(message)
+                Line = new ChatLine(Util.GetCurrentUnixTimestamp(), sender, message)
             };
             Send(session, msg);
         }
 
-        public static void SendSysMessage(WebSocketSession session, string message)
+        public static void SendStateChange(Session session, string message)
+        {
+            var msg = new Packets.Message
+            {
+                Line = new StatusLine(Util.GetCurrentUnixTimestamp(), message)
+            };
+            Send(session, msg);
+        }
+
+        public static void SendWhisper(Session session, string sender, string receiver, string message)
+        {
+            var msg = new Packets.Message
+            {
+                Line = new WhisperLine(Util.GetCurrentUnixTimestamp(), sender, receiver, message)
+            };
+            Send(session, msg);
+        }
+
+        public static void SendSysMessage(Session session, string message)
         {
             var msg = new Packets.SysMessage
             {
@@ -260,34 +286,16 @@ namespace SteamMobile
             Send(session, msg);
         }
 
-        public static void SendMessage(WebSocketSession session, string sender, string message)
+        public static void Send(Session session, Packet packet)
         {
-            var msg = new Packets.Message
-            {
-                Date = Util.GetCurrentUnixTimestamp(),
-                Sender = WebUtility.HtmlEncode(sender),
-                Content = WebUtility.HtmlEncode(message)
-            };
-            Send(session, msg);
+            session.Socket.Send(Packet.WriteToMessage(packet));
         }
 
-        public static void Send(WebSocketSession context, Packet obj)
-        {
-            context.Send(Packet.WriteToMessage(obj));
-        }
-
-        public static void LogMessage(string sender, string message)
+        public static void LogMessage(HistoryLine line)
         {
             if (ChatHistory.Count >= 150)
                 ChatHistory.RemoveFirst();
-            ChatHistory.AddLast(new ChatLine(Util.GetCurrentUnixTimestamp(), sender, message));
-        }
-
-        public static void LogStatusChange(string content)
-        {
-            if (ChatHistory.Count >= 150)
-                ChatHistory.RemoveFirst();
-            ChatHistory.AddLast(new StatusLine(Util.GetCurrentUnixTimestamp(), content));
+            ChatHistory.AddLast(line);
         }
     }
 }

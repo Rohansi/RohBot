@@ -6,8 +6,6 @@ namespace SteamMobile.Packets
     {
         public override string Type { get { return "message"; } }
 
-        public long Date;
-        public string Sender;
-        public string Content;
+        public HistoryLine Line;
     }
 }

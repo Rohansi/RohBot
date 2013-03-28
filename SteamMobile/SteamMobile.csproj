@@ -88,17 +88,22 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChatHistory.cs" />
+    <Compile Include="Command.cs" />
+    <Compile Include="Commands\Me.cs" />
+    <Compile Include="Commands\Sessions.cs" />
+    <Compile Include="Commands\Users.cs" />
+    <Compile Include="Commands\Whisper.cs" />
+    <Compile Include="HistoryLine.cs" />
     <Compile Include="Packet.cs" />
     <Compile Include="Packets\Ban.cs" />
     <Compile Include="Packets\ChatHistory.cs" />
-    <Compile Include="Packets\StateChange.cs" />
-    <Compile Include="Packets\SysMessage.cs" />
     <Compile Include="Packets\Login.cs" />
     <Compile Include="Packets\Message.cs" />
     <Compile Include="Packets\ClientPermissions.cs" />
     <Compile Include="Packets\Ping.cs" />
     <Compile Include="Packets\SendMessage.cs" />
+    <Compile Include="Packets\SysMessage.cs" />
+    <Compile Include="Packets\UserData.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Session.cs" />
@@ -106,6 +111,7 @@
     <Compile Include="Steam.cs" />
     <Compile Include="SteamChat.cs" />
     <Compile Include="SteamHandlers.cs" />
+    <Compile Include="SteamName.cs" />
     <Compile Include="SteamUtil.cs" />
     <Compile Include="Util.cs" />
   </ItemGroup>
@@ -115,6 +121,7 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

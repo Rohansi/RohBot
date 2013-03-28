@@ -13,6 +13,8 @@ namespace SteamMobile
 
         public static SteamID ChatId { get; private set; }
 
+        public static int MaxDataSize { get; private set; }
+
         static Settings()
         {
             Reload();
@@ -27,6 +29,8 @@ namespace SteamMobile
             PersonaName = (string)settings.PersonaName;
 
             ChatId =  SteamUtil.ChatFromClan(new SteamID(ulong.Parse((string)settings.ChatId)));
+
+            MaxDataSize = (int)settings.MaxDataSize;
         }
     }
 }

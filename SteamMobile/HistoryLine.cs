@@ -27,8 +27,6 @@ namespace SteamMobile
         {
             Sender = WebUtility.HtmlEncode(sender);
         }
-
-        
     }
 
     public class StatusLine : HistoryLine
@@ -39,6 +37,21 @@ namespace SteamMobile
             : base(date, content)
         {
             
+        }
+    }
+
+    public class WhisperLine : HistoryLine
+    {
+        public override string Type { get { return "whisper"; } }
+
+        public readonly string Sender;
+        public readonly string Receiver;
+
+        public WhisperLine(long date, string sender, string receiver, string content)
+            : base(date, content)
+        {
+            Sender = WebUtility.HtmlEncode(sender);
+            Receiver = WebUtility.HtmlEncode(receiver);
         }
     }
 }

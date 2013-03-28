@@ -12,7 +12,7 @@ namespace SteamMobile
         Left, Disconnected, Kicked, Banned
     }
 
-    class SteamChat
+    public class SteamChat
     {
         public delegate void ChatEnterEvent(SteamChat source);
         public delegate void ChatLeaveEvent(SteamChat source);
@@ -70,6 +70,9 @@ namespace SteamMobile
                 Steam.Friends.SendChatRoomMessage(RoomId, EChatEntryType.ChatMsg, message);
             else
                 Steam.Friends.SendChatMessage(RoomId, EChatEntryType.ChatMsg, message);
+
+            if (OnMessage != null)
+                OnMessage(this, Steam.Client.SteamID, message);
         }
 
         public void Leave()

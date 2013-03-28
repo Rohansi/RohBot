@@ -11,11 +11,11 @@ namespace SteamMobile.Packets
 
         public static void Handle(Session session, Packet pack)
         {
-            var packet = (Packets.Login)pack;
+            var packet = (Login)pack;
 
             if (Steam.Status != Steam.ConnectionStatus.Connected)
             {
-                Program.SendSysMessage(session.Socket, "RohPod is not connected to Steam.");
+                Program.SendSysMessage(session, "RohPod is not connected to Steam.");
                 session.Socket.CloseWithHandshake("");
                 return;
             }
@@ -31,12 +31,12 @@ namespace SteamMobile.Packets
                 if (session.Load(user, pass))
                 {
                     Program.Logger.InfoFormat("Login success from {0} for '{1}' using password '{2}'", session.Socket.RemoteEndPoint, user, censoredPass);
-                    Program.SendSysMessage(session.Socket, string.Format("Logged in as {0}.", session.Name));
+                    Program.SendSysMessage(session, string.Format("Logged in as {0}.", session.Name));
                 }
                 else
                 {
                     Program.Logger.InfoFormat("Login failed from {0} for '{1}' using password '{2}'", session.Socket.RemoteEndPoint, user, censoredPass);
-                    Program.SendSysMessage(session.Socket, "Login failed.");
+                    Program.SendSysMessage(session, "Login failed.");
                 }
             }
             catch (Exception e)
@@ -44,18 +44,18 @@ namespace SteamMobile.Packets
                 var exFormat = string.Format("{0}: `{1}`", e.GetType(), e.Message);
 
                 Program.Logger.WarnFormat("Login error from {0} for '{1}' using password '{2}': {3}", session.Socket.RemoteEndPoint, user, censoredPass, exFormat);
-                Program.SendSysMessage(session.Socket, "Login failed.");
+                Program.SendSysMessage(session, "Login failed.");
             }
 
             if (Program.MainChat == null)
             {
-                Program.SendSysMessage(session.Socket, "RohPod is not in its chat room.");
+                Program.SendSysMessage(session, "RohPod is not in its chat room.");
                 return;
             }
 
             if (!session.HasBacklog)
             {
-                Program.SendHistory(session.Socket);
+                Program.SendHistory(session);
                 session.HasBacklog = true;
             }
 
@@ -64,7 +64,7 @@ namespace SteamMobile.Packets
                 Username = session.Name,
                 CanChat = session.Permissions.HasFlag(Permissions.Chat)
             };
-            Program.Send(session.Socket, o);
+            Program.Send(session, o);
         }
     }
 }
