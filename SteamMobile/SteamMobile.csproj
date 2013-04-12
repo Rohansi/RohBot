@@ -51,6 +51,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EzSteam">
+      <HintPath>..\Libraries\EzSteam.dll</HintPath>
+    </Reference>
     <Reference Include="log4net">
       <HintPath>..\Libraries\log4net.dll</HintPath>
     </Reference>
@@ -88,14 +91,19 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Accounts.cs" />
     <Compile Include="Command.cs" />
+    <Compile Include="Commands\Ban.cs" />
+    <Compile Include="Commands\Kick.cs" />
     <Compile Include="Commands\Me.cs" />
+    <Compile Include="Commands\Reboot.cs" />
+    <Compile Include="Commands\Refresh.cs" />
+    <Compile Include="Commands\Reply.cs" />
     <Compile Include="Commands\Sessions.cs" />
     <Compile Include="Commands\Users.cs" />
     <Compile Include="Commands\Whisper.cs" />
     <Compile Include="HistoryLine.cs" />
     <Compile Include="Packet.cs" />
-    <Compile Include="Packets\Ban.cs" />
     <Compile Include="Packets\ChatHistory.cs" />
     <Compile Include="Packets\Login.cs" />
     <Compile Include="Packets\Message.cs" />
@@ -109,10 +117,6 @@
     <Compile Include="Session.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Steam.cs" />
-    <Compile Include="SteamChat.cs" />
-    <Compile Include="SteamHandlers.cs" />
-    <Compile Include="SteamName.cs" />
-    <Compile Include="SteamUtil.cs" />
     <Compile Include="Util.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using SteamKit2;
 
 namespace SteamMobile
@@ -15,6 +17,8 @@ namespace SteamMobile
 
         public static int MaxDataSize { get; private set; }
 
+        public static Dictionary<string, string> Alias { get; private set; }
+
         static Settings()
         {
             Reload();
@@ -28,9 +32,15 @@ namespace SteamMobile
             Password = (string)settings.Password;
             PersonaName = (string)settings.PersonaName;
 
-            ChatId =  SteamUtil.ChatFromClan(new SteamID(ulong.Parse((string)settings.ChatId)));
+            ChatId = new SteamID(ulong.Parse((string)settings.ChatId));
 
             MaxDataSize = (int)settings.MaxDataSize;
+
+            Alias = new Dictionary<string, string>();
+            foreach (var kvp in (JObject)settings.Alias)
+            {
+                Alias.Add(kvp.Key, kvp.Value.Value<string>());
+            }
         }
     }
 }

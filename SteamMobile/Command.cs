@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using EzSteam;
+using SteamKit2;
 
 namespace SteamMobile
 {
@@ -29,7 +31,6 @@ namespace SteamMobile
         /// Called when somebody attempts to use this command.
         /// </summary>
         public abstract void Handle(CommandTarget target, string[] parameters);
-
 
         private static readonly Dictionary<string, Command> Commands;
 
@@ -63,9 +64,9 @@ namespace SteamMobile
             // default handler for non-existing commands
             if (!Commands.ContainsKey(type))
             {
-                if (target.IsSession)
-                    Program.SendMessage(target.Session, "*", "Unknown command.");
-
+                if (target.IsChat && target.Chat == Program.MainChat)
+                    return true;
+                target.Send("Unknown command.");
                 return true;
             }
 
@@ -125,15 +126,15 @@ namespace SteamMobile
             }
             else
             {
+                while (reader.Peek() == ' ')
+                    reader.Read();
+
                 while (reader.Peek() != ' ')
                 {
                     if (reader.Peek() == -1)
                         break;
                     word += (char)reader.Read();
                 }
-
-                if (string.IsNullOrWhiteSpace(word))
-                    word = null;
             }
 
             SkipWhiteSpace(reader);
@@ -149,27 +150,38 @@ namespace SteamMobile
 
     public class CommandTarget
     {
-        public readonly SteamChat Chat;
+        public readonly Chat Chat;
         public readonly Session Session;
+        public readonly Account Account;
 
         public bool IsChat { get { return Chat != null; } }
         public bool IsSession { get { return Session != null; } }
 
         private CommandTarget() { }
 
-        private CommandTarget(SteamChat steamChat)
+        private CommandTarget(Chat steamChat, SteamID sender)
         {
             Chat = steamChat;
+            Account = Accounts.Find(sender);
         }
 
         private CommandTarget(Session session)
         {
             Session = session;
+            Account = Accounts.Get(session.Username);
         }
 
-        public static CommandTarget FromSteam(SteamChat steamChat)
+        public void Send(string message)
         {
-            return new CommandTarget(steamChat);
+            if (IsSession)
+                Program.SendMessage(Session, "*", message);
+            else
+                Chat.Send(message);
+        }
+
+        public static CommandTarget FromSteam(Chat steamChat, SteamID sender)
+        {
+            return new CommandTarget(steamChat, sender);
         }
 
         public static CommandTarget FromSession(Session session)

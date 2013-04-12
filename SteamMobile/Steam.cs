@@ -1,339 +1,82 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading;
+using System.Text;
+using EzSteam;
 using SteamKit2;
-using SteamKit2.Internal;
 using log4net;
 
 namespace SteamMobile
 {
-    static class Steam
+    public static class Steam
     {
         public enum ConnectionStatus
         {
-            Connected,
-            Connecting,
-            Disconnected,
-            ConnectFailed,
-            LoginFailed
+            Disconnected, Connected, Connecting
         }
-
-        public delegate void LoginSuccess();
-        public delegate void Disconnected();
-        public delegate void PrivateEnterEvent(SteamChat chat);
-        public delegate void ChatInviteEvent(SteamID chat, SteamID invitedBy);
-        public delegate void FriendRequestedEvent(SteamID user);
-
-        public static SteamClient Client;
-        public static SteamUser User;
-        public static SteamFriends Friends;
 
         public static ConnectionStatus Status { get; private set; }
 
-        public static LoginSuccess OnLoginSuccess = null;
-        public static Disconnected OnDisconnected = null;
-        public static PrivateEnterEvent OnPrivateEnter = null;
-        public static ChatInviteEvent OnChatInvite = null;
-        public static FriendRequestedEvent OnFriendRequest = null;
-
-        public static ReadOnlyCollection<SteamChat> Chats
+        public static Bot Bot
         {
-            get { return new ReadOnlyCollection<SteamChat>(chats); }
+            get { return Status == ConnectionStatus.Connected ? bot : null; }
         }
 
-        public static bool Frozen
-        {
-            get { return watch.Elapsed.TotalSeconds > 10; }
-        }
-
-        private static readonly ILog Logger = LogManager.GetLogger("Steam");
-        private static readonly Stopwatch watch = new Stopwatch();
-
-        private static string username;
-        private static string password;
-
-        private static List<SteamChat> chats;
-
-        private static readonly Thread UpdateThread;
-        private static readonly Dictionary<SteamID, string> ClanNames = new Dictionary<SteamID, string>();
-
-        private static bool hasConnected = false;
+        public static readonly ILog Logger = LogManager.GetLogger("Steam");
+        private static string username, password;
+        private static Bot bot;
 
         static Steam()
         {
-            UpdateThread = new Thread(Run);
-            UpdateThread.Start();
-
-            Reset();
-        }
-
-        public static void Abort()
-        {
-            if (Status == ConnectionStatus.Connected && OnDisconnected != null)
-                OnDisconnected();
-
-            UpdateThread.Abort();
-            Client.Disconnect();
-        }
-
-        public static void Reset()
-        {
-            if (!UpdateThread.IsAlive)
-                throw new Exception("Steam thread is dead");
-
-            if (Status == ConnectionStatus.Connected && OnDisconnected != null)
-                OnDisconnected();
-
-            if (Client != null)
-                Client.Disconnect();
-
-            Client = new SteamClient();
-            User = Client.GetHandler<SteamUser>();
-            Friends = Client.GetHandler<SteamFriends>();
-            Client.AddHandler(new SteamHandlers());
-
             Status = ConnectionStatus.Disconnected;
-            chats = new List<SteamChat>();
+            bot = null;
         }
 
-        public static void Login(string user, string pass)
+        public static void Initialize(string user, string pass)
         {
-            if (!UpdateThread.IsAlive)
-                throw new Exception("Steam thread is dead");
-
             username = user;
             password = pass;
+        }
 
-            Client.Connect();
+        public static void Update()
+        {
+            if (Status != ConnectionStatus.Disconnected)
+                return;
+
+            bot = new Bot(username, password);
+            bot.OnConnected += sender =>
+            {
+                bot.PersonaName = Settings.PersonaName;
+                bot.PersonaState = EPersonaState.Online;
+                Status = ConnectionStatus.Connected;
+                Logger.Info("Connected");
+            };
+
+            bot.OnDisconnected += (sender, reason) =>
+            {
+                Status = ConnectionStatus.Disconnected;
+                Logger.Info("Disconnected");
+            };
+
+            bot.OnFriendRequest += (sender, user) => bot.AddFriend(user);
+
+            bot.OnPrivateEnter += (sender, chat) =>
+            {
+                chat.OnMessage += (chatSender, messageSender, message) =>
+                    Command.Handle(CommandTarget.FromSteam(chatSender, messageSender), message, "");
+            };
+
+            bot.Connect();
             Status = ConnectionStatus.Connecting;
         }
 
-        private static void Run()
+        public static string GetName(SteamID steamId)
         {
-            watch.Start();
-
-            while (true)
-            {
-                if (Status == ConnectionStatus.LoginFailed)
-                    Thread.Sleep(10000);
-
-                if (Status != ConnectionStatus.Connected && Status != ConnectionStatus.Connecting)
-                {
-                    if (!string.IsNullOrEmpty(password))
-                    {
-                        try
-                        {
-                            if (!hasConnected)
-                                Logger.Info("Connecting...");
-                            Reset();
-                            Login(username, password);
-                        }
-                        catch (Exception e)
-                        {
-                            Logger.Fatal("Login failed", e);
-                            Environment.Exit(0);
-                        }
-                    }
-
-                    continue;
-                }
-
-                Thread.Sleep(1);
-                var msg = Client.WaitForCallback(true, TimeSpan.FromSeconds(5));
-
-                watch.Restart();
-
-                if (msg == null)
-                    continue;
-
-                msg.Handle<SteamClient.DisconnectedCallback>(callback =>
-                {
-                    if (hasConnected)
-                    {
-                        if (OnDisconnected != null)
-                            OnDisconnected();
-
-                        Logger.Info("Disconnected");
-                    }
-                    Status = ConnectionStatus.Disconnected;
-                });
-
-                msg.Handle<SteamClient.ConnectedCallback>(callback =>
-                {
-                    if (callback.Result != EResult.OK)
-                    {
-                        Status = ConnectionStatus.ConnectFailed;
-                        return;
-                    }
-
-                    hasConnected = true;
-                    Logger.Info("Logging in...");
-                    User.LogOn(new SteamUser.LogOnDetails
-                    {
-                        Username = username,
-                        Password = password
-                    });
-                });
-
-                msg.Handle<SteamUser.LoggedOnCallback>(callback =>
-                {
-                    if (callback.Result != EResult.OK)
-                    {
-                        Status = ConnectionStatus.LoginFailed;
-                        Logger.Fatal(string.Format("Login failed: {0}", callback.Result));
-                    }
-                    else
-                    {
-                        Logger.Info("Logged in");
-
-                        if (OnLoginSuccess != null)
-                            OnLoginSuccess();
-                    }
-                });
-
-                msg.Handle<SteamUser.LoginKeyCallback>(callback =>
-                {
-                    Status = ConnectionStatus.Connected;
-                });
-
-                msg.Handle<SteamUser.LoggedOffCallback>(callback =>
-                {
-                    Status = ConnectionStatus.Disconnected;
-                });
-
-                // someone messaged us, make sure we have a SteamChat instance setup
-                msg.Handle<SteamFriends.FriendMsgCallback>(callback =>
-                {
-                    if (callback.EntryType != EChatEntryType.ChatMsg) return;
-
-                    if (chats.Count(c => c.RoomId == callback.Sender) == 0)
-                    {
-                        var c = Join(callback.Sender);
-
-                        if (OnPrivateEnter != null)
-                            OnPrivateEnter(c);
-                    }
-                });
-
-                msg.Handle<SteamFriends.FriendsListCallback>(callback =>
-                {
-                    foreach (var friend in callback.FriendList)
-                    {
-                        var f = friend;
-                        if (friend.Relationship == EFriendRelationship.RequestRecipient && OnFriendRequest != null)
-                            OnFriendRequest(f.SteamID);
-                    }
-                });
-
-                msg.Handle<SteamFriends.ChatInviteCallback>(callback =>
-                {
-                    if (OnChatInvite != null)
-                        OnChatInvite(callback.ChatRoomID, callback.PatronID);
-                });
-
-                msg.Handle<ClanNameCallback>(callback =>
-                {
-                    ClanNames[callback.ClanID] = callback.Name;
-                });
-
-                foreach (var c in chats)
-                {
-                    c.Handle(msg);
-                }
-
-                chats.RemoveAll(c => c.Left);
-            }
-        }
-
-        public static SteamChat Join(SteamID roomId)
-        {
-            if (!UpdateThread.IsAlive)
-                throw new Exception("Steam thread is dead");
-
-            if (Status != ConnectionStatus.Connected)
-            {
-                Logger.Warn("Attempt to Join chat when not connected");
-                return null;
-            }
-
-            Friends.RequestFriendInfo(roomId);
-
-            if (roomId.IsClanAccount)
-            {
-                Friends.RequestFriendInfo(roomId, EClientPersonaStateFlag.ClanInfo | EClientPersonaStateFlag.ClanTag | EClientPersonaStateFlag.PlayerName);
-                roomId = SteamUtil.ChatFromClan(roomId);
-            }
-
-            if (chats.Any(c => c.RoomId == roomId))
-                return chats.Find(c => c.RoomId == roomId);
-
-            var chat = new SteamChat(roomId);
-            Friends.JoinChat(roomId);
-            chats.Add(chat);
-
-            return chat;
-        }
-
-        public static ReadOnlyCollection<SteamID> GetFriends()
-        {
-            var res = new List<SteamID>();
-
-            for (var i = 0; i < Friends.GetFriendCount(); i++)
-            {
-                res.Add(Friends.GetFriendByIndex(i));
-            }
-
-            return res.AsReadOnly();
-        }
-
-        public static ReadOnlyCollection<SteamID> GetClans()
-        {
-            var res = new List<SteamID>();
-
-            for (var i = 0; i < Friends.GetClanCount(); i++)
-            {
-                var c = Friends.GetClanByIndex(i);
-                if (Friends.GetClanRelationship(c) == EClanRelationship.Member)
-                    res.Add(c);
-            }
-
-            return res.AsReadOnly();
-        } 
-
-        public static void Announce(string message, Predicate<SteamChat> filter = null)
-        {
-            foreach (var c in chats)
-            {
-                if (filter != null && !filter(c))
-                    continue;
-
-                c.Send(message);
-            }
-        }
-
-        public static void SetPlaying(string gameName)
-        {
-            if (string.IsNullOrWhiteSpace(gameName))
-            {
-                var msg = new ClientMsgProtobuf<CMsgClientGamesPlayed>(EMsg.ClientGamesPlayedWithDataBlob);
-                msg.Body.games_played.Add(new CMsgClientGamesPlayed.GamePlayed { game_id = 0, game_extra_info = "" });
-                Client.Send(msg);
-            }
-            else
-            {
-                var msg = new ClientMsgProtobuf<CMsgClientGamesPlayed>(EMsg.ClientGamesPlayedWithDataBlob);
-                msg.Body.games_played.Add(new CMsgClientGamesPlayed.GamePlayed { game_id = 9759487592989982720, game_extra_info = gameName });
-                Client.Send(msg);
-            }
-        }
-
-        public static string GetClanName(SteamID id)
-        {
+            var id = steamId.ConvertToUInt64().ToString();
             string name;
-            return ClanNames.TryGetValue(id, out name) ? name : "[unknown]";
+            if (Settings.Alias.TryGetValue(id, out name))
+                return name;
+            return Bot.GetPersona(steamId).Name;
         }
     }
 }

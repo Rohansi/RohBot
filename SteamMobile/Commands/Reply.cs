@@ -5,19 +5,34 @@ using System.Text;
 
 namespace SteamMobile.Commands
 {
-    public class Whisper : Command
+    public class Reply : Command
     {
-        public override string Type { get { return "w"; }  }
+        public override string Type { get { return "r"; } }
 
-        public override string Format { get { return "-]"; } }
+        public override string Format { get { return "]"; } }
 
         public override void Handle(CommandTarget target, string[] parameters)
         {
-            if (target.Account == null || parameters.Length < 2)
+            if (target.Account == null)
                 return;
 
-            var receiver = parameters[0].ToLower();
-            var message = parameters[1];
+            if (parameters.Length == 0)
+            {
+                var replyName = !string.IsNullOrWhiteSpace(target.Account.Reply) ? target.Account.Reply : null;
+                target.Send(string.Format("Replying to {0}.", replyName ?? "nobody"));
+                return;
+            }
+
+            var receiver = target.Account.Reply;
+            var message = parameters[0];
+
+            if (string.IsNullOrWhiteSpace(receiver))
+            {
+                target.Send("Nobody to reply to.");
+                return;
+            }
+
+            receiver = receiver.ToLower();
 
             var sessions = Program.Sessions.Values.Where(s => s.Name.ToLower() == receiver).ToList();
 

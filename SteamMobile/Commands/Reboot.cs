@@ -5,19 +5,18 @@ using System.Text;
 
 namespace SteamMobile.Commands
 {
-    public class Users : Command
+    public class Reboot : Command
     {
-        public override string Type { get { return "users"; }  }
+        public override string Type { get { return "reboot"; } }
 
         public override string Format { get { return ""; } }
 
         public override void Handle(CommandTarget target, string[] parameters)
         {
-            if (!target.IsSession)
+            if (target.Account == null || !target.Account.Permissions.HasFlag(Permissions.Admin))
                 return;
 
-            var users = Program.MainChat.Members.Select(Steam.GetName).OrderBy(n => n);
-            target.Send("In this chat: " + string.Join(", ", users)); // TODO: send as packet
+            Program.Exit("Reboot requested");
         }
     }
 }

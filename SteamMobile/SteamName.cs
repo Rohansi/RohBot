@@ -11,6 +11,10 @@ namespace SteamMobile
     {
         public static string Get(SteamID steamId)
         {
+            var id = steamId.ConvertToUInt64().ToString();
+            string name;
+            if (Settings.Alias.TryGetValue(id, out name))
+                return name;
             return Steam.Friends.GetFriendPersonaName(steamId);
         }
     }

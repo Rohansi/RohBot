@@ -24,12 +24,10 @@ namespace SteamMobile.Commands
 
             if (target.IsSession)
             {
-                Program.SendMessage(target.Session, "*", msg); // TODO: send as packet
+                // TODO: send as packet
             }
-            else
-            {
-                Program.MainChat.Send(msg);
-            }
+
+            target.Send(msg);
         }
     }
 }

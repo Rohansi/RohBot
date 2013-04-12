@@ -4,85 +4,86 @@ using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
 using SuperWebSocket;
-using log4net;
 
 namespace SteamMobile
 {
-    [Flags]
-    public enum Permissions : ushort
-    {
-        None = 0,
-
-        Chat = 1 << 0,
-        Ban = 1 << 1,
-        BanProof = 1 << 2,
-
-        Admin = 1 << 15,
-
-        All = ushort.MaxValue
-    }
-
     public class Session
     {
         public readonly WebSocketSession Socket;
+        public string Username { get; private set; }
+
         public bool HasBacklog = false;
 
-        public bool Authenticated { get; private set; }
-        public string Name;
-        public Permissions Permissions;
+        public bool Authenticated
+        {
+            get
+            {
+                return !string.IsNullOrWhiteSpace(Username);
+            }
+        }
+
+        public string Name
+        {
+            get
+            {
+                var account = Accounts.Get(Username);
+                return account != null ? account.Name : "NOLOGIN";
+            }
+        }
+
+        public Permissions Permissions
+        {
+            get
+            {
+                var account = Accounts.Get(Username);
+                return account != null ? account.Permissions : Permissions.None;
+            }
+        }
 
         public Session(WebSocketSession socket)
         {
-            Name = "NOLOGIN";
             Socket = socket;
-            Authenticated = false;
-            Permissions = Permissions.None;
+            Username = "";
         }
 
-        public bool Load(string user, string pass)
+        public bool Login(string user, string pass)
         {
-            // only allow alphanumeric strings for user
-            if (!user.All(char.IsLetterOrDigit))
+            var account = Accounts.Get(user);
+
+            if (account == null)
+            {
+                Program.Logger.Info("Account null");
                 return false;
+            }
 
-            var file = Path.Combine("accounts/", user.ToLower() + ".json");
-            dynamic obj = JsonConvert.DeserializeObject(File.ReadAllText(file));
-
-            if (pass != (string)obj.Password || (bool)obj.Banned)
+            if (pass != account.Password || account.Banned)
+            {
+                Program.Logger.Info("Bad pass or banned");
                 return false;
+            }
 
-            Name = (string)obj.Name;
-            Permissions = (Permissions)ushort.Parse((string)obj.Permissions);
-            Authenticated = true;
+            Username = user;
             return true;
         }
 
         public static bool Ban(string user, out string response)
         {
-            if (string.IsNullOrWhiteSpace(user) || !user.All(char.IsLetterOrDigit))
+            var account = Accounts.Find(user);
+            
+            if (account == null)
             {
                 response = "Account does not exist.";
                 return false;
             }
 
-            var file = Path.Combine("accounts/", user.ToLower() + ".json");
-            if (!File.Exists(file))
-            {
-                response = "Account does not exist.";
-                return false;
-            }
-
-            dynamic obj = JsonConvert.DeserializeObject(File.ReadAllText(file));
-            var permissions = (Permissions)ushort.Parse((string)obj.Permissions);
-
-            if (permissions.HasFlag(Permissions.BanProof))
+            if (account.Permissions.HasFlag(Permissions.BanProof))
             {
                 response = "Account can not be banned.";
                 return false;
             }
 
-            obj.Banned = true;
-            File.WriteAllText(file, JsonConvert.SerializeObject(obj));
+            account.Banned = true;
+            account.Save();
 
             response = "Account banned.";
             return true;

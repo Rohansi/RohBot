@@ -199,19 +199,6 @@
 					if (msg.substring(0, 1) == "/") {
 						if (msg.substring(0, 6) == "/clear") {
 							$("#messages").html("");
-						} else if (msg.substring(0, 5) == "/ban ") {
-							var t = msg.substring(5);
-							send({ Type: "ban", Target: t});
-						} else if (msg.substring(0, 5) == "/list") {
-							chat(msg); // serverside command
-						} else if (msg.substring(0, 4) == "/me ") {
-							chat(msg); // serverside command
-						} else if (msg.substring(0, 7) == "/status") {
-							chat(msg); // serverside command
-						} else if (msg.substring(0, 9) == "/sessions") {
-							chat(msg); // serverside command
-						} else if (msg.substring(0, 2) == "/w") {
-							chat(msg); // serverside command
 						} else if (msg.substring(0, 6) == "/radio") {
 							var radioOn = $("#radio").length > 0;
 							if (radioOn) {
@@ -225,7 +212,7 @@
 								addMessage(0, "*", "Radio enabled!");
 							}
 						} else {
-							addMessage(0, "*", "Unknown command.");
+							chat(msg); // serverside command
 						}
 						
 						$("#chatInput").val("");

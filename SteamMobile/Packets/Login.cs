@@ -9,11 +9,12 @@ namespace SteamMobile.Packets
         public string Username = null;
         public string Password = null;
 
+        // TODO: clean and better responses
         public static void Handle(Session session, Packet pack)
         {
             var packet = (Login)pack;
 
-            if (Steam.Status != Steam.ConnectionStatus.Connected)
+            if (Steam.Bot == null)
             {
                 Program.SendSysMessage(session, "RohPod is not connected to Steam.");
                 session.Socket.CloseWithHandshake("");
@@ -28,7 +29,7 @@ namespace SteamMobile.Packets
 
             try
             {
-                if (session.Load(user, pass))
+                if (session.Login(user, pass))
                 {
                     Program.Logger.InfoFormat("Login success from {0} for '{1}' using password '{2}'", session.Socket.RemoteEndPoint, user, censoredPass);
                     Program.SendSysMessage(session, string.Format("Logged in as {0}.", session.Name));
