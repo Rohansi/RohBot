@@ -56,8 +56,9 @@ namespace SteamMobile
                     JoinMainChat();
 
                 Steam.Update();
+                Ticker.Update();
 
-                System.Threading.Thread.Sleep(250);
+                System.Threading.Thread.Sleep(5000);
             }
         }
 
@@ -85,7 +86,6 @@ namespace SteamMobile
 
         private static void HandleMessage(Chat sender, SteamID messageSender, string message)
         {
-            Console.WriteLine(message);
             var o = new
             {
                 Time = Util.GetCurrentUnixTimestamp(),
@@ -167,17 +167,30 @@ namespace SteamMobile
 
         private static void OnConnected(WebSocketSession session)
         {
-            Sessions.Add(session.SessionID, new Session(session));
+            lock (Sessions)
+                Sessions.Add(session.SessionID, new Session(session));
         }
 
         private static void OnDisconnect(WebSocketSession session, SuperSocket.SocketBase.CloseReason reason)
         {
-            Sessions.Remove(session.SessionID);
+            lock (Sessions)
+                Sessions.Remove(session.SessionID);
         }
 
         private static void OnReceive(WebSocketSession conn, string message)
         {
-            var session = Sessions[conn.SessionID];
+            Session session;
+
+            try
+            {
+                lock (Sessions)
+                    session = Sessions[conn.SessionID]; 
+            }
+            catch
+            {
+                conn.CloseWithHandshake("");
+                return;
+            }
 
             try
             {
@@ -296,8 +309,7 @@ namespace SteamMobile
 
         public static void Send(Session session, Packet packet)
         {
-            if (session.Authenticated)
-                session.Socket.Send(Packet.WriteToMessage(packet));
+            session.Socket.Send(Packet.WriteToMessage(packet));
         }
 
         public static void LogMessage(HistoryLine line)

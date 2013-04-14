@@ -66,6 +66,12 @@ namespace SteamMobile
                     Command.Handle(CommandTarget.FromSteam(chatSender, messageSender), message, "");
             };
 
+            bot.OnChatInvite += (sender, chat, @by) =>
+            {
+                if (chat.IsIndividualAccount)
+                    bot.Join(chat);
+            };
+
             bot.Connect();
             Status = ConnectionStatus.Connecting;
         }

@@ -10,35 +10,35 @@ namespace SteamMobile
     public class Session
     {
         public readonly WebSocketSession Socket;
-        public string Username { get; private set; }
+        public Account Account { get; private set; }
 
-        public bool HasBacklog = false;
+        private string username;
+        public string Username
+        {
+            get { return username; }
+            private set
+            {
+                username = value;
+                Account = Accounts.Get(username);
+            }
+        }
 
         public bool Authenticated
         {
-            get
-            {
-                return !string.IsNullOrWhiteSpace(Username);
-            }
+            get { return !string.IsNullOrWhiteSpace(Username); }
         }
 
         public string Name
         {
-            get
-            {
-                var account = Accounts.Get(Username);
-                return account != null ? account.Name : "NOLOGIN";
-            }
+            get { return Account != null ? Account.Name : "NOLOGIN"; }
         }
 
         public Permissions Permissions
         {
-            get
-            {
-                var account = Accounts.Get(Username);
-                return account != null ? account.Permissions : Permissions.None;
-            }
+            get { return Account != null ? Account.Permissions : Permissions.None; }
         }
+
+        public bool HasBacklog = false;
 
         public Session(WebSocketSession socket)
         {

@@ -19,29 +19,27 @@ namespace SteamMobile.Commands
             var receiver = parameters[0].ToLower();
             var message = parameters[1];
 
-            var sessions = Program.Sessions.Values.Where(s => s.Name.ToLower() == receiver).ToList();
+            var senderAccount = target.Account;
+            var receiverAccount = Accounts.Find(receiver);
 
-            if (sessions.Count == 0)
+            if (receiverAccount == null)
             {
-                target.Send("User does not exist or is offline.");
+                target.Send("User does not exist.");
                 return;
             }
 
-            target.Account.Reply = receiver;
+            senderAccount.Reply = receiverAccount.Name;
+            receiverAccount.Reply = senderAccount.Name;
 
-            foreach (var session in sessions)
+            foreach (var session in Program.Sessions.Values)
             {
-                var account = Accounts.Get(session.Username);
-                if (account != null)
-                    account.Reply = target.Account.Name;
-
-                Program.SendWhisper(session, target.Account.Name, session.Name, message);
+                if (session.Account == senderAccount)
+                    Program.SendWhisper(session, senderAccount.Name, receiverAccount.Name, message);
+                if (session.Account == receiverAccount)
+                    Program.SendWhisper(session, receiverAccount.Name, senderAccount.Name, message);
             }
 
-            if (target.IsSession)
-                Program.SendWhisper(target.Session, target.Account.Name, sessions[0].Name, message);
-
-            Program.LogMessage(new WhisperLine(Util.GetCurrentUnixTimestamp(), target.Account.Name, sessions[0].Name, message));
+            Program.LogMessage(new WhisperLine(Util.GetCurrentUnixTimestamp(), senderAccount.Name, receiverAccount.Name, message));
         }
     }
 }

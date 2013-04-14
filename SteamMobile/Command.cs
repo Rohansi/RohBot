@@ -59,7 +59,7 @@ namespace SteamMobile
                 return false;
 
             var reader = new StringReader(commandStr);
-            var type = ReadWord(reader).ToLower();
+            var type = (ReadWord(reader) ?? "").ToLower();
 
             // default handler for non-existing commands
             if (!Commands.ContainsKey(type))
@@ -113,6 +113,8 @@ namespace SteamMobile
         {
             var word = "";
 
+            SkipWhiteSpace(reader);
+
             if (reader.Peek() == '"')
             {
                 reader.Read(); // skip open
@@ -126,18 +128,17 @@ namespace SteamMobile
             }
             else
             {
-                while (reader.Peek() == ' ')
-                    reader.Read();
-
-                while (reader.Peek() != ' ')
+                while (!char.IsWhiteSpace((char)reader.Peek()))
                 {
                     if (reader.Peek() == -1)
                         break;
                     word += (char)reader.Read();
                 }
+
+                if (string.IsNullOrEmpty(word))
+                    word = null;
             }
 
-            SkipWhiteSpace(reader);
             return word;
         }
 

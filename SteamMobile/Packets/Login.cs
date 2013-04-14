@@ -21,6 +21,13 @@ namespace SteamMobile.Packets
                 return;
             }
 
+            if (Program.MainChat == null)
+            {
+                Program.SendSysMessage(session, "RohPod is not in its chat room.");
+                session.Socket.CloseWithHandshake("");
+                return;
+            }
+
             var user = packet.Username;
             var pass = packet.Password;
 
@@ -38,6 +45,7 @@ namespace SteamMobile.Packets
                 {
                     Program.Logger.InfoFormat("Login failed from {0} for '{1}' using password '{2}'", session.Socket.RemoteEndPoint, user, censoredPass);
                     Program.SendSysMessage(session, "Login failed.");
+                    return;
                 }
             }
             catch (Exception e)
@@ -46,13 +54,11 @@ namespace SteamMobile.Packets
 
                 Program.Logger.WarnFormat("Login error from {0} for '{1}' using password '{2}': {3}", session.Socket.RemoteEndPoint, user, censoredPass, exFormat);
                 Program.SendSysMessage(session, "Login failed.");
-            }
-
-            if (Program.MainChat == null)
-            {
-                Program.SendSysMessage(session, "RohPod is not in its chat room.");
                 return;
             }
+            
+            if (session.Account.Name != "Guest")
+                Ticker.Add(session.Account.Name);
 
             if (!session.HasBacklog)
             {

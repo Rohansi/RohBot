@@ -69,15 +69,15 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\SteamKit2.dll</HintPath>
     </Reference>
-    <Reference Include="SuperSocket.Common, Version=1.5.1.0, Culture=neutral, PublicKeyToken=6c80000676988ebb, processorArchitecture=MSIL">
+    <Reference Include="SuperSocket.Common, Version=1.5.2.0, Culture=neutral, PublicKeyToken=6c80000676988ebb, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\SuperSocket.Common.dll</HintPath>
     </Reference>
-    <Reference Include="SuperSocket.SocketBase, Version=1.5.1.0, Culture=neutral, PublicKeyToken=6c80000676988ebb, processorArchitecture=MSIL">
+    <Reference Include="SuperSocket.SocketBase, Version=1.5.2.0, Culture=neutral, PublicKeyToken=6c80000676988ebb, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\SuperSocket.SocketBase.dll</HintPath>
     </Reference>
-    <Reference Include="SuperSocket.SocketEngine, Version=1.5.1.0, Culture=neutral, PublicKeyToken=6c80000676988ebb, processorArchitecture=MSIL">
+    <Reference Include="SuperSocket.SocketEngine, Version=1.5.2.0, Culture=neutral, PublicKeyToken=6c80000676988ebb, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\SuperSocket.SocketEngine.dll</HintPath>
     </Reference>
@@ -117,6 +117,7 @@
     <Compile Include="Session.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Steam.cs" />
+    <Compile Include="Ticker.cs" />
     <Compile Include="Util.cs" />
   </ItemGroup>
   <ItemGroup>

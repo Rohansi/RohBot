@@ -28,8 +28,11 @@ namespace SteamMobile.Packets
             if (message.Contains("http") && message.Contains("window.location.href"))
                 message = message.Replace("http", "****");
 
-            if (Command.Handle(CommandTarget.FromSession(session), message))
+            if (!message.StartsWith("//") && Command.Handle(CommandTarget.FromSession(session), message))
                 return;
+
+            if (message.StartsWith("//"))
+                message = message.Substring(1);
 
             message = string.Format("[{0}] {1}", session.Name, message);
             Program.MainChat.Send(message);
