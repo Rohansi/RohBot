@@ -125,7 +125,7 @@ namespace SteamMobile
                 var accountName = Path.GetFileNameWithoutExtension(file);
                 var account = Account.Load(accountName);
 
-                if (account == null)
+                if (account == null || accountName == null)
                     continue;
 
                 accounts.Add(accountName.ToLower(), account);

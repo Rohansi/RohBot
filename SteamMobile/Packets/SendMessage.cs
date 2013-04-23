@@ -15,9 +15,6 @@ namespace SteamMobile.Packets
         {
             var packet = (SendMessage)pack;
 
-            if (!session.Permissions.HasFlag(Permissions.Chat))
-                return;
-
             if (Program.MainChat == null || packet.Content.Length == 0) // TODO: warn user if mainchat == null
                 return;
 
@@ -33,6 +30,9 @@ namespace SteamMobile.Packets
 
             if (message.StartsWith("//"))
                 message = message.Substring(1);
+
+            if (!session.Permissions.HasFlag(Permissions.Chat))
+                return;
 
             message = string.Format("[{0}] {1}", session.Name, message);
             Program.MainChat.Send(message);

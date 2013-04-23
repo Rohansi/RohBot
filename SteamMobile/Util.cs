@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SteamMobile
 {
@@ -16,6 +18,16 @@ namespace SteamMobile
         public static DateTime DateTimeFromUnixTimestamp(long seconds)
         {
             return UnixEpoch.AddSeconds(seconds);
+        }
+
+        // http://stackoverflow.com/a/654454/1056845
+        public static void RemoveAll<TKey, TValue>(this Dictionary<TKey, TValue> dict,
+                                     Func<KeyValuePair<TKey, TValue>, bool> condition)
+        {
+            foreach (var cur in dict.Where(condition).ToList())
+            {
+                dict.Remove(cur.Key);
+            }
         }
     }
 }

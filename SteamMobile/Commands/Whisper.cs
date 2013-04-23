@@ -13,7 +13,7 @@ namespace SteamMobile.Commands
 
         public override void Handle(CommandTarget target, string[] parameters)
         {
-            if (target.Account == null || parameters.Length < 2)
+            if (target.Account == null || !target.Account.Permissions.HasFlag(Permissions.Chat) || parameters.Length < 2)
                 return;
 
             var receiver = parameters[0].ToLower();
@@ -31,15 +31,21 @@ namespace SteamMobile.Commands
             senderAccount.Reply = receiverAccount.Name;
             receiverAccount.Reply = senderAccount.Name;
 
-            foreach (var session in Program.Sessions.Values)
+            var sessions = Program.Sessions.Values.Where(s => s.Account == senderAccount || s.Account == receiverAccount).ToList();
+
+            if (sessions.Count == 0)
             {
-                if (session.Account == senderAccount)
-                    Program.SendWhisper(session, senderAccount.Name, receiverAccount.Name, message);
-                if (session.Account == receiverAccount)
-                    Program.SendWhisper(session, receiverAccount.Name, senderAccount.Name, message);
+                target.Send("User does not exist or is offline.");
+                return;
             }
 
-            Program.LogMessage(new WhisperLine(Util.GetCurrentUnixTimestamp(), senderAccount.Name, receiverAccount.Name, message));
+            var line = new WhisperLine(Util.GetCurrentUnixTimestamp(), senderAccount.Name, receiverAccount.Name, message);
+            Program.LogMessage(line);
+
+            foreach (var session in sessions)
+            {
+                Program.SendHistoryLine(session, line);
+            }
         }
     }
 }

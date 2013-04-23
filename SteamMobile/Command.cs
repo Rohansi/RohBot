@@ -101,6 +101,8 @@ namespace SteamMobile
         {
             var word = "";
 
+            SkipWhiteSpace(reader);
+
             while (reader.Peek() != -1)
             {
                 word += (char)reader.Read();
@@ -175,7 +177,7 @@ namespace SteamMobile
         public void Send(string message)
         {
             if (IsSession)
-                Program.SendMessage(Session, "*", message);
+                Program.SendSysMessage(Session, message);
             else
                 Chat.Send(message);
         }

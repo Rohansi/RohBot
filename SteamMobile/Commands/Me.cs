@@ -13,10 +13,10 @@ namespace SteamMobile.Commands
 
         public override void Handle(CommandTarget target, string[] parameters)
         {
-            if (!target.IsSession || parameters.Length < 1)
+            if (target.Account == null || !target.Account.Permissions.HasFlag(Permissions.Chat) || !target.IsSession || Program.MainChat == null ||  parameters.Length < 1)
                 return;
 
-            var msg = target.Session.Name + " " + parameters[0];
+            var msg = target.Account.Name + " " + parameters[0];
             Program.MainChat.Send(msg);
         }
     }

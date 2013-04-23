@@ -6,7 +6,7 @@ using System.Net;
 using EzSteam;
 using Newtonsoft.Json;
 using SteamKit2;
-using SuperWebSocket;
+using Fleck;
 using log4net;
 
 namespace SteamMobile
@@ -16,15 +16,17 @@ namespace SteamMobile
         public static readonly ILog Logger = LogManager.GetLogger("Steam");
         public static readonly ILog ChatLogger = LogManager.GetLogger("Chat");
 
+        public static readonly DateTime StartTime = DateTime.Now;
+
         private static WebSocketServer server;
-        public static Dictionary<string, Session> Sessions = new Dictionary<string, Session>();
+        public static Dictionary<Guid, Session> Sessions = new Dictionary<Guid, Session>();
 
         public static Chat MainChat { get; private set; }
 
         private static readonly LinkedList<HistoryLine> ChatHistory = new LinkedList<HistoryLine>();
 
         private static void Main()
-        {
+       {
             Logger.Info("Process starting");
 
             AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
@@ -33,17 +35,13 @@ namespace SteamMobile
                 Logger.Info("Process exiting");
             };
 
-            server = new WebSocketServer();
-            if (!server.Setup(12000))
+            server = new WebSocketServer("ws://0.0.0.0:12000");
+            server.Start(socket =>
             {
-                Logger.Fatal("WebSocket Setup Failed");
-                return;
-            }
-
-            server.NewSessionConnected += OnConnected;
-            server.SessionClosed += OnDisconnect;
-            server.NewMessageReceived += OnReceive;
-            server.Start();
+                socket.OnOpen = () => OnConnected(socket);
+                socket.OnClose = () => OnDisconnect(socket);
+                socket.OnMessage = message => OnReceive(socket, message);
+            });
 
             Steam.Initialize(Settings.Username, Settings.Password);
 
@@ -58,7 +56,25 @@ namespace SteamMobile
                 Steam.Update();
                 Ticker.Update();
 
-                System.Threading.Thread.Sleep(5000);
+                // HACK: fix weird fleck behavior
+                lock (Sessions)
+                    Sessions.RemoveAll(kvp => !kvp.Value.Socket.IsAvailable);
+
+                if (Steam.Status != Steam.ConnectionStatus.Connected || MainChat == null)
+                {
+                    var message = "";
+                    if (MainChat == null)
+                        message = "RohBot is not in its chat room.";
+                    if (Steam.Status != Steam.ConnectionStatus.Connected)
+                        message = "RohBot is not connected to Steam.";
+
+                    foreach (var session in Sessions.Values.ToList())
+                    {
+                        SendSysMessage(session, message);
+                    }
+                }
+
+                System.Threading.Thread.Sleep(2500);
             }
         }
 
@@ -97,11 +113,13 @@ namespace SteamMobile
             ChatLogger.Info(JsonConvert.SerializeObject(o));
 
             var senderName = Steam.GetName(messageSender);
-            LogMessage(new ChatLine(Util.GetCurrentUnixTimestamp(), senderName, message));
+
+            var line = new ChatLine(Util.GetCurrentUnixTimestamp(), "Steam", senderName, message);
+            LogMessage(line);
 
             foreach (var sesion in Sessions.Values.ToList())
             {
-                SendMessage(sesion, senderName, message);
+                SendHistoryLine(sesion, line);
             }
 
             if (Ignored.Contains(messageSender) || messageSender == Steam.Bot.PersonaId)
@@ -138,11 +156,12 @@ namespace SteamMobile
                     break;
             }
 
-            LogMessage(new StatusLine(Util.GetCurrentUnixTimestamp(), message));
+            var line = new StatusLine(Util.GetCurrentUnixTimestamp(), reason.ToString(), Steam.GetName(user), sourceUser != null ? Steam.GetName(sourceUser) : "", message);
+            LogMessage(line);
 
             foreach (var s in Sessions.Values.ToList())
             {
-                SendStateChange(s, message);
+                SendHistoryLine(s, line);
             }
         }
 
@@ -157,38 +176,40 @@ namespace SteamMobile
             ChatLogger.Info(JsonConvert.SerializeObject(o));
 
             var message = Steam.GetName(user) + " entered chat.";
-            LogMessage(new StatusLine(Util.GetCurrentUnixTimestamp(), message));
+
+            var line = new StatusLine(Util.GetCurrentUnixTimestamp(), "Enter", Steam.GetName(user), "", message);
+            LogMessage(line);
 
             foreach (var s in Sessions.Values.ToList())
             {
-                SendStateChange(s, message);
+                SendHistoryLine(s, line);
             }
         }
 
-        private static void OnConnected(WebSocketSession session)
+        private static void OnConnected(IWebSocketConnection socket)
         {
             lock (Sessions)
-                Sessions.Add(session.SessionID, new Session(session));
+                Sessions.Add(socket.ConnectionInfo.Id, new Session(socket));
         }
 
-        private static void OnDisconnect(WebSocketSession session, SuperSocket.SocketBase.CloseReason reason)
+        private static void OnDisconnect(IWebSocketConnection socket)
         {
             lock (Sessions)
-                Sessions.Remove(session.SessionID);
+                Sessions.Remove(socket.ConnectionInfo.Id);
         }
 
-        private static void OnReceive(WebSocketSession conn, string message)
+        private static void OnReceive(IWebSocketConnection socket, string message)
         {
             Session session;
 
             try
             {
                 lock (Sessions)
-                    session = Sessions[conn.SessionID]; 
+                    session = Sessions[socket.ConnectionInfo.Id]; 
             }
             catch
             {
-                conn.CloseWithHandshake("");
+                socket.Close();
                 return;
             }
 
@@ -220,16 +241,28 @@ namespace SteamMobile
             }
             catch (Exception e)
             {
-                Logger.ErrorFormat("Bad packet from {0}:{1}: '{2}' {3}", session.Name, conn.RemoteEndPoint.Address, message, e);
+                Logger.ErrorFormat("Bad packet from {0}:{1}: '{2}' {3}", session.Name, session.RemoteAddress, message, e);
             }
         }
 
         public static bool Kick(string name, out string res)
         {
-            name = name.ToLower();
+            var account = Accounts.Find(name);
+
+            if (account == null)
+            {
+                res = "Account not found.";
+                return false;
+            }
+
+            if (account.Permissions.HasFlag(Permissions.BanProof))
+            {
+                res = "Account can not be kicked.";
+                return false;
+            }
 
             var count = 0;
-            var kickList = Sessions.Values.Where(s => s.Name.ToLower() == name).ToList();
+            var kickList = Sessions.Values.Where(s => s.Account == account).ToList();
 
             if (kickList.Count == 0)
             {
@@ -239,17 +272,8 @@ namespace SteamMobile
 
             foreach (var session in kickList)
             {
-                if (session.Permissions.HasFlag(Permissions.BanProof))
-                {
-                    res = "Account can not be kicked.";
-                    return false;
-                }
-
-                if (session.Name.ToLower() == name)
-                {
-                    session.Socket.CloseWithHandshake("");
-                    count++;
-                }
+                session.Socket.Close();
+                count++;
             }
 
             res = string.Format("Kicked {0} session(s).", count);
@@ -270,30 +294,9 @@ namespace SteamMobile
             Send(session, msg);
         }
 
-        public static void SendMessage(Session session, string sender, string message)
+        public static void SendHistoryLine(Session session, HistoryLine line)
         {
-            var msg = new Packets.Message
-            {
-                Line = new ChatLine(Util.GetCurrentUnixTimestamp(), sender, message)
-            };
-            Send(session, msg);
-        }
-
-        public static void SendStateChange(Session session, string message)
-        {
-            var msg = new Packets.Message
-            {
-                Line = new StatusLine(Util.GetCurrentUnixTimestamp(), message)
-            };
-            Send(session, msg);
-        }
-
-        public static void SendWhisper(Session session, string sender, string receiver, string message)
-        {
-            var msg = new Packets.Message
-            {
-                Line = new WhisperLine(Util.GetCurrentUnixTimestamp(), sender, receiver, message)
-            };
+            var msg = new Packets.Message { Line = line };
             Send(session, msg);
         }
 

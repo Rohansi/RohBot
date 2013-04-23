@@ -2,26 +2,22 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Fleck;
 using Newtonsoft.Json;
-using SuperWebSocket;
 
 namespace SteamMobile
 {
     public class Session
     {
-        public readonly WebSocketSession Socket;
-        public Account Account { get; private set; }
+        public readonly IWebSocketConnection Socket;
+        public readonly string RemoteAddress;
 
-        private string username;
-        public string Username
+        public Account Account
         {
-            get { return username; }
-            private set
-            {
-                username = value;
-                Account = Accounts.Get(username);
-            }
+            get { return Accounts.Get(Username ?? ""); }
         }
+
+        public string Username { get; private set; }
 
         public bool Authenticated
         {
@@ -40,9 +36,10 @@ namespace SteamMobile
 
         public bool HasBacklog = false;
 
-        public Session(WebSocketSession socket)
+        public Session(IWebSocketConnection socket)
         {
             Socket = socket;
+            RemoteAddress = socket.ConnectionInfo.ClientIpAddress == "127.0.0.1" ? socket.ConnectionInfo.Host : socket.ConnectionInfo.ClientIpAddress;
             Username = "";
         }
 

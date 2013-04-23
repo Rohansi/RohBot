@@ -20,11 +20,13 @@ namespace SteamMobile
     {
         public override string Type { get { return "chat"; } }
 
+        public readonly string UserType;
         public readonly string Sender;
 
-        public ChatLine(long date, string sender, string content)
+        public ChatLine(long date, string userType, string sender, string content)
             : base(date, content)
         {
+            UserType = WebUtility.HtmlEncode(userType);
             Sender = WebUtility.HtmlEncode(sender);
         }
     }
@@ -33,10 +35,16 @@ namespace SteamMobile
     {
         public override string Type { get { return "state"; } }
 
-        public StatusLine(long date, string content)
+        public readonly string Status;
+        public readonly string For;
+        public readonly string By;
+
+        public StatusLine(long date, string status, string @for, string by, string content)
             : base(date, content)
         {
-            
+            Status = WebUtility.HtmlEncode(status);
+            For = WebUtility.HtmlEncode(@for);
+            By = WebUtility.HtmlEncode(by);
         }
     }
 

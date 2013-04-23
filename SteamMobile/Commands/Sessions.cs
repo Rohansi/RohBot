@@ -21,12 +21,6 @@ namespace SteamMobile.Commands
             });
 
             var msg = "Active sessions: " + string.Join(", ", req);
-
-            if (target.IsSession)
-            {
-                // TODO: send as packet
-            }
-
             target.Send(msg);
         }
     }

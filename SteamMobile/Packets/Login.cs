@@ -14,20 +14,6 @@ namespace SteamMobile.Packets
         {
             var packet = (Login)pack;
 
-            if (Steam.Bot == null)
-            {
-                Program.SendSysMessage(session, "RohPod is not connected to Steam.");
-                session.Socket.CloseWithHandshake("");
-                return;
-            }
-
-            if (Program.MainChat == null)
-            {
-                Program.SendSysMessage(session, "RohPod is not in its chat room.");
-                session.Socket.CloseWithHandshake("");
-                return;
-            }
-
             var user = packet.Username;
             var pass = packet.Password;
 
@@ -38,12 +24,12 @@ namespace SteamMobile.Packets
             {
                 if (session.Login(user, pass))
                 {
-                    Program.Logger.InfoFormat("Login success from {0} for '{1}' using password '{2}'", session.Socket.RemoteEndPoint, user, censoredPass);
+                    Program.Logger.InfoFormat("Login success from {0} for '{1}' using password '{2}'", session.RemoteAddress, user, censoredPass);
                     Program.SendSysMessage(session, string.Format("Logged in as {0}.", session.Name));
                 }
                 else
                 {
-                    Program.Logger.InfoFormat("Login failed from {0} for '{1}' using password '{2}'", session.Socket.RemoteEndPoint, user, censoredPass);
+                    Program.Logger.InfoFormat("Login failed from {0} for '{1}' using password '{2}'", session.RemoteAddress, user, censoredPass);
                     Program.SendSysMessage(session, "Login failed.");
                     return;
                 }
@@ -52,7 +38,7 @@ namespace SteamMobile.Packets
             {
                 var exFormat = string.Format("{0}: `{1}`", e.GetType(), e.Message);
 
-                Program.Logger.WarnFormat("Login error from {0} for '{1}' using password '{2}': {3}", session.Socket.RemoteEndPoint, user, censoredPass, exFormat);
+                Program.Logger.WarnFormat("Login error from {0} for '{1}' using password '{2}': {3}", session.RemoteAddress, user, censoredPass, exFormat);
                 Program.SendSysMessage(session, "Login failed.");
                 return;
             }

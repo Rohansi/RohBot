@@ -54,6 +54,9 @@
     <Reference Include="EzSteam">
       <HintPath>..\Libraries\EzSteam.dll</HintPath>
     </Reference>
+    <Reference Include="Fleck">
+      <HintPath>..\Libraries\Fleck.dll</HintPath>
+    </Reference>
     <Reference Include="log4net">
       <HintPath>..\Libraries\log4net.dll</HintPath>
     </Reference>
@@ -69,22 +72,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\SteamKit2.dll</HintPath>
     </Reference>
-    <Reference Include="SuperSocket.Common, Version=1.5.2.0, Culture=neutral, PublicKeyToken=6c80000676988ebb, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Libraries\SuperSocket.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="SuperSocket.SocketBase, Version=1.5.2.0, Culture=neutral, PublicKeyToken=6c80000676988ebb, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Libraries\SuperSocket.SocketBase.dll</HintPath>
-    </Reference>
-    <Reference Include="SuperSocket.SocketEngine, Version=1.5.2.0, Culture=neutral, PublicKeyToken=6c80000676988ebb, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Libraries\SuperSocket.SocketEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="SuperWebSocket, Version=0.7.0.0, Culture=neutral, PublicKeyToken=7ba53b9a7cef5d1c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Libraries\SuperWebSocket.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -94,6 +81,7 @@
     <Compile Include="Accounts.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="Commands\Ban.cs" />
+    <Compile Include="Commands\Uptime.cs" />
     <Compile Include="Commands\Kick.cs" />
     <Compile Include="Commands\Me.cs" />
     <Compile Include="Commands\Reboot.cs" />
@@ -112,6 +100,7 @@
     <Compile Include="Packets\SendMessage.cs" />
     <Compile Include="Packets\SysMessage.cs" />
     <Compile Include="Packets\UserData.cs" />
+    <Compile Include="Packets\UserList.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Session.cs" />

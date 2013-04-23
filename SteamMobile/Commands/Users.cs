@@ -13,11 +13,27 @@ namespace SteamMobile.Commands
 
         public override void Handle(CommandTarget target, string[] parameters)
         {
-            if (!target.IsSession)
+            if (!target.IsSession || Program.MainChat == null)
                 return;
 
-            var users = Program.MainChat.Members.Select(Steam.GetName).OrderBy(n => n);
-            target.Send("In this chat: " + string.Join(", ", users)); // TODO: send as packet
+            var userList = new Packets.UserList();
+
+            var group = Program.MainChat.Group;
+            foreach (var id in Program.MainChat.Members.Where(i => i != Steam.Bot.PersonaId))
+            {
+                var groupMember = group.Members.FirstOrDefault(m => m.Id == id);
+                userList.AddUser("Steam", groupMember != null ? groupMember.Rank.ToString() : "Member", Steam.GetName(id));
+            }
+
+            var sessions = Program.Sessions.Values.Select(ss => ss.Name).Distinct().ToList();
+            foreach (var session in sessions)
+            {
+                userList.AddUser("RohBot", "Member", session);
+            }
+
+            userList.Users = userList.Users.OrderBy(u => u.Name).ToList();
+
+            Program.Send(target.Session, userList);
         }
     }
 }

@@ -39,7 +39,7 @@ namespace SteamMobile.Packets
         {
             if (data.Length > Settings.MaxDataSize)
             {
-                Program.SendMessage(session, "*", "Data too large.");
+                Program.SendSysMessage(session, "UserData too large");
                 return;
             }
 
@@ -48,9 +48,10 @@ namespace SteamMobile.Packets
                 var file = Path.Combine("userdata/", session.Name.ToLower() + ".txt");
                 File.WriteAllText(file, data, Encoding.UTF8);
             }
-            catch
+            catch (Exception e)
             {
-                Program.SendMessage(session, "*", "Failed to store data.");
+                Program.Logger.Error("Failed to store UserData", e);
+                Program.SendSysMessage(session, "Failed to store UserData");
             }
         }
 
@@ -68,9 +69,10 @@ namespace SteamMobile.Packets
                 };
                 Program.Send(session, pack);
             }
-            catch
+            catch (Exception e)
             {
-                Program.SendMessage(session, "*", "Failed to load data.");
+                Program.Logger.Error("Failed to load UserData", e);
+                Program.SendSysMessage(session, "Failed to load UserData");
             }
         }
     }

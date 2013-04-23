@@ -13,7 +13,7 @@ namespace SteamMobile.Commands
 
         public override void Handle(CommandTarget target, string[] parameters)
         {
-            if (target.Account == null)
+            if (target.Account == null || !target.Account.Permissions.HasFlag(Permissions.Chat))
                 return;
 
             if (parameters.Length == 0)
@@ -44,19 +44,20 @@ namespace SteamMobile.Commands
 
             target.Account.Reply = receiver;
 
+            var line = new WhisperLine(Util.GetCurrentUnixTimestamp(), target.Account.Name, sessions[0].Name, message);
+            Program.LogMessage(line);
+
             foreach (var session in sessions)
             {
                 var account = Accounts.Get(session.Username);
                 if (account != null)
                     account.Reply = target.Account.Name;
 
-                Program.SendWhisper(session, target.Account.Name, session.Name, message);
+                Program.SendHistoryLine(session, line);
             }
 
             if (target.IsSession)
-                Program.SendWhisper(target.Session, target.Account.Name, sessions[0].Name, message);
-
-            Program.LogMessage(new WhisperLine(Util.GetCurrentUnixTimestamp(), target.Account.Name, sessions[0].Name, message));
+                Program.SendHistoryLine(target.Session, line);
         }
     }
 }

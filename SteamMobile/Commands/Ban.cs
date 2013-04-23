@@ -24,6 +24,7 @@ namespace SteamMobile.Commands
                 string res;
                 Session.Ban(name.ToLower(), out res);
                 target.Send(res);
+                Program.Kick(name, out res);
             }
             catch
             {
