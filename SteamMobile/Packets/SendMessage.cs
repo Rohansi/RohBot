@@ -14,11 +14,10 @@ namespace SteamMobile.Packets
         public static void Handle(Session session, Packet pack)
         {
             var packet = (SendMessage)pack;
+            var message = packet.Content.Trim();
 
             if (Program.MainChat == null || packet.Content.Length == 0) // TODO: warn user if mainchat == null
                 return;
-
-            var message = packet.Content.Trim();
 
             // fpp filters
             message = message.Replace("kick_me", "****");

@@ -60,6 +60,7 @@ namespace SteamMobile
                 lock (Sessions)
                     Sessions.RemoveAll(kvp => !kvp.Value.Socket.IsAvailable);
 
+                // Warnings for connection status
                 if (Steam.Status != Steam.ConnectionStatus.Connected || MainChat == null)
                 {
                     var message = "";
@@ -73,6 +74,10 @@ namespace SteamMobile
                         SendSysMessage(session, message);
                     }
                 }
+
+                // Keep persona states up to date
+                if (Steam.Status == Steam.ConnectionStatus.Connected)
+                    Steam.Bot.SteamFriends.RequestFriendInfo(Accounts.GetIds());
 
                 System.Threading.Thread.Sleep(2500);
             }
@@ -156,7 +161,7 @@ namespace SteamMobile
                     break;
             }
 
-            var line = new StatusLine(Util.GetCurrentUnixTimestamp(), reason.ToString(), Steam.GetName(user), sourceUser != null ? Steam.GetName(sourceUser) : "", message);
+            var line = new StateLine(Util.GetCurrentUnixTimestamp(), reason.ToString(), Steam.GetName(user), sourceUser != null ? Steam.GetName(sourceUser) : "", message);
             LogMessage(line);
 
             foreach (var s in Sessions.Values.ToList())
@@ -177,7 +182,7 @@ namespace SteamMobile
 
             var message = Steam.GetName(user) + " entered chat.";
 
-            var line = new StatusLine(Util.GetCurrentUnixTimestamp(), "Enter", Steam.GetName(user), "", message);
+            var line = new StateLine(Util.GetCurrentUnixTimestamp(), "Enter", Steam.GetName(user), "", message);
             LogMessage(line);
 
             foreach (var s in Sessions.Values.ToList())

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SteamKit2;
 
 namespace SteamMobile.Commands
 {
@@ -32,19 +33,23 @@ namespace SteamMobile.Commands
                 return;
             }
 
-            receiver = receiver.ToLower();
+            var senderAccount = target.Account;
+            var receiverAccount = Accounts.Find(receiver);
 
-            var sessions = Program.Sessions.Values.Where(s => s.Name.ToLower() == receiver).ToList();
+            senderAccount.Reply = receiverAccount.Name;
+            receiverAccount.Reply = senderAccount.Name;
 
-            if (sessions.Count == 0)
+            var sessions = Program.Sessions.Values.Where(s => s.Account == senderAccount || s.Account == receiverAccount).ToList();
+
+            if (sessions.Count == 0 && Steam.Bot.GetPersona(receiverAccount.Id).State == EPersonaState.Offline)
             {
-                target.Send("User does not exist or is offline.");
+                target.Send("User is offline.");
                 return;
             }
 
-            target.Account.Reply = receiver;
+            Steam.Bot.Join(receiverAccount.Id).Send(string.Format("From {0}: {1}", senderAccount.Name, message));
 
-            var line = new WhisperLine(Util.GetCurrentUnixTimestamp(), target.Account.Name, sessions[0].Name, message);
+            var line = new WhisperLine(Util.GetCurrentUnixTimestamp(), senderAccount.Name, receiverAccount.Name, message);
             Program.LogMessage(line);
 
             foreach (var session in sessions)

@@ -31,18 +31,18 @@ namespace SteamMobile
         }
     }
 
-    public class StatusLine : HistoryLine
+    public class StateLine : HistoryLine
     {
         public override string Type { get { return "state"; } }
 
-        public readonly string Status;
+        public readonly string State;
         public readonly string For;
         public readonly string By;
 
-        public StatusLine(long date, string status, string @for, string by, string content)
+        public StateLine(long date, string state, string @for, string by, string content)
             : base(date, content)
         {
-            Status = WebUtility.HtmlEncode(status);
+            State = WebUtility.HtmlEncode(state);
             For = WebUtility.HtmlEncode(@for);
             By = WebUtility.HtmlEncode(by);
         }

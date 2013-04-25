@@ -116,6 +116,11 @@ namespace SteamMobile
             return accounts.Values.FirstOrDefault(a => a.Id == id);
         }
 
+        public static List<SteamID> GetIds()
+        {
+            return accounts.Values.Where(a => a.Id.IsValid).Select(a => a.Id).ToList();
+        } 
+
         public static void Reload()
         {
             accounts = new Dictionary<string, Account>();
