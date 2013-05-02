@@ -2,149 +2,101 @@
 <html>
 	<head>
 		<meta charset="utf-8"/>
+		<link rel="icon" type="image/png" href="icon.png"/>
 		<title>FP Programmers</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 		<script src="jquery-1.9.1.min.js"></script>
 		<script src="md5-min.js"></script>
+		<script src="rohbot.api.js"></script>
+		<script src="tinycon.js"></script>
 		<link rel="stylesheet" type="text/css" href="main.css"/>
 		
 		<script>
-			var storage, fail, uid;
+
+		missed = 0;
+			$(document).ready(function(){
+				blurred = false;
+			});
+
+			$(document).focus(function(){
+				blurred = false;
+				missed = 0;
+				Tinycon.setBubble(0);
+			});
+
+			$(window).blur(function(){
+				blurred = true;
+			});
+
+
+			var storage;
 			try {
-				uid = new Date;
+				var uid = new Date;
 				(storage = window.localStorage).setItem(uid, uid);
-				fail = storage.getItem(uid) != uid;
+				var fail = storage.getItem(uid) != uid;
 				storage.removeItem(uid);
 				fail && (storage = false);
-			} catch(e) {}
-
-			var socket = null;
+			} catch(e) { storage = false; }
 			
-			setInterval(function () {
-				if (socket != null)
-					send({ Type: "ping" });
-			}, 500);
-			
-			function connect() {
-				socket = new WebSocket("ws://fpp.literallybrian.com:12000/"); // ws://209.141.59.194:12000/
+			var rohbot = null;
+			function initializeRohBot() {
+				var serverUri = "ws://fpp.literallybrian.com/ws/"; // ws://209.141.59.194:12000/
+				if (window.location.search == "?noproxy")
+					serverUri = "ws://fpp.literallybrian.com:12000/";
 				
-				socket.onopen = function (event) {
-					addMessage(0, "*", "Connected to RohPod.");
-					
+				rohbot = new RohBot(serverUri); 
+				rohbot.onconnected = function() {
 					if (storage) {
 						var user = storage.getItem("user");
 						var pass = storage.getItem("pass");
 						if (user !== null || pass !== null) {
-							login(user, pass, false);
+							rohbot.login(user, pass);
 							return;
 						}
 					}
-					
-					login("guest", "", true);
+						
+					rohbot.login("guest", hex_md5(""));
 				};
 				
-				socket.onclose = function (event) {
-					addMessage(0, "*", "Lost connection to RohPod. Retrying...");
-					socket = null;
-					
-					setTimeout(function () {
-						connect();
-					}, 1000);
-				};
-				
-				socket.onerror = function (event) {
-					addMessage(0, "*", "WebSocket error: " + event.data + ". Reconnecting...");
-					socket = null;
-					
-					setTimeout(function () {
-						connect();
-					}, 1000);
-				};
-				
-				socket.onmessage = function (event) {
-					var data = JSON.parse(event.data);
-					
-					switch (data.Type)
-					{
-						case "clientPermissions": {
-							if (data.CanChat) {
-								$("#chatInput").removeAttr("disabled");
-								$("#chatInput").val("");
-							} else {
-								$("#chatInput").attr("disabled","disabled");
-								$("#chatInput").val("Guests can not speak.");
-							}
-							break;
-						}
-						
-						case "chatHistory": {
-							for (var i = 0; i < data.Lines.length; i++) {
-								var line = data.Lines[i];
-								
-								switch (line.Type) {
-									case "chat":
-										addMessage(line.Date, line.Sender, line.Content);
-										break;
-									case "state":
-										addMessage(line.Date, "*", line.Content);
-										break;
-									case "whisper":
-										addMessage(line.Date, line.Sender + " -> " + line.Receiver, line.Content);
-										break;
-								}
-							}
-							
-							// make sure we scroll to the bottom
-							$("#messages").scrollTop($("#messages")[0].scrollHeight);
-							setTimeout(function () {
-								$("#messages").scrollTop($("#messages")[0].scrollHeight);
-							}, 250);
-							break;
-						}
-						
-						case "message": {
-							var line = data.Line;
-								
-							switch (line.Type) {
-								case "chat":
-									addMessage(line.Date, line.Sender, line.Content);
-									break;
-								case "state":
-									addMessage(line.Date, "*", line.Content);
-									break;
-								case "whisper":
-									addMessage(line.Date, line.Sender + " -> " + line.Receiver, line.Content);
-									break;
-							}
-							break;
-						}
-						
-						case "sysMessage": {
-							addMessage(data.Date, "*", data.Content);
-							break;
-						}
-						
-						case "stateChange": {
-							addMessage(data.Date, "*", data.Content);
-							break;
-						}
+				rohbot.onlogin = function(permissions) {
+					if (permissions.CanChat) {
+						$("#chatInput").removeAttr("disabled");
+						$("#chatInput").val("");
+					} else {
+						$("#chatInput").attr("disabled","disabled");
+						$("#chatInput").val("Guests can not speak.");
 					}
 				};
-			}
-			
-			function send(obj) {
-				try {
-					socket.send(JSON.stringify(obj));
-				} catch (err) { }
-			}
-			
-			function login(username, password, hash) {
-				if (hash) password = hex_md5(password);
-				send({ Type: "login", Username: username, Password: password });
-			}
-			
-			function chat(message) {
-				send({ Type: "sendMessage", Content: message });
+				
+				rohbot.onmessage = function(line) {
+					if(blurred){
+						missed++;
+						Tinycon.setBubble(missed);
+					}
+
+					switch (line.Type) {
+						case "chat":
+							addMessage(line.Date, line.Sender, line.Content);
+							break;
+						case "state":
+							addMessage(line.Date, "*", line.Content);
+							break;
+						case "whisper":
+							addMessage(line.Date, line.Sender + " -> " + line.Receiver, line.Content);
+							break;
+					}
+				};
+				
+				rohbot.onsysmessage = function(data) {
+					addMessage(data.Date, "*", data.Content);
+				};
+				
+				rohbot.onuserlist = function(users) {
+					var str = "In this chat: " + users.map(function(user) { return user.Name; }).join(", ");
+					addMessage(0, "*", str);
+				};
+				
+				rohbot.connect();
 			}
 			
 			function addMessage(date, sender, message) {
@@ -191,7 +143,7 @@
 			}
 			
 			$(document).ready(function () {
-				connect();
+				initializeRohBot();
 				
 				$("#chatSubmit").click(function () {
 					var msg = $("#chatInput").val();
@@ -212,14 +164,14 @@
 								addMessage(0, "*", "Radio enabled!");
 							}
 						} else {
-							chat(msg); // serverside command
+							rohbot.sendMessage(msg); // serverside commands
 						}
 						
 						$("#chatInput").val("");
 						return;
 					}
 					
-					chat(msg);
+					rohbot.sendMessage(msg);
 					$("#chatInput").val("");
 				});
 				
@@ -258,7 +210,7 @@
 					$("#login").toggle();
 				});
 				
-				$("#loginForm").submit(function () {
+				$("#loginSubmit").click(function () {
 					var user = $("#loginUsername").val();
 					var pass = $("#loginPassword").val();
 					
@@ -267,7 +219,7 @@
 						storage.setItem("pass", hex_md5(pass));
 					}
 					
-					login(user, pass, true);
+					rohbot.login(user, hex_md5(pass));
 					$("#loginUsername").val("");
 					$("#loginPassword").val("");
 					$("#login").toggle();
@@ -290,7 +242,6 @@
 		</script>
 	</head>
 	<body>
-		<!-- before u whine about how shit this is u fix it -->
 		<table>
 			<tr class="header dark">
 				<td>
@@ -326,7 +277,7 @@
 		</table>
 		
 		<div id="login" class="loginContainer" style="display:none">
-			<form id="loginForm" class="loginContent" action="">
+			<div class="loginContent">
 				<h2>Login</h2>
 				<table>
 					<tr>
@@ -350,11 +301,11 @@
 							<a id="loginCancel" class="button" style="float:left;margin:3px">Cancel</a>
 						</td>
 						<td>
-							<input class="button" style="margin:3px" type="submit" value="Login"/>
+							<a id="loginSubmit" class="button" style="margin:3px">Login</a
 						</td>
 					</tr>
 				</table>
-			</form>
+			</div>
 		</div>
 		
 		<div id="radioContainer" style="display:none"></div>
