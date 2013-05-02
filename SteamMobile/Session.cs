@@ -63,7 +63,7 @@ namespace SteamMobile
             return true;
         }
 
-        public static bool Ban(string user, out string response)
+        public static bool Ban(string user, bool banned, out string response)
         {
             var account = Accounts.Find(user);
             
@@ -79,10 +79,10 @@ namespace SteamMobile
                 return false;
             }
 
-            account.Banned = true;
+            account.Banned = banned;
             account.Save();
 
-            response = "Account banned.";
+            response = banned ? "Account banned." : "Account unbanned.";
             return true;
         }
     }

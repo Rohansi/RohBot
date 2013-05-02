@@ -9,7 +9,6 @@ namespace SteamMobile.Packets
         public string Username = null;
         public string Password = null;
 
-        // TODO: clean and better responses
         public static void Handle(Session session, Packet pack)
         {
             var packet = (Login)pack;

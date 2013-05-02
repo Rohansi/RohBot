@@ -26,7 +26,7 @@ namespace SteamMobile
         private static readonly LinkedList<HistoryLine> ChatHistory = new LinkedList<HistoryLine>();
 
         private static void Main()
-       {
+        {
             Logger.Info("Process starting");
 
             AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
@@ -119,6 +119,13 @@ namespace SteamMobile
 
             var senderName = Steam.GetName(messageSender);
 
+            if (messageSender == Steam.Bot.PersonaId && message.StartsWith("["))
+            {
+                var nameEnd = message.IndexOf(']');
+                senderName = message.Substring(1, nameEnd - 1);
+                message = message.Substring(nameEnd + 2);
+            }
+
             var line = new ChatLine(Util.GetCurrentUnixTimestamp(), "Steam", senderName, message);
             LogMessage(line);
 
@@ -210,7 +217,7 @@ namespace SteamMobile
             try
             {
                 lock (Sessions)
-                    session = Sessions[socket.ConnectionInfo.Id]; 
+                    session = Sessions[socket.ConnectionInfo.Id];
             }
             catch
             {

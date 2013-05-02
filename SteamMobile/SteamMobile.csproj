@@ -81,6 +81,8 @@
     <Compile Include="Accounts.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="Commands\Ban.cs" />
+    <Compile Include="Commands\Unban.cs" />
+    <Compile Include="Commands\Rejoin.cs" />
     <Compile Include="Commands\Uptime.cs" />
     <Compile Include="Commands\Kick.cs" />
     <Compile Include="Commands\Me.cs" />

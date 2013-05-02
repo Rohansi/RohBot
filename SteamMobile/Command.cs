@@ -124,7 +124,30 @@ namespace SteamMobile
                 {
                     if (reader.Peek() == -1)
                         break;
-                    word += (char)reader.Read();
+
+                    if (reader.Peek() == '\\')
+                    {
+                        reader.Read(); // skip \
+                        var ch = reader.Read();
+                        switch (ch)
+                        {
+                            case -1:
+                                break; // eof, do nothing
+                            case '\\':
+                                word += '\\';
+                                break;
+                            case '"':
+                                word += '"';
+                                break;
+                            default:
+                                word += (char)ch;
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        word += (char)reader.Read();
+                    }
                 }
                 reader.Read(); // skip close
             }

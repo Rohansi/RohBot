@@ -5,9 +5,9 @@ using System.Text;
 
 namespace SteamMobile.Commands
 {
-    public class Ban : Command
+    public class Unban : Command
     {
-        public override string Type { get { return "ban"; } }
+        public override string Type { get { return "unban"; } }
 
         public override string Format { get { return "]"; } }
 
@@ -19,17 +19,16 @@ namespace SteamMobile.Commands
             try
             {
                 var name = parameters[0];
-                Program.Logger.InfoFormat("User '{0}' banning '{1}'", target.Account.Name, name);
+                Program.Logger.InfoFormat("User '{0}' unbanning '{1}'", target.Account.Name, name);
 
                 string res;
-                Session.Ban(name.ToLower(), true, out res);
+                Session.Ban(name.ToLower(), false, out res);
                 target.Send(res);
-                Program.Kick(name, out res);
             }
             catch (Exception e)
             {
-                Program.Logger.Error("Ban", e);
-                target.Send("Failed to ban. Check logs.");
+                Program.Logger.Error("Unban", e);
+                target.Send("Failed to unban. Check logs.");
                 throw;
             }
         }

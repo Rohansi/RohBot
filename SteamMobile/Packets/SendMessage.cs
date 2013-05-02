@@ -16,7 +16,7 @@ namespace SteamMobile.Packets
             var packet = (SendMessage)pack;
             var message = packet.Content.Trim();
 
-            if (Program.MainChat == null || packet.Content.Length == 0) // TODO: warn user if mainchat == null
+            if (Program.MainChat == null || message.Length == 0)
                 return;
 
             // fpp filters

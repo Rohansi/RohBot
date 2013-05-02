@@ -9,7 +9,7 @@ namespace SteamMobile.Commands
     {
         public override string Type { get { return "users"; }  }
 
-        public override string Format { get { return ""; } }
+        public override string Format { get { return "]"; } }
 
         public override void Handle(CommandTarget target, string[] parameters)
         {
@@ -22,18 +22,24 @@ namespace SteamMobile.Commands
             foreach (var id in Program.MainChat.Members.Where(i => i != Steam.Bot.PersonaId))
             {
                 var groupMember = group.Members.FirstOrDefault(m => m.Id == id);
-                userList.AddUser("Steam", groupMember != null ? groupMember.Rank.ToString() : "Member", Steam.GetName(id));
+                userList.AddUser("Steam", groupMember != null ? groupMember.Rank.ToString() : "Member", Steam.GetName(id), 1);
             }
 
-            var sessions = Program.Sessions.Values.Select(ss => ss.Name).Distinct().ToList();
-            foreach (var session in sessions)
+            lock (Program.Sessions)
             {
-                userList.AddUser("RohBot", "Member", session);
+                var accounts = Program.Sessions.Values.Select(s => s.Account).Distinct();
+                foreach (var account in accounts.Where(account => account != null))
+                {
+                    userList.AddUser("RohBot", "Member", account.Name, Program.Sessions.Values.Count(s => s.Account == account));
+                }
             }
 
             userList.Users = userList.Users.OrderBy(u => u.Name).ToList();
 
-            Program.Send(target.Session, userList);
+            if (parameters.Length > 0 && parameters[0] == "json")
+                Program.Send(target.Session, userList);
+            else
+                target.Send("In this chat: " + string.Join(", ", userList.Users.Select(u => u.Name)));
         }
     }
 }
