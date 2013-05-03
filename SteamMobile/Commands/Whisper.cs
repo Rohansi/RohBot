@@ -17,7 +17,9 @@ namespace SteamMobile.Commands
             if (target.Account == null || !target.Account.Permissions.HasFlag(Permissions.Chat) || parameters.Length < 2)
                 return;
 
-            var receiver = parameters[0].ToLower();
+            target.Send("Whisper is disabled.");
+
+            /*var receiver = parameters[0].ToLower();
             var message = parameters[1];
 
             var senderAccount = target.Account;
@@ -48,7 +50,7 @@ namespace SteamMobile.Commands
             foreach (var session in sessions)
             {
                 Program.SendHistoryLine(session, line);
-            }
+            }*/
         }
     }
 }

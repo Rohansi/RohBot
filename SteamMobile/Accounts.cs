@@ -32,6 +32,7 @@ namespace SteamMobile
 
         public Permissions Permissions { get; private set; }
         public bool Banned { get; set; }
+        public string DefaultChat { get; set; }
 
         public string Reply = null;
 
@@ -46,7 +47,8 @@ namespace SteamMobile
                 Password,
                 Id = Id.ConvertToUInt64().ToString(),
                 Permissions,
-                Banned
+                Banned,
+                DefaultChat
             };
 
             File.WriteAllText(file, JsonConvert.SerializeObject(acc));
@@ -75,7 +77,8 @@ namespace SteamMobile
                     Id = new SteamID(ulong.Parse((string)obj.Id)),
 
                     Permissions = (Permissions)ushort.Parse((string)obj.Permissions),
-                    Banned = (bool)obj.Banned
+                    Banned = (bool)obj.Banned,
+                    DefaultChat = (string)obj.DefaultChat
                 };
             }
             catch (Exception e)
@@ -116,7 +119,7 @@ namespace SteamMobile
             return accounts.Values.FirstOrDefault(a => a.Id == id);
         }
 
-        public static List<SteamID> GetIds()
+        public static List<SteamID> GetSteamIds()
         {
             return accounts.Values.Where(a => a.Id.IsValid).Select(a => a.Id).ToList();
         } 

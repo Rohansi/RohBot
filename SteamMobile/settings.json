@@ -1,9 +1,21 @@
 ﻿{
     "Username": "",
     "Password": "",
-    "PersonaName": "Steven",
+    "PersonaName": "~",
+    "MaxDataSize": 4096,
 
-    "ChatId": "103582791430091926",
+    "Alias": {
+        "76561198011639924": "Jamie"
+    },
 
-    "MaxDataSize": 1500
+    "CommandIgnoreNames": "SweetiBot, ScootaBorg",
+    "CommandIgnore": [
+        "76561198060006931",
+        "76561198060797164"
+    ],
+
+    "DefaultChat": "fpp",
+    "Chats": {
+        "fpp": "103582791430091926"
+    }
 }

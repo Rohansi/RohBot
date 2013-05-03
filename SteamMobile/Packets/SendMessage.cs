@@ -16,8 +16,15 @@ namespace SteamMobile.Packets
             var packet = (SendMessage)pack;
             var message = packet.Content.Trim();
 
-            if (Program.MainChat == null || message.Length == 0)
+            if (message.Length == 0)
                 return;
+
+            GroupChat chat;
+            if (!Program.Chats.TryGetValue(session.Chat, out chat))
+            {
+                Program.SendSysMessage(session, "RohBot is not in the current chat.");
+                return;
+            }
 
             // fpp filters
             message = message.Replace("kick_me", "****");
@@ -34,7 +41,7 @@ namespace SteamMobile.Packets
                 return;
 
             message = string.Format("[{0}] {1}", session.Name, message);
-            Program.MainChat.Send(message);
+            chat.Send(message);
         }
     }
 }

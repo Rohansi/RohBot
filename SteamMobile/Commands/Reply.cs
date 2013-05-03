@@ -17,7 +17,9 @@ namespace SteamMobile.Commands
             if (target.Account == null || !target.Account.Permissions.HasFlag(Permissions.Chat))
                 return;
 
-            if (parameters.Length == 0)
+            target.Send("Whisper is disabled.");
+
+            /*if (parameters.Length == 0)
             {
                 var replyName = !string.IsNullOrWhiteSpace(target.Account.Reply) ? target.Account.Reply : null;
                 target.Send(string.Format("Replying to {0}.", replyName ?? "nobody"));
@@ -62,7 +64,7 @@ namespace SteamMobile.Commands
             }
 
             if (target.IsSession)
-                Program.SendHistoryLine(target.Session, line);
+                Program.SendHistoryLine(target.Session, line);*/
         }
     }
 }

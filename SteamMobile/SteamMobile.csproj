@@ -81,6 +81,7 @@
     <Compile Include="Accounts.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="Commands\Ban.cs" />
+    <Compile Include="Commands\ActiveChat.cs" />
     <Compile Include="Commands\Unban.cs" />
     <Compile Include="Commands\Rejoin.cs" />
     <Compile Include="Commands\Uptime.cs" />
@@ -108,6 +109,7 @@
     <Compile Include="Session.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Steam.cs" />
+    <Compile Include="GroupChat.cs" />
     <Compile Include="Ticker.cs" />
     <Compile Include="Util.cs" />
   </ItemGroup>

@@ -14,16 +14,12 @@ namespace SteamMobile
     static class Program
     {
         public static readonly ILog Logger = LogManager.GetLogger("Steam");
-        public static readonly ILog ChatLogger = LogManager.GetLogger("Chat");
 
         public static readonly DateTime StartTime = DateTime.Now;
 
         private static WebSocketServer server;
         public static Dictionary<Guid, Session> Sessions = new Dictionary<Guid, Session>();
-
-        public static Chat MainChat { get; private set; }
-
-        private static readonly LinkedList<HistoryLine> ChatHistory = new LinkedList<HistoryLine>();
+        public static Dictionary<string, GroupChat> Chats = new Dictionary<string, GroupChat>();
 
         private static void Main()
         {
@@ -34,8 +30,8 @@ namespace SteamMobile
                 Logger.Fatal("Unhandled exception: " + args.ExceptionObject);
                 Logger.Info("Process exiting");
             };
-
-            server = new WebSocketServer("ws://0.0.0.0:12000");
+            
+            server = new WebSocketServer("ws://0.0.0.0:12000/");
             server.Start(socket =>
             {
                 socket.OnOpen = () => OnConnected(socket);
@@ -47,12 +43,6 @@ namespace SteamMobile
 
             while (true)
             {
-                if (Steam.Status == Steam.ConnectionStatus.Disconnected)
-                    MainChat = null;
-
-                if (Steam.Status == Steam.ConnectionStatus.Connected && MainChat == null)
-                    JoinMainChat();
-
                 Steam.Update();
                 Ticker.Update();
 
@@ -61,141 +51,46 @@ namespace SteamMobile
                     Sessions.RemoveAll(kvp => !kvp.Value.Socket.IsAvailable);
 
                 // Warnings for connection status
-                if (Steam.Status != Steam.ConnectionStatus.Connected || MainChat == null)
+                if (Steam.Status != Steam.ConnectionStatus.Connected)
                 {
-                    var message = "";
-                    if (MainChat == null)
-                        message = "RohBot is not in its chat room.";
-                    if (Steam.Status != Steam.ConnectionStatus.Connected)
-                        message = "RohBot is not connected to Steam.";
-
                     foreach (var session in Sessions.Values.ToList())
                     {
-                        SendSysMessage(session, message);
+                        SendSysMessage(session, "RohBot is not connected to Steam.");
                     }
                 }
 
-                // Keep persona states up to date
                 if (Steam.Status == Steam.ConnectionStatus.Connected)
-                    Steam.Bot.SteamFriends.RequestFriendInfo(Accounts.GetIds());
+                {
+                    // Keep persona states up to date
+                    Steam.Bot.SteamFriends.RequestFriendInfo(Accounts.GetSteamIds());
+
+                    // Make sure group chats are current
+                    foreach (var group in Chats.Where(group => !Settings.Chats.Keys.Contains(group.Key)).ToList())
+                    {
+                        group.Value.Leave();
+                    }
+
+                    foreach (var group in Settings.Chats.Where(group => !Chats.Keys.Contains(group.Key)).ToList())
+                    {
+                        Chats.Add(group.Key, new GroupChat(group.Key, group.Value));
+                    }
+
+                    Chats.RemoveAll(c => !c.Value.Active);
+
+                    foreach (var group in Chats.Values.ToList())
+                    {
+                        group.Update();
+                    }
+                }
 
                 System.Threading.Thread.Sleep(2500);
             }
-        }
-
-        private static void JoinMainChat()
-        {
-            MainChat = Steam.Bot.Join(Settings.ChatId);
-            MainChat.EchoSelf = true;
-            MainChat.OnMessage += HandleMessage;
-            MainChat.OnUserEnter += HandleEnter;
-            MainChat.OnUserLeave += HandleLeave;
-            MainChat.OnLeave += (source, reason) => MainChat = null;
         }
 
         public static void Exit(string reason)
         {
             Logger.FatalFormat("Exiting: {0}", reason);
             Process.GetCurrentProcess().Kill();
-        }
-
-        private static readonly List<SteamID> Ignored = new List<SteamID>()
-        {
-            new SteamID(76561198060006931), // SweetiBot
-            new SteamID(76561198060797164)  // ScootaBorg
-        };
-
-        private static void HandleMessage(Chat sender, SteamID messageSender, string message)
-        {
-            var o = new
-            {
-                Time = Util.GetCurrentUnixTimestamp(),
-                Type = "Msg",
-                Sender = messageSender.Render(),
-                Name = Steam.GetName(messageSender),
-                Message = message
-            };
-            ChatLogger.Info(JsonConvert.SerializeObject(o));
-
-            var senderName = Steam.GetName(messageSender);
-
-            if (messageSender == Steam.Bot.PersonaId && message.StartsWith("["))
-            {
-                var nameEnd = message.IndexOf(']');
-                senderName = message.Substring(1, nameEnd - 1);
-                message = message.Substring(nameEnd + 2);
-            }
-
-            var line = new ChatLine(Util.GetCurrentUnixTimestamp(), "Steam", senderName, message);
-            LogMessage(line);
-
-            foreach (var sesion in Sessions.Values.ToList())
-            {
-                SendHistoryLine(sesion, line);
-            }
-
-            if (Ignored.Contains(messageSender) || messageSender == Steam.Bot.PersonaId)
-                return;
-
-            Command.Handle(CommandTarget.FromSteam(sender, messageSender), message, "~");
-        }
-
-        private static void HandleLeave(Chat sender, SteamID user, Chat.LeaveReason reason, SteamID sourceUser)
-        {
-            var o = new
-            {
-                Time = Util.GetCurrentUnixTimestamp(),
-                Type = "Leave",
-                Sender = user.Render(),
-                Reason = reason.ToString()
-            };
-            ChatLogger.Info(JsonConvert.SerializeObject(o));
-
-            var message = Steam.GetName(user);
-            switch (reason)
-            {
-                case Chat.LeaveReason.Left:
-                    message += " left chat.";
-                    break;
-                case Chat.LeaveReason.Disconnected:
-                    message += " disconnected.";
-                    break;
-                case Chat.LeaveReason.Kicked:
-                    message += string.Format(" was kicked by {0}.", Steam.GetName(sourceUser));
-                    break;
-                case Chat.LeaveReason.Banned:
-                    message += string.Format(" was banned by {0}.", Steam.GetName(sourceUser));
-                    break;
-            }
-
-            var line = new StateLine(Util.GetCurrentUnixTimestamp(), reason.ToString(), Steam.GetName(user), sourceUser != null ? Steam.GetName(sourceUser) : "", message);
-            LogMessage(line);
-
-            foreach (var s in Sessions.Values.ToList())
-            {
-                SendHistoryLine(s, line);
-            }
-        }
-
-        private static void HandleEnter(Chat sender, SteamID user)
-        {
-            var o = new
-            {
-                Time = Util.GetCurrentUnixTimestamp(),
-                Type = "Join",
-                Sender = user.Render()
-            };
-            ChatLogger.Info(JsonConvert.SerializeObject(o));
-
-            var message = Steam.GetName(user) + " entered chat.";
-
-            var line = new StateLine(Util.GetCurrentUnixTimestamp(), "Enter", Steam.GetName(user), "", message);
-            LogMessage(line);
-
-            foreach (var s in Sessions.Values.ToList())
-            {
-                SendHistoryLine(s, line);
-            }
         }
 
         private static void OnConnected(IWebSocketConnection socket)
@@ -294,15 +189,16 @@ namespace SteamMobile
 
         public static void SendHistory(Session session)
         {
-            var lines = ChatHistory.Where(l =>
-            {
-                var w = l as WhisperLine;
-                if (w != null)
-                    return (w.Sender == session.Name || w.Receiver == session.Name);
-                return true;
-            });
+            GroupChat chat;
 
-            var msg = new Packets.ChatHistory { Lines = lines };
+            if (!Chats.TryGetValue(session.Chat, out chat))
+            {
+                SendSysMessage(session, "RohBot is not in the current chat.");
+                return;
+            }
+
+            // TODO: whisper combine
+            var msg = new Packets.ChatHistory { Lines = chat.History };
             Send(session, msg);
         }
 
@@ -325,13 +221,6 @@ namespace SteamMobile
         public static void Send(Session session, Packet packet)
         {
             session.Socket.Send(Packet.WriteToMessage(packet));
-        }
-
-        public static void LogMessage(HistoryLine line)
-        {
-            if (ChatHistory.Count >= 150)
-                ChatHistory.RemoveFirst();
-            ChatHistory.AddLast(line);
         }
     }
 }

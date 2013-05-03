@@ -35,6 +35,7 @@ namespace SteamMobile
         }
 
         public bool HasBacklog = false;
+        public string Chat = Settings.DefaultChat;
 
         public Session(IWebSocketConnection socket)
         {
@@ -60,6 +61,7 @@ namespace SteamMobile
             }
 
             Username = user;
+            Chat = account.DefaultChat;
             return true;
         }
 

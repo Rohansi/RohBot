@@ -63,7 +63,7 @@ namespace SteamMobile
             bot.OnPrivateEnter += (sender, chat) =>
             {
                 chat.OnMessage += (chatSender, messageSender, message) =>
-                    Command.Handle(CommandTarget.FromSteam(chatSender, messageSender), message, "");
+                    Command.Handle(CommandTarget.FromPrivateChat(chatSender, messageSender), message, "");
             };
 
             bot.OnChatInvite += (sender, chat, @by) =>

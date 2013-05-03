@@ -64,7 +64,7 @@ namespace SteamMobile
             // default handler for non-existing commands
             if (!Commands.ContainsKey(type))
             {
-                if (target.IsChat && target.Chat == Program.MainChat)
+                if (target.IsGroupChat)
                     return true;
                 target.Send("Unknown command.");
                 return true;
@@ -176,18 +176,27 @@ namespace SteamMobile
 
     public class CommandTarget
     {
-        public readonly Chat Chat;
+        public readonly GroupChat GroupChat;
+        public readonly Chat PrivateChat;
         public readonly Session Session;
         public readonly Account Account;
 
-        public bool IsChat { get { return Chat != null; } }
+        public bool IsSteam { get { return Session == null; } }
+        public bool IsGroupChat { get { return GroupChat != null; } }
+        public bool IsPrivateChat { get { return PrivateChat != null; } }
         public bool IsSession { get { return Session != null; } }
 
         private CommandTarget() { }
 
+        private CommandTarget(GroupChat groupChat, SteamID sender)
+        {
+            GroupChat = groupChat;
+            Account = Accounts.Find(sender);
+        }
+
         private CommandTarget(Chat steamChat, SteamID sender)
         {
-            Chat = steamChat;
+            PrivateChat = steamChat;
             Account = Accounts.Find(sender);
         }
 
@@ -201,11 +210,18 @@ namespace SteamMobile
         {
             if (IsSession)
                 Program.SendSysMessage(Session, message);
-            else
-                Chat.Send(message);
+            else if (IsGroupChat)
+                GroupChat.Send(message);
+            else if (IsPrivateChat)
+                PrivateChat.Send(message);
         }
 
-        public static CommandTarget FromSteam(Chat steamChat, SteamID sender)
+        public static CommandTarget FromGroupChat(GroupChat groupChat, SteamID sender)
+        {
+            return new CommandTarget(groupChat, sender);
+        }
+
+        public static CommandTarget FromPrivateChat(Chat steamChat, SteamID sender)
         {
             return new CommandTarget(steamChat, sender);
         }
