@@ -17,9 +17,7 @@ namespace SteamMobile.Commands
             if (target.Account == null || !target.Account.Permissions.HasFlag(Permissions.Chat))
                 return;
 
-            target.Send("Whisper is disabled.");
-
-            /*if (parameters.Length == 0)
+            if (parameters.Length == 0)
             {
                 var replyName = !string.IsNullOrWhiteSpace(target.Account.Reply) ? target.Account.Reply : null;
                 target.Send(string.Format("Replying to {0}.", replyName ?? "nobody"));
@@ -38,6 +36,12 @@ namespace SteamMobile.Commands
             var senderAccount = target.Account;
             var receiverAccount = Accounts.Find(receiver);
 
+            if (senderAccount == receiverAccount)
+            {
+                target.Send("You can not whisper yourself.");
+                return;
+            }
+
             senderAccount.Reply = receiverAccount.Name;
             receiverAccount.Reply = senderAccount.Name;
 
@@ -52,19 +56,12 @@ namespace SteamMobile.Commands
             Steam.Bot.Join(receiverAccount.Id).Send(string.Format("From {0}: {1}", senderAccount.Name, message));
 
             var line = new WhisperLine(Util.GetCurrentUnixTimestamp(), senderAccount.Name, receiverAccount.Name, message);
-            Program.LogMessage(line);
+            Program.AddWhisper(line);
 
             foreach (var session in sessions)
             {
-                var account = Accounts.Get(session.Username);
-                if (account != null)
-                    account.Reply = target.Account.Name;
-
                 Program.SendHistoryLine(session, line);
             }
-
-            if (target.IsSession)
-                Program.SendHistoryLine(target.Session, line);*/
         }
     }
 }

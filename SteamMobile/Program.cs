@@ -20,6 +20,7 @@ namespace SteamMobile
         private static WebSocketServer server;
         public static Dictionary<Guid, Session> Sessions = new Dictionary<Guid, Session>();
         public static Dictionary<string, GroupChat> Chats = new Dictionary<string, GroupChat>();
+        public static LinkedList<HistoryLine> WhisperHistory = new LinkedList<HistoryLine>();
 
         private static void Main()
         {
@@ -30,7 +31,7 @@ namespace SteamMobile
                 Logger.Fatal("Unhandled exception: " + args.ExceptionObject);
                 Logger.Info("Process exiting");
             };
-            
+
             server = new WebSocketServer("ws://0.0.0.0:12000/");
             server.Start(socket =>
             {
@@ -197,8 +198,15 @@ namespace SteamMobile
                 return;
             }
 
-            // TODO: whisper combine
-            var msg = new Packets.ChatHistory { Lines = chat.History };
+            var lines = chat.History.Concat(WhisperHistory).Where(l =>
+            {
+                var w = l as WhisperLine;
+                if (w == null)
+                    return true;
+                return w.Sender == session.Name || w.Receiver == session.Name;
+            }).OrderBy(l => l.Date);
+
+            var msg = new Packets.ChatHistory { Lines = lines };
             Send(session, msg);
         }
 
@@ -221,6 +229,13 @@ namespace SteamMobile
         public static void Send(Session session, Packet packet)
         {
             session.Socket.Send(Packet.WriteToMessage(packet));
+        }
+
+        public static void AddWhisper(WhisperLine line)
+        {
+            if (WhisperHistory.Count > 150)
+                WhisperHistory.RemoveFirst();
+            WhisperHistory.AddLast(line);
         }
     }
 }

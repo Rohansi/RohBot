@@ -26,6 +26,13 @@ namespace SteamMobile.Commands
             {
                 case "default":
                     var defaultSet = (parameters.Length < 2) ? Settings.DefaultChat : parameters[1];
+
+                    if (!Program.Chats.ContainsKey(defaultSet.ToLower()))
+                    {
+                        target.Send("Chat does not exist.");
+                        return;
+                    }
+
                     target.Session.Chat = defaultSet;
                     target.Account.DefaultChat = defaultSet;
                     target.Account.Save();
@@ -36,6 +43,12 @@ namespace SteamMobile.Commands
                     target.Send("Available chats: " + string.Join(", ", Program.Chats.Keys));
                     break;
                 default:
+                    if (!Program.Chats.ContainsKey(parameters[0].ToLower()))
+                    {
+                        target.Send("Chat does not exist.");
+                        return;
+                    }
+
                     target.Session.Chat = parameters[0];
                     Program.SendHistory(target.Session);
                     target.Send("Switched to chat: " + parameters[0]);
