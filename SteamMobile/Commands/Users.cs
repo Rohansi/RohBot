@@ -29,18 +29,21 @@ namespace SteamMobile.Commands
             foreach (var id in chat.Members.Where(i => i != Steam.Bot.PersonaId))
             {
                 var groupMember = chat.Group.Members.FirstOrDefault(m => m.Id == id);
-                userList.AddUser("Steam", groupMember != null ? groupMember.Rank.ToString() : "Member", Steam.GetName(id), 1);
+                var rank = groupMember != null ? groupMember.Rank.ToString() : "Member";
+                var avatar = BitConverter.ToString(Steam.Bot.GetPersona(id).Avatar).Replace("-", "").ToLower();
+                userList.AddUser("Steam", rank, Steam.GetName(id), avatar);
             }
 
-            // TODO: only show who is watching
-            /*lock (Program.Sessions)
+            lock (Program.Sessions)
             {
-                var accounts = Program.Sessions.Values.Select(s => s.Account).Distinct();
+                var accounts = Program.Sessions.Values.Where(s => s.Chat == target.Session.Chat)
+                                                      .Select(s => s.Account).Distinct();
+                
                 foreach (var account in accounts.Where(account => account != null))
                 {
-                    userList.AddUser("RohBot", "Member", account.Name, Program.Sessions.Values.Count(s => s.Account == account));
+                    userList.AddUser("RohBot", "Member", account.Name, "");
                 }
-            }*/
+            }
 
             userList.Users = userList.Users.OrderBy(u => u.Name).ToList();
 

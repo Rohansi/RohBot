@@ -13,19 +13,20 @@ namespace SteamMobile.Commands
 
         public override void Handle(CommandTarget target, string[] parameters)
         {
-            if (target.Account == null || !target.IsSession)
+            if (!target.IsSession)
                 return;
 
             if (parameters.Length < 1)
             {
-                target.Send("Currently in: " + target.Session.Chat);
+                target.Send("Currently talking in: " + target.Session.Chat);
                 return;
             }
 
             switch (parameters[0])
             {
                 case "default":
-                    var defaultSet = (parameters.Length < 2) ? Settings.DefaultChat : parameters[1];
+                    var defaultChat = target.Account == null ? Settings.DefaultChat : target.Account.DefaultChat;
+                    var defaultSet = parameters.Length < 2 ? defaultChat : parameters[1];
 
                     if (!Program.Chats.ContainsKey(defaultSet.ToLower()))
                     {
@@ -34,24 +35,32 @@ namespace SteamMobile.Commands
                     }
 
                     target.Session.Chat = defaultSet;
-                    target.Account.DefaultChat = defaultSet;
-                    target.Account.Save();
+
+                    if (target.Account != null)
+                    {
+                        target.Account.DefaultChat = defaultSet;
+                        target.Account.Save();
+                    }
+
                     Program.SendHistory(target.Session);
                     target.Send("Switched to chat: " + defaultSet);
                     break;
+
                 case "list":
                     target.Send("Available chats: " + string.Join(", ", Program.Chats.Keys));
                     break;
+
                 default:
-                    if (!Program.Chats.ContainsKey(parameters[0].ToLower()))
+                    var chatSet = parameters[0].ToLower();
+                    if (!Program.Chats.ContainsKey(chatSet))
                     {
                         target.Send("Chat does not exist.");
                         return;
                     }
 
-                    target.Session.Chat = parameters[0];
+                    target.Session.Chat = chatSet;
                     Program.SendHistory(target.Session);
-                    target.Send("Switched to chat: " + parameters[0]);
+                    target.Send("Switched to chat: " + chatSet);
                     break;
             }
         }

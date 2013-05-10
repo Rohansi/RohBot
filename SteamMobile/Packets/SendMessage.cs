@@ -19,13 +19,6 @@ namespace SteamMobile.Packets
             if (message.Length == 0)
                 return;
 
-            GroupChat chat;
-            if (!Program.Chats.TryGetValue(session.Chat, out chat))
-            {
-                Program.SendSysMessage(session, "RohBot is not in the current chat.");
-                return;
-            }
-
             // fpp filters
             message = message.Replace("kick_me", "****");
             if (message.Contains("http") && message.Contains("window.location.href"))
@@ -39,6 +32,13 @@ namespace SteamMobile.Packets
 
             if (!session.Permissions.HasFlag(Permissions.Chat))
                 return;
+
+            GroupChat chat;
+            if (!Program.Chats.TryGetValue(session.Chat, out chat))
+            {
+                Program.SendSysMessage(session, "RohBot is not in the current chat.");
+                return;
+            }
 
             message = string.Format("[{0}] {1}", session.Name, message);
             chat.Send(message);

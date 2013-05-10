@@ -40,7 +40,7 @@ namespace SteamMobile
         public Session(IWebSocketConnection socket)
         {
             Socket = socket;
-            RemoteAddress = socket.ConnectionInfo.ClientIpAddress == "127.0.0.1" ? socket.ConnectionInfo.Host : socket.ConnectionInfo.ClientIpAddress;
+            RemoteAddress = socket.ConnectionInfo.ClientIpAddress; // using modified Fleck for this, uses X-Real-IP if needed
             Username = "";
         }
 
@@ -62,6 +62,14 @@ namespace SteamMobile
 
             Username = user;
             Chat = account.DefaultChat;
+
+            if (!Program.Chats.ContainsKey(Chat))
+            {
+                Chat = Settings.DefaultChat;
+                account.DefaultChat = Chat;
+                account.Save();
+            }
+
             return true;
         }
 

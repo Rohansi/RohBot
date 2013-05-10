@@ -82,6 +82,7 @@
     <Compile Include="Command.cs" />
     <Compile Include="Commands\Ban.cs" />
     <Compile Include="Commands\ActiveChat.cs" />
+    <Compile Include="Commands\Help.cs" />
     <Compile Include="Commands\Unban.cs" />
     <Compile Include="Commands\Rejoin.cs" />
     <Compile Include="Commands\Uptime.cs" />

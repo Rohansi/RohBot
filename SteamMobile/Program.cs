@@ -54,6 +54,8 @@ namespace SteamMobile
                 // Warnings for connection status
                 if (Steam.Status != Steam.ConnectionStatus.Connected)
                 {
+                    Chats.Clear();
+
                     foreach (var session in Sessions.Values.ToList())
                     {
                         SendSysMessage(session, "RohBot is not connected to Steam.");
