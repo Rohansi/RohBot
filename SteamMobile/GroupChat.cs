@@ -35,7 +35,7 @@ namespace SteamMobile
             {
                 if (Chat != null)
                 {
-                    Chat.Leave(Chat.LeaveReason.Left);
+                    Chat.Leave(ChatLeaveReason.Left);
                     Chat = null;
                 }
 
@@ -69,27 +69,34 @@ namespace SteamMobile
         {
             if (Chat != null)
             {
-                Chat.Leave(Chat.LeaveReason.Left);
+                Chat.Leave(ChatLeaveReason.Left);
                 Chat = null;
             }
 
             Active = false;
         }
 
-        private void HandleMessage(Chat sender, SteamID messageSender, string message)
+        private void HandleMessage(Chat sender, Persona messageSender, string message)
         {
-            var senderName = Steam.GetName(messageSender);
+            var senderName = Steam.GetName(messageSender.Id);
             var senderType = "Steam";
+            var senderId = messageSender.Id.ConvertToUInt64().ToString();
+            var inGame = false;
 
-            if (messageSender == Steam.Bot.PersonaId && message.StartsWith("["))
+            if (messageSender.Id == Steam.Bot.PersonaId && message.StartsWith("["))
             {
                 senderType = "RohBot";
                 var nameEnd = message.IndexOf(']');
                 senderName = message.Substring(1, nameEnd - 1);
+                senderId = senderName.GetHashCode().ToString();
                 message = message.Substring(nameEnd + 2);
             }
+            else
+            {
+                inGame = messageSender.Playing != null && messageSender.Playing.AppID != 0;
+            }
 
-            var line = new ChatLine(Util.GetCurrentUnixTimestamp(), senderType, senderName, message);
+            var line = new ChatLine(Util.GetCurrentUnixTimestamp(), senderType, senderName, senderId, message, inGame);
             AddHistory(line);
 
             foreach (var session in Program.Sessions.Values.ToList())
@@ -98,17 +105,17 @@ namespace SteamMobile
                     Program.SendHistoryLine(session, line);
             }
 
-            if (Settings.CommandIgnore.Contains(messageSender) || messageSender == Steam.Bot.PersonaId)
+            if (Settings.CommandIgnore.Contains(messageSender.Id) || messageSender.Id == Steam.Bot.PersonaId)
                 return;
 
-            Command.Handle(CommandTarget.FromGroupChat(this, messageSender), message, "~");
+            Command.Handle(CommandTarget.FromGroupChat(this, messageSender.Id), message, "~");
         }
 
-        private void HandleEnter(Chat sender, SteamID user)
+        private void HandleEnter(Chat sender, Persona user)
         {
-            var message = Steam.GetName(user) + " entered chat.";
+            var message = Steam.GetName(user.Id) + " entered chat.";
 
-            var line = new StateLine(Util.GetCurrentUnixTimestamp(), "Enter", Steam.GetName(user), "", message);
+            var line = new StateLine(Util.GetCurrentUnixTimestamp(), "Enter", Steam.GetName(user.Id), user.Id.ConvertToUInt64().ToString(), "", "0", message);
             AddHistory(line);
 
             foreach (var session in Program.Sessions.Values.ToList())
@@ -118,26 +125,29 @@ namespace SteamMobile
             }
         }
 
-        private void HandleLeave(Chat sender, SteamID user, Chat.LeaveReason reason, SteamID sourceUser)
+        private void HandleLeave(Chat sender, Persona user, ChatLeaveReason reason, Persona sourceUser)
         {
-            var message = Steam.GetName(user);
+            var message = Steam.GetName(user.Id);
             switch (reason)
             {
-                case Chat.LeaveReason.Left:
+                case ChatLeaveReason.Left:
                     message += " left chat.";
                     break;
-                case Chat.LeaveReason.Disconnected:
+                case ChatLeaveReason.Disconnected:
                     message += " disconnected.";
                     break;
-                case Chat.LeaveReason.Kicked:
-                    message += string.Format(" was kicked by {0}.", Steam.GetName(sourceUser));
+                case ChatLeaveReason.Kicked:
+                    message += string.Format(" was kicked by {0}.", Steam.GetName(sourceUser.Id));
                     break;
-                case Chat.LeaveReason.Banned:
-                    message += string.Format(" was banned by {0}.", Steam.GetName(sourceUser));
+                case ChatLeaveReason.Banned:
+                    message += string.Format(" was banned by {0}.", Steam.GetName(sourceUser.Id));
                     break;
             }
 
-            var line = new StateLine(Util.GetCurrentUnixTimestamp(), reason.ToString(), Steam.GetName(user), sourceUser != null ? Steam.GetName(sourceUser) : "", message);
+            var by = sourceUser != null ? Steam.GetName(sourceUser.Id) : "";
+            var byId = by != "" ? sourceUser.Id.ConvertToUInt64().ToString() : "0";
+
+            var line = new StateLine(Util.GetCurrentUnixTimestamp(), reason.ToString(), Steam.GetName(user.Id), user.Id.ConvertToUInt64().ToString(), by, byId, message);
             AddHistory(line);
 
             foreach (var session in Program.Sessions.Values.ToList())

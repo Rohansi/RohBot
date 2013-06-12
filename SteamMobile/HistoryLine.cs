@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using EzSteam;
 
 namespace SteamMobile
 {
@@ -22,12 +23,16 @@ namespace SteamMobile
 
         public readonly string UserType;
         public readonly string Sender;
+        public readonly string SenderId;
+        public readonly bool InGame;
 
-        public ChatLine(long date, string userType, string sender, string content)
+        public ChatLine(long date, string userType, string sender, string senderId, string content, bool inGame)
             : base(date, content)
         {
             UserType = WebUtility.HtmlEncode(userType);
             Sender = WebUtility.HtmlEncode(sender);
+            SenderId = senderId;
+            InGame = inGame;
         }
     }
 
@@ -37,14 +42,18 @@ namespace SteamMobile
 
         public readonly string State;
         public readonly string For;
+        public readonly string ForId;
         public readonly string By;
+        public readonly string ById;
 
-        public StateLine(long date, string state, string @for, string by, string content)
+        public StateLine(long date, string state, string @for, string forId, string by, string byId, string content)
             : base(date, content)
         {
             State = WebUtility.HtmlEncode(state);
             For = WebUtility.HtmlEncode(@for);
+            ForId = forId;
             By = WebUtility.HtmlEncode(by);
+            ById = byId;
         }
     }
 

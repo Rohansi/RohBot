@@ -58,18 +58,18 @@ namespace SteamMobile
                 Logger.Info("Disconnected");
             };
 
-            bot.OnFriendRequest += (sender, user) => bot.AddFriend(user);
+            bot.OnFriendRequest += (sender, user) => bot.AddFriend(user.Id);
 
             bot.OnPrivateEnter += (sender, chat) =>
             {
                 chat.OnMessage += (chatSender, messageSender, message) =>
-                    Command.Handle(CommandTarget.FromPrivateChat(chatSender, messageSender), message, "");
+                    Command.Handle(CommandTarget.FromPrivateChat(chatSender, messageSender.Id), message, "");
             };
 
             bot.OnChatInvite += (sender, chat, @by) =>
             {
-                if (chat.IsIndividualAccount)
-                    bot.Join(chat);
+                if (chat.Id.IsIndividualAccount)
+                    bot.Join(chat.Id);
             };
 
             bot.Connect();

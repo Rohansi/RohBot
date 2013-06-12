@@ -25,7 +25,7 @@ namespace SteamMobile.Commands
             }
 
             Program.Logger.InfoFormat("User '{0}' requesting rejoin for {1}.", target.Account.Name, parameters[0]);
-            chat.Chat.Leave(Chat.LeaveReason.Left);
+            chat.Chat.Leave(ChatLeaveReason.Left);
         }
     }
 }
