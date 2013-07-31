@@ -14,7 +14,7 @@ namespace SteamMobile.Commands
         public override void Handle(CommandTarget target, string[] parameters)
         {
             var uptime = DateTime.Now - Program.StartTime;
-            target.Send("Current uptime: " + uptime.ToString(@"dd\:hh\:mm\:ss\.ff"));
+            target.Send("Current uptime: " + string.Format("{0} days {1} hours {2} minutes {3} seconds", uptime.Days, uptime.Hours, uptime.Minutes, uptime.Seconds));
         }
     }
 }

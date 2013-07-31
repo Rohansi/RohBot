@@ -4,6 +4,11 @@
     "PersonaName": "~",
     "MaxDataSize": 4096,
 
+    "DbServer": "127.0.0.1:27017",
+    "DbName": "rohbot",
+    "DbUser": "server",
+    "DbPass": "",
+
     "Alias": {
         "76561198011639924": "Jamie"
     },

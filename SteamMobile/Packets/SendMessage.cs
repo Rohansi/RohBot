@@ -19,11 +19,6 @@ namespace SteamMobile.Packets
             if (message.Length == 0)
                 return;
 
-            // fpp filters
-            message = message.Replace("kick_me", "****");
-            if (message.Contains("http") && message.Contains("window.location.href"))
-                message = message.Replace("http", "****");
-
             if (!message.StartsWith("//") && Command.Handle(CommandTarget.FromSession(session), message))
                 return;
 
@@ -39,6 +34,9 @@ namespace SteamMobile.Packets
                 Program.SendSysMessage(session, "RohBot is not in the current chat.");
                 return;
             }
+
+            // owned
+            message = message.Replace('ː', ':');
 
             message = string.Format("[{0}] {1}", session.Name, message);
             chat.Send(message);

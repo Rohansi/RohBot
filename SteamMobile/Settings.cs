@@ -17,6 +17,12 @@ namespace SteamMobile
         public static Dictionary<string, string> Alias { get; private set; }
         public static List<SteamID> CommandIgnore { get; private set; } 
         public static string DefaultChat { get; private set; }
+
+        public static string DbServer { get; private set; }
+        public static string DbName { get; private set; }
+        public static string DbUser { get; private set; }
+        public static string DbPass { get; private set; }
+
         public static Dictionary<string, SteamID> Chats { get; private set; }
 
         static Settings()
@@ -32,6 +38,11 @@ namespace SteamMobile
             Password = (string)settings.Password;
             PersonaName = (string)settings.PersonaName;
             MaxDataSize = (int)settings.MaxDataSize;
+
+            DbServer = (string)settings.DbServer;
+            DbName = (string)settings.DbName;
+            DbUser = (string)settings.DbUser;
+            DbPass = (string)settings.DbPass;
 
             Alias = new Dictionary<string, string>();
             foreach (var kvp in (JObject)settings.Alias)

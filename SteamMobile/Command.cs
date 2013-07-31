@@ -50,51 +50,62 @@ namespace SteamMobile
 
         public static bool Handle(CommandTarget target, string message, string commandHeader = "/")
         {
-            if (!message.StartsWith(commandHeader))
+            if (string.IsNullOrWhiteSpace(message) || !message.StartsWith(commandHeader))
                 return false;
 
-            var commandStr = message.Substring(commandHeader.Length);
-
-            if (string.IsNullOrWhiteSpace(commandStr))
-                return false;
-
-            var reader = new StringReader(commandStr);
-            var type = (ReadWord(reader) ?? "").ToLower();
-
-            // default handler for non-existing commands
-            if (!Commands.ContainsKey(type))
+            try
             {
-                if (target.IsGroupChat)
-                    return true;
-                target.Send("Unknown command.");
-                return true;
-            }
+                var commandStr = message.Substring(commandHeader.Length);
 
-            var command = Commands[type];
-            var parameters = new List<string>();
+                if (string.IsNullOrWhiteSpace(commandStr))
+                    return false;
 
-            foreach (var p in command.Format)
-            {
-                var param = "";
+                var reader = new StringReader(commandStr);
+                var type = (ReadWord(reader) ?? "").ToLower();
 
-                switch (p)
+                // default handler for non-existing commands
+                if (!Commands.ContainsKey(type))
                 {
-                    case '-':
-                        param = ReadWord(reader);
-                        break;
-                    case ']':
-                        param = ReadRemaining(reader);
-                        break;
+                    if (target.IsGroupChat)
+                        return true;
+                    target.Send("Unknown command.");
+                    return true;
                 }
 
-                if (param == null)
-                    break;
+                var command = Commands[type];
+                var parameters = new List<string>();
 
-                parameters.Add(param);
+                foreach (var p in command.Format)
+                {
+                    var param = "";
+
+                    switch (p)
+                    {
+                        case '-':
+                            param = ReadWord(reader);
+                            break;
+                        case ']':
+                            param = ReadRemaining(reader);
+                            break;
+                    }
+
+                    if (param == null)
+                        break;
+
+                    parameters.Add(param);
+                }
+
+                command.Handle(target, parameters.ToArray());
+                return true;
             }
+            catch (Exception e)
+            {
+                if (target != null)
+                    target.Send("Command failed.");
 
-            command.Handle(target, parameters.ToArray());
-            return true;
+                Program.Logger.Error("Command failed: ", e);
+                return true;
+            }
         }
 
         private static string ReadRemaining(StringReader reader)

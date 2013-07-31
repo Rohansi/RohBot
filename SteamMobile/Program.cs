@@ -65,7 +65,7 @@ namespace SteamMobile
                 if (Steam.Status == Steam.ConnectionStatus.Connected)
                 {
                     // Keep persona states up to date
-                    Steam.Bot.SteamFriends.RequestFriendInfo(Accounts.GetSteamIds());
+                    //Steam.Bot.SteamFriends.RequestFriendInfo(Accounts.GetSteamIds());
 
                     // Make sure group chats are current
                     foreach (var group in Chats.Where(group => !Settings.Chats.Keys.Contains(group.Key)).ToList())
@@ -147,6 +147,10 @@ namespace SteamMobile
                     case "userData":
                         Packets.UserData.Handle(session, packet);
                         break;
+
+                    case "chatHistoryRequest":
+                        Packets.ChatHistoryRequest.Handle(session, packet);
+                        break;
                 }
             }
             catch (Exception e)
@@ -206,9 +210,9 @@ namespace SteamMobile
                 if (w == null)
                     return true;
                 return w.Sender == session.Name || w.Receiver == session.Name;
-            }).OrderBy(l => l.Date);
+            }).OrderByDescending(l => l.Date).Take(100).Reverse();
 
-            var msg = new Packets.ChatHistory { Lines = lines };
+            var msg = new Packets.ChatHistory { Requested = false, Chat = chat.Name, Lines = lines.ToList() };
             Send(session, msg);
         }
 
@@ -235,7 +239,7 @@ namespace SteamMobile
 
         public static void AddWhisper(WhisperLine line)
         {
-            if (WhisperHistory.Count > 150)
+            if (WhisperHistory.Count > 500)
                 WhisperHistory.RemoveFirst();
             WhisperHistory.AddLast(line);
         }

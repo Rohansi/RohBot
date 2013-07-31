@@ -78,10 +78,15 @@ namespace SteamMobile
 
         public static string GetName(SteamID steamId)
         {
+            var account = Accounts.Find(steamId);
+            if (account != null)
+                return account.Name;
+
             var id = steamId.ConvertToUInt64().ToString();
             string name;
             if (Settings.Alias.TryGetValue(id, out name))
                 return name;
+
             return Bot.GetPersona(steamId).Name;
         }
     }

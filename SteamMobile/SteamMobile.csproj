@@ -60,6 +60,12 @@
     <Reference Include="log4net">
       <HintPath>..\Libraries\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="MongoDB.Bson">
+      <HintPath>..\Libraries\MongoDB.Bson.dll</HintPath>
+    </Reference>
+    <Reference Include="MongoDB.Driver">
+      <HintPath>..\Libraries\MongoDB.Driver.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\Newtonsoft.Json.dll</HintPath>
@@ -94,9 +100,11 @@
     <Compile Include="Commands\Sessions.cs" />
     <Compile Include="Commands\Users.cs" />
     <Compile Include="Commands\Whisper.cs" />
+    <Compile Include="Database.cs" />
     <Compile Include="HistoryLine.cs" />
     <Compile Include="Packet.cs" />
     <Compile Include="Packets\ChatHistory.cs" />
+    <Compile Include="Packets\ChatHistoryRequest.cs" />
     <Compile Include="Packets\Login.cs" />
     <Compile Include="Packets\Message.cs" />
     <Compile Include="Packets\ClientPermissions.cs" />
