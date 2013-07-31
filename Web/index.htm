@@ -2,15 +2,33 @@
 <html>
 	<head>
 		<meta charset="utf-8"/>
-		<link rel="shortcut icon" href="/icon.png"/>
+		<link rel="icon" type="image/png" href="icon.png"/>
 		<title>FP Programmers</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 		<script src="jquery-1.9.1.min.js"></script>
 		<script src="md5-min.js"></script>
 		<script src="rohbot.api.js"></script>
+		<script src="tinycon.js"></script>
 		<link rel="stylesheet" type="text/css" href="main.css"/>
 		
 		<script>
+
+		missed = 0;
+			$(document).ready(function(){
+				blurred = false;
+			});
+
+			$(document).focus(function(){
+				blurred = false;
+				missed = 0;
+				Tinycon.setBubble(0);
+			});
+
+			$(window).blur(function(){
+				blurred = true;
+			});
+
+
 			var storage;
 			try {
 				var uid = new Date;
@@ -51,6 +69,11 @@
 				};
 				
 				rohbot.onmessage = function(line) {
+					if(blurred){
+						missed++;
+						Tinycon.setBubble(missed);
+					}
+
 					switch (line.Type) {
 						case "chat":
 							addMessage(line.Date, line.Sender, line.Content);
