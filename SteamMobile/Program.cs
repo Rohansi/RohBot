@@ -22,9 +22,6 @@ namespace SteamMobile
 
         private static void Main()
         {
-            Console.WriteLine(LinkTitles.Lookup("http://open.spotify.com/track/6NaBDHz9C7Uz9Z9CwLXQin"));
-            return;
-
             Logger.Info("Process starting");
 
             AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
@@ -89,7 +86,7 @@ namespace SteamMobile
                     }
                 }
 
-                System.Threading.Thread.Sleep(2500);
+                Thread.Sleep(2500);
             }
         }
 
