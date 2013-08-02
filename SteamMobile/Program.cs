@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using EzSteam;
-using Newtonsoft.Json;
-using SteamKit2;
+using System.Threading;
 using Fleck;
 using log4net;
 
@@ -24,6 +22,9 @@ namespace SteamMobile
 
         private static void Main()
         {
+            Console.WriteLine(LinkTitles.Lookup("http://open.spotify.com/track/6NaBDHz9C7Uz9Z9CwLXQin"));
+            return;
+
             Logger.Info("Process starting");
 
             AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
@@ -31,6 +32,8 @@ namespace SteamMobile
                 Logger.Fatal("Unhandled exception: " + args.ExceptionObject);
                 Logger.Info("Process exiting");
             };
+
+            ThreadPool.SetMaxThreads(3, 1);
 
             server = new WebSocketServer("ws://0.0.0.0:12000/");
             server.Start(socket =>

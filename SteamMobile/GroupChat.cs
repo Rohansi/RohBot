@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using EzSteam;
 using SteamKit2;
 
@@ -101,6 +102,17 @@ namespace SteamMobile
             {
                 if (session.Chat == Name)
                     Program.SendHistoryLine(session, line);
+            }
+
+            if (!(messageSender.Id == Steam.Bot.PersonaId && !message.StartsWith("[")))
+            {
+                ThreadPool.QueueUserWorkItem(a =>
+                {
+                    Thread.Sleep(100);
+                    var titles = LinkTitles.Lookup(message);
+                    if (!string.IsNullOrWhiteSpace(titles))
+                        sender.Send(titles);
+                });
             }
 
             if (Settings.CommandIgnore.Contains(messageSender.Id) || messageSender.Id == Steam.Bot.PersonaId)
