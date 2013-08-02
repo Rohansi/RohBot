@@ -63,7 +63,7 @@ namespace SteamMobile
                     string youtubeUrl = null;
                     try
                     {
-                        var apiQuery = string.Format("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&order=relevance&q=" + ytName + "%20%2B%20" + ytArtist + "&key=" + ApiKey);
+                        var apiQuery = string.Format("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&order=relevance&q={0}%20%2B%20{1}&key={2}", ytName, ytArtist, ApiKey);
                         var ytResponse = DownloadPage(apiQuery);
 
                         var ytToken = JObject.Parse(ytResponse);
