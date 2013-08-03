@@ -64,9 +64,6 @@ namespace SteamMobile
 
                 if (Steam.Status == Steam.ConnectionStatus.Connected)
                 {
-                    // Keep persona states up to date
-                    //Steam.Bot.SteamFriends.RequestFriendInfo(Accounts.GetSteamIds());
-
                     // Make sure group chats are current
                     foreach (var group in Chats.Where(group => !Settings.Chats.Keys.Contains(group.Key)).ToList())
                     {

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net;
-using EzSteam;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 

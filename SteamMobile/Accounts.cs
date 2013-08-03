@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Newtonsoft.Json;
 using SteamKit2;
 
@@ -45,7 +44,7 @@ namespace SteamMobile
             {
                 Name,
                 Password,
-                Id = Id.ConvertToUInt64().ToString(),
+                Id = Id.ConvertToUInt64().ToString("D"),
                 Permissions,
                 Banned,
                 DefaultChat
@@ -68,7 +67,7 @@ namespace SteamMobile
             {
                 dynamic obj = JsonConvert.DeserializeObject(File.ReadAllText(file));
 
-                res = new Account()
+                res = new Account
                 {
                     Username = name,
                     Password = (string)obj.Password,

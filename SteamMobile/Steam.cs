@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using EzSteam;
 using SteamKit2;
 using log4net;
@@ -82,7 +79,7 @@ namespace SteamMobile
             if (account != null)
                 return account.Name;
 
-            var id = steamId.ConvertToUInt64().ToString();
+            var id = steamId.ConvertToUInt64().ToString("D");
             string name;
             if (Settings.Alias.TryGetValue(id, out name))
                 return name;

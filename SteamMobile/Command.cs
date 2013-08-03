@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using EzSteam;
 using SteamKit2;
 
@@ -196,8 +195,6 @@ namespace SteamMobile
         public bool IsGroupChat { get { return GroupChat != null; } }
         public bool IsPrivateChat { get { return PrivateChat != null; } }
         public bool IsSession { get { return Session != null; } }
-
-        private CommandTarget() { }
 
         private CommandTarget(GroupChat groupChat, SteamID sender)
         {

@@ -79,7 +79,7 @@ namespace SteamMobile
         {
             var senderName = Steam.GetName(messageSender.Id);
             var senderType = "Steam";
-            var senderId = messageSender.Id.ConvertToUInt64().ToString();
+            var senderId = messageSender.Id.ConvertToUInt64().ToString("D");
             var inGame = false;
 
             if (messageSender.Id == Steam.Bot.PersonaId && message.StartsWith("["))
@@ -87,12 +87,12 @@ namespace SteamMobile
                 senderType = "RohBot";
                 var nameEnd = message.IndexOf(']');
                 senderName = message.Substring(1, nameEnd - 1);
-                senderId = senderName.GetHashCode().ToString();
+                senderId = senderName.GetHashCode().ToString("D");
                 message = message.Substring(nameEnd + 2);
             }
             else
             {
-                inGame = messageSender.Playing != null && messageSender.Playing.AppID != 0;
+                inGame = messageSender.Playing != null && messageSender.Playing.ToUInt64() != 0;
             }
 
             var line = new ChatLine(Util.GetCurrentUnixTimestamp(), Name, senderType, senderName, senderId, message, inGame);
@@ -108,7 +108,6 @@ namespace SteamMobile
             {
                 ThreadPool.QueueUserWorkItem(a =>
                 {
-                    Thread.Sleep(100);
                     var titles = LinkTitles.Lookup(message);
                     if (!string.IsNullOrWhiteSpace(titles))
                         sender.Send(titles);
@@ -125,7 +124,7 @@ namespace SteamMobile
         {
             var message = Steam.GetName(user.Id) + " entered chat.";
 
-            var line = new StateLine(Util.GetCurrentUnixTimestamp(), Name, "Enter", Steam.GetName(user.Id), user.Id.ConvertToUInt64().ToString(), "", "0", message);
+            var line = new StateLine(Util.GetCurrentUnixTimestamp(), Name, "Enter", Steam.GetName(user.Id), user.Id.ConvertToUInt64().ToString("D"), "", "0", message);
             AddHistory(line);
 
             foreach (var session in Program.Sessions.Values.ToList())
@@ -155,9 +154,9 @@ namespace SteamMobile
             }
 
             var by = sourceUser != null ? Steam.GetName(sourceUser.Id) : "";
-            var byId = by != "" ? sourceUser.Id.ConvertToUInt64().ToString() : "0";
+            var byId = sourceUser != null ? sourceUser.Id.ConvertToUInt64().ToString("D") : "0";
 
-            var line = new StateLine(Util.GetCurrentUnixTimestamp(), Name, reason.ToString(), Steam.GetName(user.Id), user.Id.ConvertToUInt64().ToString(), by, byId, message);
+            var line = new StateLine(Util.GetCurrentUnixTimestamp(), Name, reason.ToString(), Steam.GetName(user.Id), user.Id.ConvertToUInt64().ToString("D"), by, byId, message);
             AddHistory(line);
 
             foreach (var session in Program.Sessions.Values.ToList())

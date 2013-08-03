@@ -51,7 +51,7 @@ namespace SteamMobile.Packets
                 session.HasBacklog = true;
             }
 
-            var o = new Packets.ClientPermissions
+            var o = new ClientPermissions
             {
                 Username = session.Name,
                 CanChat = session.Permissions.HasFlag(Permissions.Chat)
