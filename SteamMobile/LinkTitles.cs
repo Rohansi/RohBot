@@ -90,12 +90,17 @@ namespace SteamMobile
 
                 try
                 {
-                    var apiRequestUrl = string.Format(@"http://gdata.youtube.com/feeds/api/videos/{0}?alt=json&fields=title", match.Groups[1].Value);
+                    var apiRequestUrl = string.Format(@"http://gdata.youtube.com/feeds/api/videos/{0}?alt=json", match.Groups[1].Value);
                     var responseFromServer = DownloadPage(apiRequestUrl);
 
                     var token = JObject.Parse(responseFromServer);
                     var name = token["entry"]["title"]["$t"].ToObject<string>();
-                    response = string.Format("YouTube: {0}", name);
+                    var length = token["entry"]["media$group"]["media$content"].First()["duration"].ToObject<int>();
+                    var formattedlength = TimeSpan.FromSeconds(length).ToString(@"mm\:ss");
+                    var numStars = Math.Round(token["entry"]["gd$rating"]["average"].ToObject<double>());
+                    var stars = new string('★', (int)numStars).PadRight(5, '☆');
+
+                    response = string.Format("YouTube: {0} ({1}) [{2}]", name, formattedlength, stars);
                 }
                 catch { }
 

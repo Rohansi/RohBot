@@ -104,7 +104,7 @@ namespace SteamMobile
                     Program.SendHistoryLine(session, line);
             }
 
-            if (!(messageSender.Id == Steam.Bot.PersonaId && !message.StartsWith("[")))
+            if (!(messageSender.Id == Steam.Bot.PersonaId && senderType != "RohBot"))
             {
                 ThreadPool.QueueUserWorkItem(a =>
                 {

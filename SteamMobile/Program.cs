@@ -30,7 +30,7 @@ namespace SteamMobile
                 Logger.Info("Process exiting");
             };
 
-            ThreadPool.SetMaxThreads(3, 1);
+            ThreadPool.SetMaxThreads(5, 1);
 
             server = new WebSocketServer("ws://0.0.0.0:12000/");
             server.Start(socket =>
