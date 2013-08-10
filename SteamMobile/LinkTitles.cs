@@ -29,9 +29,10 @@ namespace SteamMobile
             return sb.ToString();
         }
 
+        private static Regex spotify = new Regex(@"(http|https):\/\/\w*?.spotify.com\/track\/([\w]+)", RegexOptions.Compiled);
         private static IEnumerable<Tuple<int, string>> LookupSpotify(string message)
         {
-            var matches = Regex.Matches(message, @"(http|https):\/\/\w*?.spotify.com\/track\/([\w]+)");
+            var matches = spotify.Matches(message);
 
             foreach (Match match in matches)
             {
@@ -79,9 +80,12 @@ namespace SteamMobile
             }
         }
 
+        private static Regex youtube = new Regex(@"youtube\.com/.*?(?:&|\?)v=([a-zA-Z0-9-_]+)", RegexOptions.Compiled);
+        private static Regex youtubeShort = new Regex(@"youtu\.be/([a-zA-Z0-9-_]+)", RegexOptions.Compiled);
         private static IEnumerable<Tuple<int, string>> LookupYoutube(string message)
         {
-            var matches = Regex.Matches(message, @"youtu(?:\.be|be\.com)/(?:.*?v(?:/|=)|(?:.*/)?)([a-zA-Z0-9-_]+)");
+            var matches = youtube.Matches(message).Cast<Match>();
+            matches = matches.Concat(youtubeShort.Matches(message).Cast<Match>());
 
             foreach (Match match in matches)
             {
@@ -97,12 +101,16 @@ namespace SteamMobile
                     var name = token["entry"]["title"]["$t"].ToObject<string>();
                     var length = token["entry"]["media$group"]["media$content"].First()["duration"].ToObject<int>();
                     var formattedlength = TimeSpan.FromSeconds(length).ToString(@"mm\:ss");
-                    var numStars = Math.Round(token["entry"]["gd$rating"]["average"].ToObject<double>());
-                    var stars = new string('★', (int)numStars).PadRight(5, '☆');
 
-                    response = string.Format("YouTube: {0} ({1}) [{2}]", name, formattedlength, stars);
-                }
-                catch { }
+                    var stars = "";
+                    try
+                    {
+                        var numStars = Math.Round(token["entry"]["gd$rating"]["average"].ToObject<double>());
+                        stars = string.Format(" [{0}]", new string('★', (int)numStars).PadRight(5, '☆'));
+                    } catch { }
+
+                    response = string.Format("YouTube: {0} ({1}){2}", name, formattedlength, stars);
+                } catch { }
 
                 yield return Tuple.Create(offset, response);
             }
