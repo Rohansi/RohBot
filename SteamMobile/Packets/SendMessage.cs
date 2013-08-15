@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 
 namespace SteamMobile.Packets
 {
@@ -34,6 +35,9 @@ namespace SteamMobile.Packets
 
             // owned
             message = message.Replace('ː', ':');
+
+            if (session.Account.Permissions.HasFlag(Permissions.Alliance) && !(message.Contains("https://") || message.Contains("http://")))
+                message = Regex.Replace(message, "a", "[A]", RegexOptions.IgnoreCase);
 
             message = string.Format("[{0}] {1}", session.Name, message);
             chat.Send(message);

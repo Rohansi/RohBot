@@ -16,6 +16,7 @@ namespace SteamMobile
         Ban = 1 << 1,
         BanProof = 1 << 2,
 
+        Alliance = 1 << 14,
         Admin = 1 << 15,
 
         All = ushort.MaxValue
@@ -138,5 +139,10 @@ namespace SteamMobile
                 accounts.Add(accountName.ToLower(), account);
             }
         }
+
+        public static List<Account> List()
+        {
+            return accounts.Select(i => i.Value).ToList();
+        } 
     }
 }
