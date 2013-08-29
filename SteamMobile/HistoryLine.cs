@@ -1,25 +1,26 @@
 ﻿using System;
 using System.Net;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
 
 namespace SteamMobile
 {
-    [BsonKnownTypes(typeof(ChatLine), typeof(StateLine), typeof(WhisperLine))]
     public abstract class HistoryLine
     {
         public abstract string Type { get; }
 
-        public ObjectId Id;
-        public long Date;
-        public string Chat;
-        public string Content;
+        public readonly long Date;
+        public readonly string Chat;
+        public readonly string Content;
 
-        protected HistoryLine(long date, string chat, string content)
+        protected HistoryLine(long date, string chat, string content, bool encode = true)
         {
             Date = date;
             Chat = chat;
-            Content = WebUtility.HtmlEncode(content);
+            Content = HtmlEncode(encode, content);
+        }
+
+        protected static string HtmlEncode(bool doStuff, string value)
+        {
+            return doStuff ? WebUtility.HtmlEncode(value) : value;
         }
     }
 
@@ -27,16 +28,16 @@ namespace SteamMobile
     {
         public override string Type { get { return "chat"; } }
 
-        public string UserType;
-        public string Sender;
-        public string SenderId;
-        public bool InGame;
+        public readonly string UserType;
+        public readonly string Sender;
+        public readonly string SenderId;
+        public readonly bool InGame;
 
-        public ChatLine(long date, string chat, string userType, string sender, string senderId, string content, bool inGame)
-            : base(date, chat, content)
+        public ChatLine(long date, string chat, string content, string userType, string sender, string senderId, bool inGame, bool encode = true)
+            : base(date, chat, content, encode)
         {
-            UserType = WebUtility.HtmlEncode(userType);
-            Sender = WebUtility.HtmlEncode(sender);
+            UserType = HtmlEncode(encode, userType);
+            Sender = HtmlEncode(encode, sender);
             SenderId = senderId;
             InGame = inGame;
         }
@@ -46,19 +47,19 @@ namespace SteamMobile
     {
         public override string Type { get { return "state"; } }
 
-        public string State;
-        public string For;
-        public string ForId;
-        public string By;
-        public string ById;
+        public readonly string State;
+        public readonly string For;
+        public readonly string ForId;
+        public readonly string By;
+        public readonly string ById;
 
-        public StateLine(long date, string chat, string state, string @for, string forId, string by, string byId, string content)
-            : base(date, chat, content)
+        public StateLine(long date, string chat, string content, string state, string @for, string forId, string by, string byId, bool encode = true)
+            : base(date, chat, content, encode)
         {
-            State = WebUtility.HtmlEncode(state);
-            For = WebUtility.HtmlEncode(@for);
+            State = HtmlEncode(encode, state);
+            For = HtmlEncode(encode, @for);
             ForId = forId;
-            By = WebUtility.HtmlEncode(by);
+            By = HtmlEncode(encode, by);
             ById = byId;
         }
     }
@@ -67,14 +68,14 @@ namespace SteamMobile
     {
         public override string Type { get { return "whisper"; } }
 
-        public string Sender;
-        public string Receiver;
+        public readonly string Sender;
+        public readonly string Receiver;
 
-        public WhisperLine(long date, string sender, string receiver, string content)
-            : base(date, "whisper", content)
+        public WhisperLine(long date, string content, string sender, string receiver, bool encode = true)
+            : base(date, "whisper", content, encode)
         {
-            Sender = WebUtility.HtmlEncode(sender);
-            Receiver = WebUtility.HtmlEncode(receiver);
+            Sender = HtmlEncode(encode, sender);
+            Receiver = HtmlEncode(encode, receiver);
         }
     }
 }

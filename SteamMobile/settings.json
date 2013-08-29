@@ -4,7 +4,7 @@
     "PersonaName": "~",
     "MaxDataSize": 4096,
 
-    "DbServer": "127.0.0.1:27017",
+    "DbServer": "127.0.0.1:3306",
     "DbName": "rohbot",
     "DbUser": "server",
     "DbPass": "",

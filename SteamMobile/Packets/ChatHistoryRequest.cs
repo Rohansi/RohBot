@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using MongoDB.Driver.Linq;
 
 namespace SteamMobile.Packets
 {
@@ -17,7 +16,7 @@ namespace SteamMobile.Packets
         {
             var packet = (ChatHistoryRequest)pack;
 
-            var lines = Database.ChatHistory.AsQueryable()
+            /*var lines = Database.ChatHistory.AsQueryable()
                                 .Where(r => r.Chat == session.Chat && r.Date < packet.AfterDate)
                                 .OrderByDescending(r => r.Date)
                                 .Take(100).ToList();
@@ -30,7 +29,7 @@ namespace SteamMobile.Packets
                 Lines = lines
             };
 
-            Program.Send(session, historyPack);
+            Program.Send(session, historyPack);*/
         }
     }
 }

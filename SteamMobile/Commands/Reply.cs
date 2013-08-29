@@ -53,7 +53,7 @@ namespace SteamMobile.Commands
 
             Steam.Bot.Join(receiverAccount.Id).Send(string.Format("From {0}: {1}", senderAccount.Name, message));
 
-            var line = new WhisperLine(Util.GetCurrentUnixTimestamp(), senderAccount.Name, receiverAccount.Name, message);
+            var line = new WhisperLine(Util.GetCurrentUnixTimestamp(), message, senderAccount.Name, receiverAccount.Name);
             Program.AddWhisper(line);
 
             foreach (var session in sessions)

@@ -95,7 +95,7 @@ namespace SteamMobile
                 inGame = messageSender.Playing != null && messageSender.Playing.ToUInt64() != 0;
             }
 
-            var line = new ChatLine(Util.GetCurrentUnixTimestamp(), Name, senderType, senderName, senderId, message, inGame);
+            var line = new ChatLine(Util.GetCurrentUnixTimestamp(), Name, message, senderType, senderName, senderId, inGame);
             AddHistory(line);
 
             foreach (var session in Program.Sessions.Values.ToList())
@@ -124,7 +124,7 @@ namespace SteamMobile
         {
             var message = Steam.GetName(user.Id) + " entered chat.";
 
-            var line = new StateLine(Util.GetCurrentUnixTimestamp(), Name, "Enter", Steam.GetName(user.Id), user.Id.ConvertToUInt64().ToString("D"), "", "0", message);
+            var line = new StateLine(Util.GetCurrentUnixTimestamp(), Name, message, "Enter", Steam.GetName(user.Id), user.Id.ConvertToUInt64().ToString("D"), "", "0");
             AddHistory(line);
 
             foreach (var session in Program.Sessions.Values.ToList())
@@ -156,7 +156,7 @@ namespace SteamMobile
             var by = sourceUser != null ? Steam.GetName(sourceUser.Id) : "";
             var byId = sourceUser != null ? sourceUser.Id.ConvertToUInt64().ToString("D") : "0";
 
-            var line = new StateLine(Util.GetCurrentUnixTimestamp(), Name, reason.ToString(), Steam.GetName(user.Id), user.Id.ConvertToUInt64().ToString("D"), by, byId, message);
+            var line = new StateLine(Util.GetCurrentUnixTimestamp(), Name, message, reason.ToString(), Steam.GetName(user.Id), user.Id.ConvertToUInt64().ToString("D"), by, byId);
             AddHistory(line);
 
             foreach (var session in Program.Sessions.Values.ToList())
@@ -172,7 +172,8 @@ namespace SteamMobile
                 history.RemoveFirst();
             history.AddLast(line);
 
-            Database.ChatHistory.Insert(line);
+            // TODO
+            //Database.ChatHistory.Insert(line);
         }
     }
 }

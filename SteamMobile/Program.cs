@@ -30,7 +30,7 @@ namespace SteamMobile
                 Logger.Info("Process exiting");
             };
 
-            ThreadPool.SetMaxThreads(5, 1);
+            ThreadPool.SetMaxThreads(4, 1);
 
             server = new WebSocketServer("ws://0.0.0.0:12000/");
             server.Start(socket =>
@@ -42,16 +42,11 @@ namespace SteamMobile
 
             Steam.Initialize(Settings.Username, Settings.Password);
 
-            while (true)
+            var scheduler = new TaskScheduler();
+
+            // Warnings for connection status
+            scheduler.Add(TimeSpan.FromSeconds(5), () =>
             {
-                Steam.Update();
-                Ticker.Update();
-
-                // HACK: fix weird fleck behavior
-                lock (Sessions)
-                    Sessions.RemoveAll(kvp => !kvp.Value.Socket.IsAvailable);
-
-                // Warnings for connection status
                 if (Steam.Status != Steam.ConnectionStatus.Connected)
                 {
                     Chats.Clear();
@@ -61,6 +56,18 @@ namespace SteamMobile
                         SendSysMessage(session, "RohBot is not connected to Steam.");
                     }
                 }
+            });
+
+            scheduler.Add(TimeSpan.FromSeconds(2.5), Ticker.Update);
+
+            while (true)
+            {
+                scheduler.Run();
+                Steam.Update();
+
+                // HACK: fix weird fleck behavior
+                lock (Sessions)
+                    Sessions.RemoveAll(kvp => !kvp.Value.Socket.IsAvailable);
 
                 if (Steam.Status == Steam.ConnectionStatus.Connected)
                 {
@@ -83,7 +90,7 @@ namespace SteamMobile
                     }
                 }
 
-                Thread.Sleep(2500);
+                Thread.Sleep(1000);
             }
         }
 
