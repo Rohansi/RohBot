@@ -51,7 +51,7 @@ namespace SteamMobile
                     var length = track["length"].ToObject<double>();
                     var popularity = track["popularity"].ToObject<string>();
 
-                    var formattedlength = TimeSpan.FromSeconds(length).ToString(@"mm\:ss");
+                    var formattedlength = FormatTime(TimeSpan.FromSeconds(length));
 
                     var numStars = (int)Math.Round(Convert.ToDouble(popularity) / 0.2);
                     var stars = new string('★', numStars).PadRight(5, '☆');
@@ -100,7 +100,7 @@ namespace SteamMobile
                     var token = JObject.Parse(responseFromServer);
                     var name = token["entry"]["title"]["$t"].ToObject<string>();
                     var length = token["entry"]["media$group"]["media$content"].First()["duration"].ToObject<int>();
-                    var formattedlength = TimeSpan.FromSeconds(length).ToString(@"mm\:ss");
+                    var formattedlength = FormatTime(TimeSpan.FromSeconds(length));
 
                     var stars = "";
                     try
@@ -126,6 +126,14 @@ namespace SteamMobile
             using (var stream = response.GetResponseStream())
             using (var reader = new StreamReader(stream))
                 return reader.ReadToEnd();
+        }
+
+        private static string FormatTime(TimeSpan time)
+        {
+            var format = @"m\:ss";
+            if (time.Hours > 0)
+                format = @"h\:m" + format;
+            return time.ToString(format);
         }
 
         static LinkTitles()
