@@ -20,7 +20,10 @@ namespace SteamMobile.Packets
             if (!message.StartsWith("//") && Command.Handle(CommandTarget.FromSession(session), message))
                 return;
 
-            if (message.StartsWith("//"))
+            if (!message.StartsWith("~~") && Command.Handle(CommandTarget.FromSession(session), message, "~"))
+                return;
+
+            if (message.StartsWith("//") || message.StartsWith("~~"))
                 message = message.Substring(1);
 
             if (!session.Permissions.HasFlag(Permissions.Chat))
@@ -33,11 +36,8 @@ namespace SteamMobile.Packets
                 return;
             }
 
-            // owned
+            // can't send emoticons from web
             message = message.Replace('ː', ':');
-
-            if (session.Account.Permissions.HasFlag(Permissions.Alliance) && !(message.Contains("https://") || message.Contains("http://")))
-                message = Regex.Replace(message, "a", "[A]", RegexOptions.IgnoreCase);
 
             message = string.Format("[{0}] {1}", session.Name, message);
             chat.Send(message);

@@ -16,7 +16,6 @@ namespace SteamMobile
         Ban = 1 << 1,
         BanProof = 1 << 2,
 
-        Alliance = 1 << 14,
         Admin = 1 << 15,
 
         All = ushort.MaxValue

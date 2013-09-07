@@ -23,6 +23,9 @@ namespace SteamMobile
         public static string DbUser { get; private set; }
         public static string DbPass { get; private set; }
 
+        public static string Cert { get; private set; }
+        public static string CertPass { get; private set; }
+
         public static Dictionary<string, SteamID> Chats { get; private set; }
 
         static Settings()
@@ -43,6 +46,9 @@ namespace SteamMobile
             DbName = (string)settings.DbName;
             DbUser = (string)settings.DbUser;
             DbPass = (string)settings.DbPass;
+
+            Cert = (string)settings.Cert;
+            CertPass = (string)settings.CertPass;
 
             Alias = new Dictionary<string, string>();
             foreach (var kvp in (JObject)settings.Alias)

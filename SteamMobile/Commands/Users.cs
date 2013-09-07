@@ -26,10 +26,11 @@ namespace SteamMobile.Commands
             var chat = groupChat.Chat;
             foreach (var id in chat.Members.Where(i => i != Steam.Bot.PersonaId))
             {
+                var persona = Steam.Bot.GetPersona(id);
                 var groupMember = chat.Group.Members.FirstOrDefault(m => m.Id == id);
                 var rank = groupMember != null ? groupMember.Rank.ToString() : "Member";
-                var avatar = BitConverter.ToString(Steam.Bot.GetPersona(id).Avatar).Replace("-", "").ToLower();
-                userList.AddUser("Steam", rank, Steam.GetName(id), avatar);
+                var avatar = BitConverter.ToString(persona.Avatar).Replace("-", "").ToLower();
+                userList.AddUser("Steam", rank, Steam.GetName(id), avatar, persona.PlayingName);
             }
 
             lock (Program.Sessions)
@@ -39,7 +40,7 @@ namespace SteamMobile.Commands
                 
                 foreach (var account in accounts.Where(account => account != null))
                 {
-                    userList.AddUser("RohBot", "Member", account.Name, "");
+                    userList.AddUser("RohBot", "Member", account.Name);
                 }
             }
 

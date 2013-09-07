@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using Fleck;
 using log4net;
@@ -32,7 +33,16 @@ namespace SteamMobile
 
             ThreadPool.SetMaxThreads(5, 1);
 
-            server = new WebSocketServer("ws://0.0.0.0:12000/");
+            if (string.IsNullOrWhiteSpace(Settings.Cert))
+            {
+                server = new WebSocketServer("ws://0.0.0.0:12000/");
+            }
+            else
+            {
+                server = new WebSocketServer("wss://0.0.0.0:12000/");
+                server.Certificate = new X509Certificate2(Settings.Cert, Settings.CertPass);
+            }
+            
             server.Start(socket =>
             {
                 socket.OnOpen = () => OnConnected(socket);

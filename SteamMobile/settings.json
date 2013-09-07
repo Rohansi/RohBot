@@ -9,6 +9,9 @@
     "DbUser": "server",
     "DbPass": "",
 
+    "Cert": "",
+    "CertPass": "",
+
     "Alias": {
         "76561198011639924": "Jamie"
     },
