@@ -13,10 +13,23 @@ namespace SteamMobile
         None = 0,
 
         Chat = 1 << 0,
-        Ban = 1 << 1,
+        Admin = 1 << 1,
         BanProof = 1 << 2,
 
-        Admin = 1 << 15,
+        Unused1 = 1 << 3,
+        Unused2 = 1 << 4,
+        Unused3 = 1 << 5,
+        Unused4 = 1 << 6,
+        Unused5 = 1 << 7,
+        Unused6 = 1 << 8,
+        Unused7 = 1 << 9,
+        Unused8 = 1 << 10,
+        Unused9 = 1 << 11,
+        UnusedA = 1 << 12,
+        UnusedB = 1 << 13,
+        UnusedC = 1 << 14,
+
+        Owner = 1 << 15,
 
         All = ushort.MaxValue
     }
@@ -29,7 +42,7 @@ namespace SteamMobile
         public string Name { get; private set; }
         public SteamID Id { get; private set; }
 
-        public Permissions Permissions { get; private set; }
+        public Permissions Permissions;
         public bool Banned { get; set; }
         public string DefaultChat { get; set; }
 

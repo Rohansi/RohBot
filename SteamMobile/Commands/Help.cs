@@ -22,7 +22,7 @@ namespace SteamMobile.Commands
             // command list
             if (parameters.Length == 0)
             {
-                response.AppendLine("Available commands: chat, w, r, users, sessions, ban, unban, rejoin, uptime, refresh, reboot");
+                response.AppendLine("Available commands: chat, w, r, users, sessions, ban, unban, rejoin, uptime");
                 response.AppendLine("For more information about a command, provide the command name to the help command:");
                 response.AppendLine(" help <command>");
                 target.Send(response.ToString());
@@ -74,14 +74,6 @@ namespace SteamMobile.Commands
 
                 case "uptime":
                     response.AppendLine("Print the process uptime of RohBot.");
-                    break;
-
-                case "refresh":
-                    response.AppendLine("Reload settings and accounts.");
-                    break;
-
-                case "reboot":
-                    response.AppendLine("Restarts RohBot.");
                     break;
 
                 default:

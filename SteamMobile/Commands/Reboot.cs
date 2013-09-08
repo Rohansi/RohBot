@@ -10,7 +10,7 @@ namespace SteamMobile.Commands
 
         public override void Handle(CommandTarget target, string[] parameters)
         {
-            if (target.Account == null || !target.Account.Permissions.HasFlag(Permissions.Admin))
+            if (target.Account == null || !target.Account.Permissions.HasFlag(Permissions.Owner))
                 return;
 
             Program.Exit("Reboot requested");

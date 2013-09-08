@@ -22,34 +22,32 @@ namespace SteamMobile.Commands
             }
 
             var userList = new Packets.UserList();
-
             var chat = groupChat.Chat;
-            foreach (var id in chat.Members.Where(i => i != Steam.Bot.PersonaId))
-            {
-                var persona = Steam.Bot.GetPersona(id);
-                var groupMember = chat.Group.Members.FirstOrDefault(m => m.Id == id);
-                var rank = groupMember != null ? groupMember.Rank.ToString() : "Member";
-                var avatar = BitConverter.ToString(persona.Avatar).Replace("-", "").ToLower();
-                userList.AddUser("Steam", rank, Steam.GetName(id), avatar, persona.PlayingName);
-            }
+            var steamUsers = chat.Members.ToList();
 
             lock (Program.Sessions)
             {
-                var accounts = Program.Sessions.Values.Where(s => s.Chat == target.Session.Chat)
+                foreach (var id in steamUsers.Where(i => i != Steam.Bot.PersonaId))
+                {
+                    var persona = Steam.Bot.GetPersona(id);
+                    var groupMember = chat.Group.Members.FirstOrDefault(m => m.Id == id);
+                    var rank = groupMember != null ? groupMember.Rank.ToString() : "Member";
+                    var avatar = BitConverter.ToString(persona.Avatar).Replace("-", "").ToLower();
+                    var usingWeb = Program.Sessions.Values.Any(s => s.Chat == target.Session.Chat && s.Account != null && s.Account.Id == id);
+                    userList.AddUser(Steam.GetName(id), rank, avatar, persona.PlayingName, usingWeb);
+                }
+            
+                var accounts = Program.Sessions.Values.Where(s => s.Account != null && s.Chat == target.Session.Chat && steamUsers.All(id => s.Account.Id != id))
                                                       .Select(s => s.Account).Distinct();
                 
-                foreach (var account in accounts.Where(account => account != null))
+                foreach (var account in accounts)
                 {
-                    userList.AddUser("RohBot", "Member", account.Name);
+                    userList.AddUser(account.Name, "Member", "", "", true);
                 }
             }
 
             userList.Users = userList.Users.OrderBy(u => u.Name).ToList();
-
-            if (parameters.Length > 0 && parameters[0] == "json")
-                Program.Send(target.Session, userList);
-            else
-                target.Send("In this chat: " + string.Join(", ", userList.Users.Select(u => u.Name)));
+            Program.Send(target.Session, userList);
         }
     }
 }

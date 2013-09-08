@@ -91,6 +91,7 @@
     <Compile Include="Commands\ActiveChat.cs" />
     <Compile Include="Commands\Help.cs" />
     <Compile Include="Commands\Banned.cs" />
+    <Compile Include="Commands\Perms.cs" />
     <Compile Include="Commands\Search.cs" />
     <Compile Include="Commands\Unban.cs" />
     <Compile Include="Commands\Rejoin.cs" />

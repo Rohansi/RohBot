@@ -11,7 +11,7 @@ namespace SteamMobile.Commands
 
         public override void Handle(CommandTarget target, string[] parameters)
         {
-            if (target.Account == null || !target.Account.Permissions.HasFlag(Permissions.Ban) || parameters.Length < 1)
+            if (target.Account == null || !target.Account.Permissions.HasFlag(Permissions.Admin) || parameters.Length < 1)
                 return;
 
             GroupChat chat;

@@ -200,18 +200,27 @@ namespace SteamMobile
         {
             GroupChat = groupChat;
             Account = Accounts.Find(sender);
+
+            if (Account.Banned)
+                Account = null;
         }
 
         private CommandTarget(Chat steamChat, SteamID sender)
         {
             PrivateChat = steamChat;
             Account = Accounts.Find(sender);
+
+            if (Account.Banned)
+                Account = null;
         }
 
         private CommandTarget(Session session)
         {
             Session = session;
             Account = Accounts.Get(session.Username);
+
+            if (Account.Banned)
+                Account = null;
         }
 
         public void Send(string message)
