@@ -201,7 +201,7 @@ namespace SteamMobile
             GroupChat = groupChat;
             Account = Accounts.Find(sender);
 
-            if (Account.Banned)
+            if (Account != null && Account.Banned)
                 Account = null;
         }
 
@@ -210,7 +210,7 @@ namespace SteamMobile
             PrivateChat = steamChat;
             Account = Accounts.Find(sender);
 
-            if (Account.Banned)
+            if (Account != null && Account.Banned)
                 Account = null;
         }
 
@@ -219,7 +219,7 @@ namespace SteamMobile
             Session = session;
             Account = Accounts.Get(session.Username);
 
-            if (Account.Banned)
+            if (Account != null && Account.Banned)
                 Account = null;
         }
 
