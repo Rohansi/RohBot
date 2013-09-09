@@ -5,9 +5,12 @@ RohBot = function(server) {
 	var firstConnect = true;
 	var hasConnected = false;
 	
+	_this.username = null;
+	
 	_this.onconnected = null;
 	_this.ondisconnected = null;
 	_this.onlogin = null;
+	_this.onchathistory = null;
 	_this.onsysmessage = null;
 	_this.onmessage = null;
 	_this.onuserlist = null;
@@ -20,7 +23,7 @@ RohBot = function(server) {
 	setInterval(function () {
 		if (socket !== null)
 			send({ Type: "ping" });
-	}, 500);
+	}, 1500);
 	
 	_this.connect = function() {
 		if (firstConnect) {
@@ -62,7 +65,7 @@ RohBot = function(server) {
 			
 			setTimeout(function () {
 				_this.connect();
-			}, 1000);
+			}, 15000);
 		};
 		
 		socket.onmessage = function (event) {
@@ -71,16 +74,15 @@ RohBot = function(server) {
 			switch (data.Type)
 			{
 				case "clientPermissions": {
+					_this.username = data.Username;
 					if (_this.onlogin != null)
 						_this.onlogin(data);
 					break;
 				}
 				
 				case "chatHistory": {
-					for (var i = 0; i < data.Lines.length; i++) {
-						if (_this.onmessage != null)
-							_this.onmessage(data.Lines[i]);
-					}
+					if (_this.onchathistory != null)
+						_this.onchathistory(data);
 					break;
 				}
 				
@@ -111,6 +113,10 @@ RohBot = function(server) {
 		};
 	}
 
+	_this.disconnect = function() {
+		socket.close();
+	};
+	
 	var send = function(obj) {
 		try {
 			socket.send(JSON.stringify(obj));
@@ -119,6 +125,10 @@ RohBot = function(server) {
 	
 	_this.login = function(user, pass) {
 		send({Type: "login", Username: user, Password: pass});
+	};
+	
+	_this.requestHistory = function(afterDate) {
+		send({Type: "chatHistoryRequest", AfterDate: afterDate});
 	};
 	
 	_this.sendMessage = function(message) {

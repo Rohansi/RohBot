@@ -1,14 +1,16 @@
-<!DOCTYPE html>
+﻿<!doctype html>
 <html>
-	<head>
-		<meta charset="utf-8"/>
-		<link rel="shortcut icon" href="/icon.png"/>
+    <head>
+		<link rel="shortcut icon" href="icon.png"/>
 		<title>FP Programmers</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<link rel="apple-touch-icon" href="icon.png"/>
+		<link rel="stylesheet" href="style.css" />
 		<script src="jquery-1.9.1.min.js"></script>
 		<script src="md5-min.js"></script>
+		<script src="urlize.js"></script>
 		<script src="rohbot.api.js"></script>
-		<link rel="stylesheet" type="text/css" href="main.css"/>
 		
 		<script>
 			var storage;
@@ -20,11 +22,33 @@
 				fail && (storage = false);
 			} catch(e) { storage = false; }
 			
+			var requestedHistory;
+			var oldestMessage;
+			
 			var rohbot = null;
 			function initializeRohBot() {
-				var serverUri = "ws://fpp.literallybrian.com/ws/"; // ws://209.141.59.194:12000/
+				var serverUri = "wss://fpp.literallybrian.com/ws/";
 				if (window.location.search == "?noproxy")
-					serverUri = "ws://fpp.literallybrian.com:12000/";
+					serverUri = "wss://fpp.literallybrian.com:12000/"; // wss://209.141.59.194:12000/
+					
+				var addRohBotMessage = function(line, oldLine) {
+					switch (line.Type) {
+						case "chat":
+							addMessage(line.Date, line.Sender, line.Content, line.InGame, line.UserType, oldLine);
+							break;
+						case "state":
+							addMessage(line.Date, "*", line.Content, line.InGame, "", oldLine);
+							break;
+						case "whisper":
+							var nameText;
+							if (line.Sender === rohbot.username)
+								nameText = "To " + line.Receiver;
+							else
+								nameText = "From " + line.Sender;
+							addMessage(line.Date, nameText, line.Content, false, "", oldLine);
+							break;
+					}
+				};
 				
 				rohbot = new RohBot(serverUri); 
 				rohbot.onconnected = function() {
@@ -38,52 +62,109 @@
 					}
 						
 					rohbot.login("guest", hex_md5(""));
+					oldestMessage = 0x7FFFFFFFFFFFFFF;
+					requestedHistory = false;
 				};
 				
 				rohbot.onlogin = function(permissions) {
+					$("#username").val(permissions.Username);
+					$("#password").val("");
+				
 					if (permissions.CanChat) {
-						$("#chatInput").removeAttr("disabled");
-						$("#chatInput").val("");
+						$("#header").hide();
+						$("#messageBox").removeAttr("disabled");
+						$("#messageBox").val("");
 					} else {
-						$("#chatInput").attr("disabled","disabled");
-						$("#chatInput").val("Guests can not speak.");
+						$("#header").show();
+						$("#messageBox").attr("disabled","disabled");
+						$("#messageBox").val("Guests can not speak.");
 					}
+					
+					$("#chat").scrollTop($("#chat")[0].scrollHeight);
+				};
+				
+				rohbot.onchathistory = function(data) {
+					if (!data.Requested) {
+						for (var i = 0; i < data.Lines.length; i++) {
+							addRohBotMessage(data.Lines[i], data.Requested);
+						}
+					} else {
+						var firstMsg = $("#chat :first");
+						
+						for (var i = data.Lines.length - 1; i >= 0; i--) {
+							addRohBotMessage(data.Lines[i], data.Requested);
+						}
+						
+						$("#chat").scrollTop(firstMsg.offset().top - $("#header").height() - 16);
+						requestedHistory = false;
+					}
+					
+					oldestMessage = data.OldestLine;
 				};
 				
 				rohbot.onmessage = function(line) {
-					switch (line.Type) {
-						case "chat":
-							addMessage(line.Date, line.Sender, line.Content);
-							break;
-						case "state":
-							addMessage(line.Date, "*", line.Content);
-							break;
-						case "whisper":
-							addMessage(line.Date, line.Sender + " -> " + line.Receiver, line.Content);
-							break;
-					}
+					addRohBotMessage(line, false);
 				};
 				
 				rohbot.onsysmessage = function(data) {
-					addMessage(data.Date, "*", data.Content);
+					addMessage(data.Date, "*", data.Content, false);
 				};
 				
 				rohbot.onuserlist = function(users) {
-					var str = "In this chat: " + users.map(function(user) { return user.Name; }).join(", ");
-					addMessage(0, "*", str);
+					addMessage(0, "*", "Currently in Chat:");
+					var html = '<div class="userList">';
+					for (var i = 0; i < users.length; i++) {
+						var user = users[i];
+						
+						if (user.Name == "Guest")
+							continue;
+							
+						if (user.Avatar == "0000000000000000000000000000000000000000")
+							user.Avatar = "fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb";
+						
+						html += '<div class="ulUser">';
+						var inGame = user.Playing != "";
+						var game = user.Playing != "" ? "In-Game: " + user.Playing : "&nbsp;";
+						var avatarUrl = "/steamcommunity/public/images/avatars/" + user.Avatar.substring(0, 2) + "/" + user.Avatar + "_full.jpg";
+						if (user.Avatar == "") avatarUrl = "rohbot.png";
+						if (user.Web) user.Name = '<span class="webIcon">@&nbsp;</span>' + user.Name;
+						html += '<img class="ulAvatar" src="' + avatarUrl + '"/>';
+						html += '<div class="ulName" data-color="' + (inGame ? "ingame" : "") + '" data-rank="' + user.Rank + '">' + user.Name + '<br/>' + game + '</div>';
+						html += '</div>';
+					}
+					
+					html += '</div/>';
+					addHtml(html, false);
 				};
 				
 				rohbot.connect();
 			}
 			
-			function addMessage(date, sender, message) {
-				var elem = $("#messages");
-				var atBottom = (elem[0].scrollHeight - elem.scrollTop() == elem.outerHeight());
-				if (date == 0) date = new Date().getTime() / 1000;
+			function addMessage(date, sender, message, inGame, userType, oldLine) {
+				if (date == 0)
+					date = new Date().getTime() / 1000;
+					
 				sender = sender == "*" ? "" : sender + ": ";
-				$("#messages").append('<div class="messageC"><div class="message"><div class="sender">' + formatTime(date) + ' - ' + sender + '</div>' + linkify(message) + '</div></div>');
-				if (atBottom)
-					$("#messages").scrollTop($("#messages")[0].scrollHeight);
+				if (userType == "RohBot")
+					sender = '<span class="rohBot">' + sender + '</span>';
+				else if (inGame)
+					sender = '<span class="inGame">' + sender + '</span>';
+				
+				var html = '<div><span class="sender">' + formatTime(date) + ' - ' + sender + '</span>' + linkify(message) + '</div>';
+				addHtml(html, oldLine);
+			}
+			
+			function addHtml(html, old) {
+				var elem = $("#chat");
+				var atBottom = (elem[0].scrollHeight - elem.scrollTop() == elem.outerHeight());
+				
+				if (!old)
+					$("#chat").append(html);
+				else
+					$("#chat").prepend(html);
+					
+				if (!old && atBottom)
+					elem.scrollTop(elem[0].scrollHeight);
 			}
 			
 			function formatTime(date) {
@@ -110,50 +191,56 @@
 			
 			// http://stackoverflow.com/a/7123542/1056845
 			function linkify(str) {
-				var urlPattern = /\b(?:https?|ftp):\/\/[a-z0-9-+&@#\/%?=~_|!:,.;]*[a-z0-9-+&@#\/%=~_|]/gim;
-				var pseudoUrlPattern = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
-				
-				return str
-					.replace(urlPattern, '<a href="$&" target="_blank">$&</a>')
-					.replace(pseudoUrlPattern, '$1<a href="http://$2" target="_blank">$2</a>')
-					.replace(/\n/g, '<br/>'); // line breaks, why not
+				str = urlize(str, { target: '_blank' }).replace(/\n/g, '<br/>');
+				var res = $("<div/>");
+				var e = $("<div/>");
+				e.html(str).contents().each(function (i, elem) {
+					if (elem.nodeType == 3) {
+						res.append(htmlEncode(elem.textContent).replace(/ː(.+?)ː/img, '<img src="http://cdn.steamcommunity.com/economy/emoticon/$1"/>'));
+					} else {
+						res.append(elem);
+					}
+				});
+				return res.html();
+			}
+			
+			function htmlEncode(value) {
+				return $('<div/>').text(value).html();
 			}
 			
 			$(document).ready(function () {
 				initializeRohBot();
 				
-				$("#chatSubmit").click(function () {
-					var msg = $("#chatInput").val();
-					if (msg.length == 0) return;
-					if (msg.substring(0, 1) == "/") {
-						if (msg.substring(0, 6) == "/clear") {
-							$("#messages").html("");
-						} else if (msg.substring(0, 6) == "/radio") {
-							var radioOn = $("#radio").length > 0;
-							if (radioOn) {
-								$("#radio").remove();
-								addMessage(0, "*", "Radio disabled!");
-							} else {
-								$("#radioContainer").html('<audio id="radio" src="http://fpp.literallybrian.com:8000/stream.ogg"></audio>');
-								var radio = $("#radio")[0];
-								radio.load();
-								radio.play();
-								addMessage(0, "*", "Radio enabled!");
-							}
-						} else {
-							rohbot.sendMessage(msg); // serverside commands
+				$("#send").click(function () {
+					var msg = $("#messageBox").val();
+					var msgL = msg.toLowerCase();
+					
+					if (msg.length == 0)
+						return;
+					
+					if (msgL.substring(0, 6) == "/clear" || msgL.substring(0, 6) == "~clear") {
+						$("#chat").html("");
+						$("#messageBox").val("");
+						return;
+					}
+					
+					if (msgL.substring(0, 7) == "/logout" || msgL.substring(0, 7) == "~logout") {
+						if (storage) {
+							storage.removeItem("user");
+							storage.removeItem("pass");
 						}
 						
-						$("#chatInput").val("");
+						rohbot.login("Guest", hex_md5(""));
+						$("#messageBox").val("");
 						return;
 					}
 					
 					rohbot.sendMessage(msg);
-					$("#chatInput").val("");
+					$("#messageBox").val("");
 				});
 				
 				// http://stackoverflow.com/a/3533099/1056845
-				$("#chatInput").keydown(function (e) {
+				$("#messageBox").keydown(function (e) {
 					if (e.keyCode == 13) {
 						if (e.ctrlKey) {
 							var val = this.value;
@@ -169,27 +256,16 @@
 								range.select();
 							}
 						} else {
-							$("#chatSubmit").click();
+							$("#messageBox").blur().focus();
+							$("#send").click();
 						}
 						return false;
 					}
 				});
 				
-				$("#loginToggle").click(function () {
-					$("#loginUsername").val("");
-					$("#loginPassword").val("");
-					$("#login").toggle();
-				});
-				
-				$("#loginCancel").click(function () {
-					$("#loginUsername").val("");
-					$("#loginPassword").val("");
-					$("#login").toggle();
-				});
-				
-				$("#loginSubmit").click(function () {
-					var user = $("#loginUsername").val();
-					var pass = $("#loginPassword").val();
+				$("#login").click(function () {
+					var user = $("#username").val();
+					var pass = $("#password").val();
 					
 					if (storage) {
 						storage.setItem("user", user);
@@ -197,94 +273,35 @@
 					}
 					
 					rohbot.login(user, hex_md5(pass));
-					$("#loginUsername").val("");
-					$("#loginPassword").val("");
-					$("#login").toggle();
 					return false;
 				});
 				
-				$(window).resize(function () {
-					var w = $(window).width();
-					var h = $(window).height();
-					var m = $("#messages");
-					m.height(h - 90); // header + footer height
-					m.width(w - 3); // container padding-left
-					
-					// scroll to bottom
-					$("#messages").scrollTop($("#messages")[0].scrollHeight);
+				$("#chat").scroll(function () {
+					if ($("#chat").scrollTop() == 0 && !requestedHistory) {
+						rohbot.requestHistory(oldestMessage);
+						requestedHistory = true;
+					}
 				});
 				
-				$(window).resize();
+				$(window).resize(function () {
+					$("#chat").scrollTop($("#chat")[0].scrollHeight);
+				});
 			});
 		</script>
-	</head>
-	<body>
-		<table>
-			<tr class="header dark">
-				<td>
-					<div class="padTop">
-						<a class="title">FP Programmers</a>
-					</div>
-				</td>
-				<td style="width:65px">
-					<div style="padding-right:4px">
-						<a id="loginToggle" class="button">Login</a>
-					</div>
-				</td>
-			</tr>
-			<tr>
-				<td colspan="2">
-					<div id="messages" class="container">
-						
-					</div>
-				</td>
-			</tr>
-			<tr class="footer dark">
-				<td>
-					<div class="padBottom">
-						<textarea id="chatInput" class="chatInput" spellcheck="false"></textarea>
-					</div>
-				</td>
-				<td style="width:65px">
-					<div style="padding-right:4px">
-						<a id="chatSubmit" class="button">Send</a>
-					</div>
-				</td>
-			</tr>
-		</table>
-		
-		<div id="login" class="loginContainer" style="display:none">
-			<div class="loginContent">
-				<h2>Login</h2>
-				<table>
-					<tr>
-						<td>
-							<label for="user">Username: </label>
-						</td>
-						<td style="padding-right:7px">
-							<input id="loginUsername" name="user" type="text"/>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<label for="pass">Password: </label>
-						</td>
-						<td style="padding-right:7px">
-							<input id="loginPassword" name="pass" type="password"/>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<a id="loginCancel" class="button" style="float:left;margin:3px">Cancel</a>
-						</td>
-						<td>
-							<a id="loginSubmit" class="button" style="margin:3px">Login</a
-						</td>
-					</tr>
-				</table>
+    </head>
+    <body>
+		<div class="container">
+			<div id="header">
+				<h1>FP Programmers</h1>
+				<input id="username" type="text" placeholder="username" />
+				<input id="password" type="password" placeholder="password" />
+				<a id="login">Login</a>
+			</div>
+			<div id="chat"></div>
+			<div id="footer">
+				<input id="messageBox" type="text" placeholder="enter message ..." />
+				<a id="send">Send</a>
 			</div>
 		</div>
-		
-		<div id="radioContainer" style="display:none"></div>
-	</body>
+    </body>
 </html>
