@@ -36,16 +36,18 @@ namespace SteamMobile
 
     public class Account
     {
-        public string Username { get; private set; }
-        public string Password { get; private set; }
-
-        public string Name { get; private set; }
-        public SteamID Id { get; private set; }
-
+        public string Password;
+        public string Name;
+        public ulong Id;
         public Permissions Permissions;
-        public bool Banned { get; set; }
-        public string DefaultChat { get; set; }
+        public bool Banned;
+        public string DefaultChat;
+        public Dictionary<string, string> SessionTokens;
+        
+        [JsonIgnore]
+        public string Username { get; private set; }
 
+        [JsonIgnore]
         public string Reply = null;
 
         private Account() { }
@@ -53,17 +55,7 @@ namespace SteamMobile
         public void Save()
         {
             var file = Path.Combine("accounts/", Username.ToLower() + ".json");
-            dynamic acc = new
-            {
-                Name,
-                Password,
-                Id = Id.ConvertToUInt64().ToString("D"),
-                Permissions,
-                Banned,
-                DefaultChat
-            };
-
-            File.WriteAllText(file, JsonConvert.SerializeObject(acc));
+            File.WriteAllText(file, JsonConvert.SerializeObject(this));
         }
 
         public static Account Load(string name)
@@ -78,20 +70,8 @@ namespace SteamMobile
 
             try
             {
-                dynamic obj = JsonConvert.DeserializeObject(File.ReadAllText(file));
-
-                res = new Account
-                {
-                    Username = name,
-                    Password = (string)obj.Password,
-
-                    Name = (string)obj.Name,
-                    Id = new SteamID(ulong.Parse((string)obj.Id)),
-
-                    Permissions = (Permissions)ushort.Parse((string)obj.Permissions),
-                    Banned = (bool)obj.Banned,
-                    DefaultChat = (string)obj.DefaultChat
-                };
+                res = JsonConvert.DeserializeObject<Account>(File.ReadAllText(file));
+                res.Username = name;
             }
             catch (Exception e)
             {
@@ -130,11 +110,6 @@ namespace SteamMobile
         {
             return accounts.Values.FirstOrDefault(a => a.Id == id);
         }
-
-        public static List<SteamID> GetSteamIds()
-        {
-            return accounts.Values.Where(a => a.Id.IsValid).Select(a => a.Id).ToList();
-        } 
 
         public static void Reload()
         {
