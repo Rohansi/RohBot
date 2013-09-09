@@ -29,7 +29,7 @@
 			function initializeRohBot() {
 				var serverUri = "wss://fpp.literallybrian.com/ws/";
 				if (window.location.search == "?noproxy")
-					serverUri = "wss://fpp.literallybrian.com:12000/"; // wss://209.141.59.194:12000/
+					serverUri = "ws://fpp.literallybrian.com:12000/"; // ws://209.141.59.194:12000/
 					
 				var addRohBotMessage = function(line, oldLine) {
 					switch (line.Type) {
