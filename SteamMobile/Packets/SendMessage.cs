@@ -39,6 +39,10 @@ namespace SteamMobile.Packets
             // can't send emoticons from web
             message = message.Replace('ː', ':');
 
+            // steam discards long messages
+            if (message.Length > 2000)
+                message = message.Substring(0, 2000) + "...";
+
             message = string.Format("[{0}] {1}", session.Name, message);
             chat.Send(message);
         }

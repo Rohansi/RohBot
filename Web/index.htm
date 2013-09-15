@@ -196,7 +196,7 @@
 				var e = $("<div/>");
 				e.html(str).contents().each(function (i, elem) {
 					if (elem.nodeType == 3) {
-						res.append(htmlEncode(elem.textContent).replace(/ː(.+?)ː/img, '<img src="http://cdn.steamcommunity.com/economy/emoticon/$1"/>'));
+						res.append(htmlEncode(elem.textContent).replace(/ /g, "&nbsp;").replace(/ː(.+?)ː/img, '<img src="/economy/emoticon/$1"/>'));
 					} else {
 						res.append(elem);
 					}

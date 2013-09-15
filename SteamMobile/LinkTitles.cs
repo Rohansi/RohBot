@@ -26,7 +26,10 @@ namespace SteamMobile
                     sb.AppendLine(i.Item2);
             }
 
-            return sb.ToString();
+            var res = sb.ToString();
+            if (res.Length > 500)
+                res = res.Substring(0, 500) + "...";
+            return res;
         }
 
         private static Regex spotify = new Regex(@"(http|https):\/\/\w*?.spotify.com\/track\/([\w]+)", RegexOptions.Compiled);
