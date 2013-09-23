@@ -23,7 +23,7 @@ RohBot = function(server) {
 	setInterval(function () {
 		if (socket !== null)
 			send({ Type: "ping" });
-	}, 1500);
+	}, 2500);
 	
 	_this.connect = function() {
 		if (firstConnect) {
@@ -56,7 +56,7 @@ RohBot = function(server) {
 			
 			if (hasConnected) {
 				if (_this.onsysmessage != null)
-					_this.onsysmessage({Date: getCurrentTime(), Content: "Lost connection to RohBot. Retrying..."});
+					_this.onsysmessage({Date: getCurrentTime(), Content: "Lost connection to RohBot."});
 				hasConnected = false;
 			}
 			
@@ -64,6 +64,7 @@ RohBot = function(server) {
 				_this.ondisconnected();
 			
 			setTimeout(function () {
+				_this.onsysmessage({Date: getCurrentTime(), Content: "Connecting to RohBot..."});
 				_this.connect();
 			}, 15000);
 		};

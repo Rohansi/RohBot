@@ -79,7 +79,7 @@ namespace SteamMobile
                 return false;
             }
 
-            if (account.Permissions.HasFlag(Permissions.BanProof))
+            if (banned && account.Permissions.HasFlag(Permissions.BanProof))
             {
                 response = "Account can not be banned.";
                 return false;

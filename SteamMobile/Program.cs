@@ -33,16 +33,7 @@ namespace SteamMobile
 
             ThreadPool.SetMaxThreads(5, 1);
 
-            if (string.IsNullOrWhiteSpace(Settings.Cert))
-            {
-                server = new WebSocketServer("ws://0.0.0.0:12000/");
-            }
-            else
-            {
-                server = new WebSocketServer("wss://0.0.0.0:12000/");
-                server.Certificate = new X509Certificate2(Settings.Cert, Settings.CertPass);
-            }
-            
+            server = new WebSocketServer("ws://0.0.0.0:12000/");
             server.Start(socket =>
             {
                 socket.OnOpen = () => OnConnected(socket);

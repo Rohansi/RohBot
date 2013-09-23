@@ -18,7 +18,10 @@ namespace SteamMobile
         public static string Lookup(string message)
         {
             var sb = new StringBuilder();
-            var titles = LookupYoutube(message).Concat(LookupSpotify(message)).OrderBy(i => i.Item1);
+            var titles = LookupYoutube(message)
+                .Concat(LookupSpotify(message))
+                //.Concat(LookupFacepunch(message))
+                .OrderBy(i => i.Item1);
 
             foreach (var i in titles)
             {
@@ -44,7 +47,8 @@ namespace SteamMobile
 
                 try
                 {
-                    var spotifyResponse = DownloadPage(string.Format("http://ws.spotify.com/lookup/1/.json?uri={0}", HttpUtility.UrlEncode(match.Value)));
+                    var url = string.Format("http://ws.spotify.com/lookup/1/.json?uri={0}", HttpUtility.UrlEncode(match.Value));
+                    var spotifyResponse = DownloadPage(url, "UTF-8");
 
                     var token = JObject.Parse(spotifyResponse);
                     var track = token["track"];
@@ -68,7 +72,7 @@ namespace SteamMobile
                     try
                     {
                         var apiQuery = string.Format("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&order=relevance&q={0}%20%2B%20{1}&key={2}", ytName, ytArtist, ApiKey);
-                        var ytResponse = DownloadPage(apiQuery);
+                        var ytResponse = DownloadPage(apiQuery, "UTF-8");
 
                         var ytToken = JObject.Parse(ytResponse);
                         youtubeUrl = ytToken["items"].First["id"]["videoId"].ToObject<string>();
@@ -98,11 +102,11 @@ namespace SteamMobile
                 try
                 {
                     var apiRequestUrl = string.Format(@"http://gdata.youtube.com/feeds/api/videos/{0}?alt=json", match.Groups[1].Value);
-                    var responseFromServer = DownloadPage(apiRequestUrl);
+                    var responseFromServer = DownloadPage(apiRequestUrl, "UTF-8");
 
                     var token = JObject.Parse(responseFromServer);
                     var name = token["entry"]["title"]["$t"].ToObject<string>();
-                    var length = token["entry"]["media$group"]["media$content"].First()["duration"].ToObject<int>();
+                    var length = token["entry"]["media$group"]["yt$duration"]["seconds"].ToObject<int>();
                     var formattedlength = FormatTime(TimeSpan.FromSeconds(length));
 
                     var stars = "";
@@ -113,13 +117,44 @@ namespace SteamMobile
                     } catch { }
 
                     response = string.Format("YouTube: {0} ({1}){2}", name, formattedlength, stars);
-                } catch { }
+                } catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
 
                 yield return Tuple.Create(offset, response);
             }
         }
 
-        private static string DownloadPage(string uri)
+        public static Regex facepunch = new Regex(@"facepunch\.com/showthread\.php.*?(?:&|\?)t=(\d+)", RegexOptions.Compiled);
+        public static Regex facepunchTitle = new Regex(@"<title\b[^>]*>(.*?)</title>", RegexOptions.Compiled);
+        private static IEnumerable<Tuple<int, string>> LookupFacepunch(string message)
+        {
+            var matches = facepunch.Matches(message).Cast<Match>();
+
+            foreach (Match match in matches)
+            {
+                var offset = match.Index;
+                var response = "Facepunch: Error";
+
+                try
+                {
+                    var url = string.Format("http://facepunch.com/showthread.php?t={0}", match.Groups[1].Value);
+                    var page = DownloadPage(url, "Windows-1252");
+                    var title = WebUtility.HtmlDecode(facepunchTitle.Match(page).Groups[1].Value.Trim());
+
+                    if (title == "Facepunch")
+                        throw new Exception();
+
+                    response = string.Format("Facepunch: {0}", title);
+                }
+                catch { }
+
+                yield return Tuple.Create(offset, response);
+            }
+        }
+
+        private static string DownloadPage(string uri, string encoding)
         {
             var request = (HttpWebRequest)WebRequest.Create(uri);
             request.KeepAlive = true;
@@ -127,7 +162,7 @@ namespace SteamMobile
 
             using (var response = request.GetResponse())
             using (var stream = response.GetResponseStream())
-            using (var reader = new StreamReader(stream))
+            using (var reader = new StreamReader(stream, Encoding.GetEncoding(encoding)))
                 return reader.ReadToEnd();
         }
 

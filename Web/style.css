@@ -270,6 +270,9 @@ div.container > #footer {
 @media all and (max-width: 600px) {
   div.container > #header h1 {
     display: none; } }
+.button {
+  cursor: pointer; }
+
 #chat > * {
   font-size: 15px;
   color: #d1cfcd; }

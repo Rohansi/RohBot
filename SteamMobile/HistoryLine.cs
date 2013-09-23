@@ -2,6 +2,7 @@
 using System.Net;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
 
 namespace SteamMobile
 {
@@ -10,7 +11,9 @@ namespace SteamMobile
     {
         public abstract string Type { get; }
 
+        [JsonIgnore]
         public ObjectId Id;
+
         public long Date;
         public string Chat;
         public string Content;

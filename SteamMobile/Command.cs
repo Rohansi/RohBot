@@ -184,6 +184,7 @@ namespace SteamMobile
         }
     }
 
+    // TODO: clean up this class
     public class CommandTarget
     {
         public readonly GroupChat GroupChat;
