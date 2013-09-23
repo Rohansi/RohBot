@@ -18,16 +18,12 @@
 			var HasNaggedForNotifcations = false;
 
 
-			function aaa()
+			function NagForNoti()
 			{
 				if(window.webkitNotifications && !HasNaggedForNotifcations)
 					window.webkitNotifications.requestPermission();
 				HasNaggedForNotifcations = true;
 			}
-			document.getElementById('RequestNoti').onclick = aaa;
-
-
-
 
 			try {
 				var uid = new Date;
@@ -332,7 +328,7 @@
     <body>
 		<div class="container">
 			<div id="header">
-				<h1>FP Programmers</h1> <a id="RequestNoti" href="#">Click here to enable notifactions</a>
+				<h1>FP Programmers</h1> <a id="RequestNoti" href="#" onclick="NagForNoti()">Click here to enable notifactions</a>
 				<input id="username" type="text" placeholder="username" />
 				<input id="password" type="password" placeholder="password" />
 				<a id="login" class="button">Login</a>
