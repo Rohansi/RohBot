@@ -63,7 +63,7 @@
 				
 				var testForNotifications = function(line, oldline) {
 					if(storage.getItem("user") != "") {
-						if(line.indexOf( "@"+storage.getItem("user") ) > -1)
+						if(line.Content.indexOf( "@"+storage.getItem("user") ) > -1)
 						{
 							if(window.webkitNotifications)
 							{
@@ -72,7 +72,7 @@
 									var notification = window.webkitNotifications.createNotification(
 										'icon.png',
 										'Mention in FPP',
-										line
+										line.Content
 									);
 									setTimeout(function(){notification.close();},3000); // 3 secs.
 									notification.onclick = function () {
