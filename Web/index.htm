@@ -63,7 +63,7 @@
 				
 				var testForNotifications = function(line, oldline) {
 					if(storage.getItem("user") != "") {
-						if(line.Content.indexOf( "@"+storage.getItem("user") ) > -1)
+						if(line.Content.toLowerCase().indexOf( "@"+storage.getItem("user") ) > -1)
 						{
 							if(window.webkitNotifications)
 							{
