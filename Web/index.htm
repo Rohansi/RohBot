@@ -16,13 +16,16 @@
 		<script>
 			var storage;
 			var HasNaggedForNotifcations = false;
-			
-			$('#RequestNoti').on('click',function()
+
+
+			function aaa()
 			{
 				if(window.webkitNotifications && !HasNaggedForNotifcations)
 					window.webkitNotifications.requestPermission();
 				HasNaggedForNotifcations = true;
-			});
+			}
+			document.getElementById('RequestNoti').onclick = aaa;
+
 
 
 
