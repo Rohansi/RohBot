@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using EzSteam;
 using SteamKit2;
+using SteamMobile.Packets;
 
 namespace SteamMobile
 {
@@ -184,69 +185,43 @@ namespace SteamMobile
         }
     }
 
-    // TODO: clean up this class
     public class CommandTarget
     {
-        public readonly GroupChat GroupChat;
+        public readonly Room Room;
         public readonly Chat PrivateChat;
+        public readonly SteamID SteamId;
         public readonly Session Session;
-        public readonly Account Account;
 
         public bool IsSteam { get { return Session == null; } }
-        public bool IsGroupChat { get { return GroupChat != null; } }
+        public bool IsGroupChat { get { return Room != null; } }
         public bool IsPrivateChat { get { return PrivateChat != null; } }
         public bool IsSession { get { return Session != null; } }
 
-        private CommandTarget(GroupChat groupChat, SteamID sender)
+        public CommandTarget(Room room, SteamID sender)
         {
-            GroupChat = groupChat;
-            Account = Accounts.Find(sender);
-
-            if (Account != null && Account.Banned)
-                Account = null;
+            Room = room;
+            SteamId = sender;
         }
 
-        private CommandTarget(Chat steamChat, SteamID sender)
+        public CommandTarget(Chat steamChat, SteamID sender)
         {
             PrivateChat = steamChat;
-            Account = Accounts.Find(sender);
-
-            if (Account != null && Account.Banned)
-                Account = null;
+            SteamId = sender;
         }
 
-        private CommandTarget(Session session)
+        public CommandTarget(Session session)
         {
             Session = session;
-            Account = Accounts.Get(session.Username);
-
-            if (Account != null && Account.Banned)
-                Account = null;
         }
 
         public void Send(string message)
         {
             if (IsSession)
-                Program.SendSysMessage(Session, message);
+                Session.Send(new SysMessage { Content = message, Date = Util.GetCurrentUnixTimestamp() });
             else if (IsGroupChat)
-                GroupChat.Send(message);
+                Room.Send(message);
             else if (IsPrivateChat)
                 PrivateChat.Send(message);
-        }
-
-        public static CommandTarget FromGroupChat(GroupChat groupChat, SteamID sender)
-        {
-            return new CommandTarget(groupChat, sender);
-        }
-
-        public static CommandTarget FromPrivateChat(Chat steamChat, SteamID sender)
-        {
-            return new CommandTarget(steamChat, sender);
-        }
-
-        public static CommandTarget FromSession(Session session)
-        {
-            return new CommandTarget(session);
         }
     }
 }

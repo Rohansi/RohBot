@@ -11,9 +11,10 @@ namespace SteamMobile.Commands
 
         public override void Handle(CommandTarget target, string[] parameters)
         {
-            var sessions = Program.Sessions.Values.Select(ss => ss.Name).ToList();
-            var req = sessions.Distinct().Select(name =>
+            var sessions = Program.SessionManager.List.Select(s => s.AccountInfo.Name).ToList();
+            var req = sessions.Distinct().Select(n =>
             {
+                var name = n ?? "Nobody";
                 var count = sessions.Count(s => s == name);
                 return name + (count > 1 ? string.Format(" ({0})", count) : "");
             });

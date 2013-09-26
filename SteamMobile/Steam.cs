@@ -1,90 +1,82 @@
 ﻿using System;
+using System.Diagnostics;
 using EzSteam;
 using SteamKit2;
-using log4net;
 
 namespace SteamMobile
 {
-    public static class Steam
+    public class Steam
     {
         public enum ConnectionStatus
         {
             Disconnected, Connected, Connecting
         }
 
-        public static ConnectionStatus Status { get; private set; }
+        public ConnectionStatus Status { get; private set; }
 
-        public static Bot Bot
+        public Bot Bot
         {
-            get { return Status == ConnectionStatus.Connected ? bot : null; }
+            get { return Status == ConnectionStatus.Connected ? _bot : null; }
         }
 
-        public static readonly ILog Logger = LogManager.GetLogger("Steam");
-        private static string username, password;
-        private static Bot bot;
+        private Bot _bot;
+        private Stopwatch _connectStarted = Stopwatch.StartNew();
 
-        static Steam()
+        public Steam()
         {
             Status = ConnectionStatus.Disconnected;
-            bot = null;
+            _bot = null;
         }
 
-        public static void Initialize(string user, string pass)
+        public void Update()
         {
-            username = user;
-            password = pass;
-        }
+            if (_connectStarted.Elapsed.TotalSeconds > 120)
+            {
+                if (_bot != null)
+                    _bot.Disconnect();
+                Status = ConnectionStatus.Disconnected;
+            }
 
-        public static void Update()
-        {
             if (Status != ConnectionStatus.Disconnected)
                 return;
 
-            bot = new Bot(username, password);
-            bot.OnConnected += sender =>
+            _connectStarted.Restart();
+            Program.Logger.Info("Connecting");
+
+            _bot = new Bot(Program.Settings.Username, Program.Settings.Password);
+            _bot.OnConnected += sender =>
             {
-                bot.PersonaName = Settings.PersonaName;
-                bot.PersonaState = EPersonaState.Online;
+                _connectStarted.Stop();
+
+                _bot.PersonaName = Program.Settings.PersonaName;
+                _bot.PersonaState = EPersonaState.Online;
                 Status = ConnectionStatus.Connected;
-                Logger.Info("Connected");
+
+                Program.Logger.Info("Connected");
             };
 
-            bot.OnDisconnected += (sender, reason) =>
+            _bot.OnDisconnected += (sender, reason) =>
             {
                 Status = ConnectionStatus.Disconnected;
-                Logger.Info("Disconnected");
+                Program.Logger.Info("Disconnected");
             };
 
-            bot.OnFriendRequest += (sender, user) => bot.AddFriend(user.Id);
+            _bot.OnFriendRequest += (sender, user) => _bot.AddFriend(user.Id);
 
-            bot.OnPrivateEnter += (sender, chat) =>
+            _bot.OnPrivateEnter += (sender, chat) =>
             {
                 chat.OnMessage += (chatSender, messageSender, message) =>
-                    Command.Handle(CommandTarget.FromPrivateChat(chatSender, messageSender.Id), message, "");
+                    Command.Handle(new CommandTarget(chatSender, messageSender.Id), message, "");
             };
 
-            bot.OnChatInvite += (sender, chat, @by) =>
+            _bot.OnChatInvite += (sender, chat, @by) =>
             {
                 if (chat.Id.IsIndividualAccount)
-                    bot.Join(chat.Id);
+                    _bot.Join(chat.Id);
             };
 
-            bot.Connect();
+            _bot.Connect();
             Status = ConnectionStatus.Connecting;
-        }
-
-        public static string GetName(SteamID steamId)
-        {
-            var account = Accounts.Find(steamId);
-            if (account != null)
-                return account.Name;
-
-            var id = steamId.ConvertToUInt64().ToString("D");
-            string name;
-            if (Settings.Alias.TryGetValue(id, out name))
-                return name;
-
-            return Bot.GetPersona(steamId).Name;
         }
     }
 }

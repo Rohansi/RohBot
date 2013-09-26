@@ -1,26 +1,22 @@
-﻿{
+{
     "Username": "",
     "Password": "",
     "PersonaName": "~",
-    "MaxDataSize": 4096,
-
-    "DbServer": "127.0.0.1:27017",
+	"Host": "http://localhost/",
+	"Admin": 76561198002164049,
+	
+    "DbServer": "127.0.0.1",
     "DbName": "rohbot",
     "DbUser": "server",
     "DbPass": "",
 
-    "Alias": {
-        "76561198011639924": "Jamie"
-    },
-
-    "CommandIgnoreNames": "SweetiBot, ScootaBorg",
-    "CommandIgnore": [
-        "76561198060006931",
-        "76561198060797164"
-    ],
-
-    "DefaultChat": "fpp",
-    "Chats": {
-        "fpp": "103582791430091926"
-    }
+    "DefaultRoom": "fpp",
+	"Rooms": [
+		{
+			"Name": "FP Programmers",
+			"ShortName": "fpp",
+			"Link": "http://steamcommunity.com/groups/best_fpp",
+			"Id": "103582791434244897"
+		}
+	]
 }

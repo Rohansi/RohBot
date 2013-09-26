@@ -20,7 +20,7 @@ namespace SteamMobile
             var sb = new StringBuilder();
             var titles = LookupYoutube(message)
                 .Concat(LookupSpotify(message))
-                //.Concat(LookupFacepunch(message))
+                .Concat(LookupFacepunch(message))
                 .OrderBy(i => i.Item1);
 
             foreach (var i in titles)
@@ -35,10 +35,10 @@ namespace SteamMobile
             return res;
         }
 
-        private static Regex spotify = new Regex(@"(http|https):\/\/\w*?.spotify.com\/track\/([\w]+)", RegexOptions.Compiled);
+        private static Regex _spotify = new Regex(@"(http|https):\/\/\w*?.spotify.com\/track\/([\w]+)", RegexOptions.Compiled);
         private static IEnumerable<Tuple<int, string>> LookupSpotify(string message)
         {
-            var matches = spotify.Matches(message);
+            var matches = _spotify.Matches(message);
 
             foreach (Match match in matches)
             {
@@ -87,12 +87,12 @@ namespace SteamMobile
             }
         }
 
-        private static Regex youtube = new Regex(@"youtube\.com/.*?(?:&|\?)v=([a-zA-Z0-9-_]+)", RegexOptions.Compiled);
-        private static Regex youtubeShort = new Regex(@"youtu\.be/([a-zA-Z0-9-_]+)", RegexOptions.Compiled);
+        private static Regex _youtube = new Regex(@"youtube\.com/.*?(?:&|\?)v=([a-zA-Z0-9-_]+)", RegexOptions.Compiled);
+        private static Regex _youtubeShort = new Regex(@"youtu\.be/([a-zA-Z0-9-_]+)", RegexOptions.Compiled);
         private static IEnumerable<Tuple<int, string>> LookupYoutube(string message)
         {
-            var matches = youtube.Matches(message).Cast<Match>();
-            matches = matches.Concat(youtubeShort.Matches(message).Cast<Match>());
+            var matches = _youtube.Matches(message).Cast<Match>();
+            matches = matches.Concat(_youtubeShort.Matches(message).Cast<Match>());
 
             foreach (Match match in matches)
             {
@@ -114,23 +114,22 @@ namespace SteamMobile
                     {
                         var numStars = Math.Round(token["entry"]["gd$rating"]["average"].ToObject<double>());
                         stars = string.Format(" [{0}]", new string('★', (int)numStars).PadRight(5, '☆'));
-                    } catch { }
+                    }
+                    catch { }
 
                     response = string.Format("YouTube: {0} ({1}){2}", name, formattedlength, stars);
-                } catch (Exception e)
-                {
-                    Console.WriteLine(e);
                 }
+                catch { }
 
                 yield return Tuple.Create(offset, response);
             }
         }
 
-        public static Regex facepunch = new Regex(@"facepunch\.com/showthread\.php.*?(?:&|\?)t=(\d+)", RegexOptions.Compiled);
-        public static Regex facepunchTitle = new Regex(@"<title\b[^>]*>(.*?)</title>", RegexOptions.Compiled);
+        private static Regex _facepunch = new Regex(@"facepunch\.com/showthread\.php.*?(?:&|\?)t=(\d+)", RegexOptions.Compiled);
+        private static Regex _facepunchTitle = new Regex(@"<title\b[^>]*>(.*?)</title>", RegexOptions.Compiled);
         private static IEnumerable<Tuple<int, string>> LookupFacepunch(string message)
         {
-            var matches = facepunch.Matches(message).Cast<Match>();
+            var matches = _facepunch.Matches(message).Cast<Match>();
 
             foreach (Match match in matches)
             {
@@ -141,10 +140,10 @@ namespace SteamMobile
                 {
                     var url = string.Format("http://facepunch.com/showthread.php?t={0}", match.Groups[1].Value);
                     var page = DownloadPage(url, "Windows-1252");
-                    var title = WebUtility.HtmlDecode(facepunchTitle.Match(page).Groups[1].Value.Trim());
+                    var title = WebUtility.HtmlDecode(_facepunchTitle.Match(page).Groups[1].Value.Trim());
 
                     if (title == "Facepunch")
-                        throw new Exception();
+                        continue;
 
                     response = string.Format("Facepunch: {0}", title);
                 }

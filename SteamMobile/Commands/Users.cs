@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using SteamKit2;
 
 namespace SteamMobile.Commands
 {
@@ -14,40 +16,40 @@ namespace SteamMobile.Commands
             if (!target.IsSession)
                 return;
 
-            GroupChat groupChat;
-            if (!Program.Chats.TryGetValue(target.Session.Chat, out groupChat))
+            var roomName = target.Session.Room;
+            var room = Program.RoomManager.Get(roomName);
+            if (room == null)
             {
-                Program.SendSysMessage(target.Session, "RohBot is not in the current chat.");
+                target.Send("RohBot is not in the current chat.");
                 return;
             }
 
             var userList = new Packets.UserList();
-            var chat = groupChat.Chat;
-            var steamUsers = chat.Members.ToList();
+            var chat = room.Chat;
+            var steamUsers = Program.Steam.Status == Steam.ConnectionStatus.Connected ? chat.Members.ToList() : new List<SteamID>();
+            var sessions = Program.SessionManager.List;
 
-            lock (Program.Sessions)
+            foreach (var id in steamUsers.Where(i => i != Program.Steam.Bot.PersonaId))
             {
-                foreach (var id in steamUsers.Where(i => i != Steam.Bot.PersonaId))
-                {
-                    var persona = Steam.Bot.GetPersona(id);
-                    var groupMember = chat.Group.Members.FirstOrDefault(m => m.Id == id);
-                    var rank = groupMember != null ? groupMember.Rank.ToString() : "Member";
-                    var avatar = BitConverter.ToString(persona.Avatar).Replace("-", "").ToLower();
-                    var usingWeb = Program.Sessions.Values.Any(s => s.Chat == target.Session.Chat && s.Account != null && s.Account.Id == id);
-                    userList.AddUser(Steam.GetName(id), rank, avatar, persona.PlayingName, usingWeb);
-                }
+                var persona = Program.Steam.Bot.GetPersona(id);
+                var steamId = id.ConvertToUInt64().ToString("D");
+                var groupMember = chat.Group.Members.FirstOrDefault(m => m.Id == id);
+                var rank = groupMember != null ? groupMember.Rank.ToString() : "Member";
+                var avatar = BitConverter.ToString(persona.Avatar).Replace("-", "").ToLower();
+                var usingWeb = sessions.Any(s => s.Room == roomName && s.AccountInfo.SteamId == steamId);
+                userList.AddUser(persona.Name, steamId, rank, avatar, persona.PlayingName, usingWeb);
+            }
+
+            var accounts = sessions.Where(s => s.Room == roomName && steamUsers.All(id => ulong.Parse(s.AccountInfo.SteamId) != id))
+                                   .Select(s => s.AccountInfo).Distinct(new AccountInfo.Comparer());
             
-                var accounts = Program.Sessions.Values.Where(s => s.Account != null && s.Chat == target.Session.Chat && steamUsers.All(id => s.Account.Id != id))
-                                                      .Select(s => s.Account).Distinct();
-                
-                foreach (var account in accounts)
-                {
-                    userList.AddUser(account.Name, "Member", "", "", true);
-                }
+            foreach (var account in accounts)
+            {
+                userList.AddUser(account.Name, account.SteamId, "Member", "", "", true);
             }
 
             userList.Users = userList.Users.OrderBy(u => u.Name).ToList();
-            Program.Send(target.Session, userList);
+            target.Session.Send(userList);
         }
     }
 }

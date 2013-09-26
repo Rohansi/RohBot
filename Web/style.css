@@ -1,6 +1,5 @@
 @charset "UTF-8";
 * {
-  /* remove iOS bs */
   -webkit-border-radius: 0px;
   border-radius: 0px;
   -webkit-appearance: none; }
@@ -43,7 +42,7 @@ div.container {
   -ms-flex-align: stretch;
   align-items: stretch;
   height: 100%;
-  background-color: #383635; }
+  background-color: #2b2929; }
 
 a, input {
   height: 16px; }
@@ -91,7 +90,7 @@ div.container > #header {
   -ms-flex-align: start;
   align-items: flex-start;
   color: #e6e6e6;
-  background-color: #232221;
+  background-color: #161515;
   padding: 6px; }
   div.container > #header h1 {
     font-size: 17pt; }
@@ -160,12 +159,13 @@ div.container > #header input, div.container > #footer input {
     -webkit-transition: all 0.2s ease-in-out;
     -moz-transition: all 0.2s ease-in-out;
     transition: all 0.2s ease-in-out; }
-div.container > #header a, div.container > #footer a {
+
+div.container > #footer a {
   background-color: #693d99;
   color: white;
   font-weight: bold;
   text-decoration: none; }
-  div.container > #header a:hover, div.container > #footer a:hover {
+  div.container > #footer a:hover {
     background-color: #8250b9;
     -webkit-transition: all 0.2s ease-in-out;
     -moz-transition: all 0.2s ease-in-out;
@@ -234,7 +234,7 @@ div.container > #footer {
   -ms-flex-align: start;
   align-items: flex-start;
   color: #e6e6e6;
-  background-color: #232221;
+  background-color: #161515;
   padding: 6px; }
   div.container > #footer > a, div.container > #footer > input {
     display: block; }
@@ -270,6 +270,10 @@ div.container > #footer {
 @media all and (max-width: 600px) {
   div.container > #header h1 {
     display: none; } }
+#signIn {
+  background: url(/login.png) no-repeat center center;
+  width: 143px; }
+
 .button {
   cursor: pointer; }
 
@@ -303,7 +307,7 @@ div.container > #footer {
     -moz-box-sizing: border-box; } }
 
 .userList {
-  background-color: #333130; }
+  background-color: #262424; }
 
 .ulUser {
   display: inline-block;

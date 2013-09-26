@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Linq;
+using EzSteam;
+using SteamKit2;
 
 namespace SteamMobile.Commands
 {
@@ -10,24 +13,22 @@ namespace SteamMobile.Commands
 
         public override void Handle(CommandTarget target, string[] parameters)
         {
-            if (target.Account == null || !target.Account.Permissions.HasFlag(Permissions.Admin) || parameters.Length < 1)
+            if (!target.IsGroupChat || parameters.Length == 0)
                 return;
 
-            try
-            {
-                var name = parameters[0];
-                Program.Logger.InfoFormat("User '{0}' unbanning '{1}'", target.Account.Name, name);
+            var member = target.Room.Chat.Group.Members.FirstOrDefault(m => m.Id == target.SteamId);
+            if (member == null || (member.Rank != ClanRank.Owner && member.Rank != ClanRank.Officer && member.Rank != ClanRank.Moderator))
+                return;
 
-                string res;
-                Session.Ban(name.ToLower(), false, out res);
-                target.Send(res);
-            }
-            catch (Exception e)
+            ulong steamId;
+            if (!ulong.TryParse(parameters[0], out steamId) || !((SteamID)steamId).IsIndividualAccount)
             {
-                Program.Logger.Error("Unban", e);
-                target.Send("Failed to unban. Check logs.");
-                throw;
+                target.Send("Invalid SteamID64.");
+                return;
             }
+
+            target.Room.Unban(steamId);
+            target.Send("Account unbanned.");
         }
     }
 }

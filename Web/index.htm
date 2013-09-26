@@ -9,20 +9,10 @@
 		<link rel="apple-touch-icon" href="icon.png"/>
 		<link rel="stylesheet" href="style.css" />
 		<script src="jquery-1.9.1.min.js"></script>
-		<script src="md5-min.js"></script>
 		<script src="urlize.js"></script>
 		<script src="rohbot.api.js"></script>
 		
 		<script>
-			var storage;
-			try {
-				var uid = new Date;
-				(storage = window.localStorage).setItem(uid, uid);
-				var fail = storage.getItem(uid) != uid;
-				storage.removeItem(uid);
-				fail && (storage = false);
-			} catch(e) { storage = false; }
-			
 			var requestedHistory;
 			var oldestMessage;
 			
@@ -53,25 +43,12 @@
 				
 				rohbot = new RohBot(serverUri); 
 				rohbot.onconnected = function() {
-					if (storage) {
-						var user = storage.getItem("user");
-						var pass = storage.getItem("pass");
-						if (user !== null || pass !== null) {
-							rohbot.login(user, pass);
-							return;
-						}
-					}
-						
-					rohbot.login("guest", hex_md5(""));
-					oldestMessage = 0x7FFFFFFFFFFFFFF;
+					oldestMessage = 0x3FFFFFFFFFFFFFF;
 					requestedHistory = false;
 				};
 				
-				rohbot.onlogin = function(permissions) {
-					$("#username").val(permissions.Username);
-					$("#password").val("");
-				
-					if (permissions.CanChat) {
+				rohbot.onready = function(id) {
+					if (id != "0") {
 						$("#header").hide();
 						$("#messageBox").removeAttr("disabled");
 						$("#messageBox").val("");
@@ -86,6 +63,7 @@
 				
 				rohbot.onchathistory = function(data) {
 					if (!data.Requested) {
+						$("#chat").html("");
 						for (var i = 0; i < data.Lines.length; i++) {
 							addRohBotMessage(data.Lines[i], data.Requested);
 						}
@@ -225,17 +203,6 @@
 						return;
 					}
 					
-					if (msgL.substring(0, 7) == "/logout" || msgL.substring(0, 7) == "~logout") {
-						if (storage) {
-							storage.removeItem("user");
-							storage.removeItem("pass");
-						}
-						
-						rohbot.login("Guest", hex_md5(""));
-						$("#messageBox").val("");
-						return;
-					}
-					
 					rohbot.sendMessage(msg);
 					$("#messageBox").val("");
 				});
@@ -264,19 +231,6 @@
 					}
 				});
 				
-				$("#login").click(function () {
-					var user = $("#username").val();
-					var pass = $("#password").val();
-					
-					if (storage) {
-						storage.setItem("user", user);
-						storage.setItem("pass", hex_md5(pass));
-					}
-					
-					rohbot.login(user, hex_md5(pass));
-					return false;
-				});
-				
 				$("#chat").scroll(function () {
 					if ($("#chat").scrollTop() == 0 && !requestedHistory) {
 						rohbot.requestHistory(oldestMessage);
@@ -294,9 +248,7 @@
 		<div class="container">
 			<div id="header">
 				<h1>FP Programmers</h1>
-				<input id="username" type="text" placeholder="username" />
-				<input id="password" type="password" placeholder="password" />
-				<a id="login" class="button">Login</a>
+				<a id="signIn" href="/login/"></a>
 			</div>
 			<div id="chat"></div>
 			<div id="footer">

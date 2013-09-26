@@ -1,6 +1,6 @@
 ﻿@import "bourbon/bourbon";
 
-$colBack: #383635;
+$colBack: #2B2929;
 $colText: #D1CFCD;
 $colName: #80B4DC;
 $colInGame: #A0CC67;
@@ -15,7 +15,6 @@ $buttonColor: #693D99;
 }
 
 * {
-	/* remove iOS bs */
 	-webkit-border-radius: 0px;
 	border-radius: 0px;
 	-webkit-appearance: none;
@@ -196,7 +195,9 @@ div.container > #header, div.container > #footer {
 			@include transition(all 0.2s ease-in-out);
 		}
     }
-	
+}
+
+div.container > #footer {
     a {
 		background-color: $buttonColor;
 		color: white;
@@ -319,6 +320,11 @@ div.container > #footer {
 	div.container > #header {
 	    h1 { display: none; }
 	}
+}
+
+#signIn {
+	background: url(/login.png) no-repeat center center;
+	width: 143px;
 }
 
 .button {

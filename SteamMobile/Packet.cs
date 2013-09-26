@@ -9,8 +9,9 @@ namespace SteamMobile
     public abstract class Packet
     {
         public abstract string Type { get; }
+        public abstract void Handle(Session session);
 
-
+        #region Static
         private static readonly Dictionary<string, Type> PacketTypes;
 
         static Packet()
@@ -34,9 +35,9 @@ namespace SteamMobile
 
         public static Packet ReadFromMessage(string msg)
         {
-            // fuck the police
             var type = PacketTypes[(string)JsonConvert.DeserializeObject<dynamic>(msg).Type];
             return (Packet)JsonConvert.DeserializeObject(msg, type);
         }
+        #endregion
     }
 }

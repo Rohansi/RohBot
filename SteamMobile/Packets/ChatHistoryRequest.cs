@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Driver.Linq;
 
@@ -13,24 +14,31 @@ namespace SteamMobile.Packets
 
         public long AfterDate;
 
-        public static void Handle(Session session, Packet pack)
+        public override void Handle(Session session)
         {
-            var packet = (ChatHistoryRequest)pack;
+            List<HistoryLine> lines;
 
-            var lines = Database.ChatHistory.AsQueryable()
-                                .Where(r => r.Chat == session.Chat && r.Date < packet.AfterDate)
+            if (Util.DateTimeFromUnixTimestamp(AfterDate) > DateTime.UtcNow.AddDays(-7))
+            {
+                lines = Database.ChatHistory.AsQueryable()
+                                .Where(r => r.Chat == session.Room && r.Date < AfterDate)
                                 .OrderByDescending(r => r.Date)
                                 .Take(100).ToList();
-            lines.Reverse();
+                lines.Reverse();
+            }
+            else
+            {
+                lines = new List<HistoryLine>();
+            }
             
-            var historyPack = new ChatHistory()
+            var history = new ChatHistory()
             {
                 Requested = true,
-                Chat = session.Chat,
+                Chat = session.Room,
                 Lines = lines
             };
 
-            Program.Send(session, historyPack);
+            session.Send(history);
         }
     }
 }

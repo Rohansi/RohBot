@@ -3,11 +3,11 @@
 namespace SteamMobile.Packets
 {
     // S -> C
-    public class Message : Packet
+    public class Ready : Packet
     {
-        public override string Type { get { return "message"; } }
+        public override string Type { get { return "ready"; } }
 
-        public HistoryLine Line;
+        public string SteamId;
 
         public override void Handle(Session session)
         {

@@ -1,50 +1,82 @@
 ﻿using System;
-using System.Text.RegularExpressions;
 
 namespace SteamMobile.Packets
 {
+    // C -> S
     public class SendMessage : Packet
     {
         public override string Type { get { return "sendMessage"; } }
 
         public string Content = null;
 
-        public static void Handle(Session session, Packet pack)
+        public override void Handle(Session session)
         {
-            var packet = (SendMessage)pack;
-            var message = packet.Content.Trim();
-
-            if (message.Length == 0)
-                return;
-
-            if (!message.StartsWith("//") && Command.Handle(CommandTarget.FromSession(session), message))
-                return;
-
-            if (!message.StartsWith("~~") && Command.Handle(CommandTarget.FromSession(session), message, "~"))
-                return;
-
-            if (message.StartsWith("//") || message.StartsWith("~~"))
-                message = message.Substring(1);
-
-            if (!session.Permissions.HasFlag(Permissions.Chat))
-                return;
-
-            GroupChat chat;
-            if (!Program.Chats.TryGetValue(session.Chat, out chat))
+            if (session.AccountInfo.SteamId == "0")
             {
-                Program.SendSysMessage(session, "RohBot is not in the current chat.");
+                session.Send(new SysMessage
+                {
+                    Date = Util.GetCurrentUnixTimestamp(),
+                    Content = "Guests can not speak."
+                });
+                return;
+            }
+
+            Room room = Program.RoomManager.Get(session.Room);
+            if (room == null)
+            {
+                session.Send(new SysMessage
+                {
+                    Date = Util.GetCurrentUnixTimestamp(),
+                    Content = "RohBot is not in the current chat."
+                });
+                return;
+            }
+
+            if (room.IsBanned(ulong.Parse(session.AccountInfo.SteamId)))
+            {
+                session.Send(new SysMessage
+                {
+                    Date = Util.GetCurrentUnixTimestamp(),
+                    Content = "You are banned from this chat."
+                });
+                return;
+            }
+
+            Content = Content.Trim();
+
+            if (Content.Length == 0)
+                return;
+
+            if (!Content.StartsWith("//") && Command.Handle(new CommandTarget(session), Content))
+                return;
+
+            if (!Content.StartsWith("~~") && Command.Handle(new CommandTarget(session), Content, "~"))
+                return;
+
+            if (Content.StartsWith("//") || Content.StartsWith("~~"))
+                Content = Content.Substring(1);
+
+            if (session.AccountInfo.Name == null)
+            {
+                session.Send(new SysMessage
+                {
+                    Date = Util.GetCurrentUnixTimestamp(),
+                    Content = "You have not set your name yet. To set your name, type: /name YourNameHere"
+                });
                 return;
             }
 
             // can't send emoticons from web
-            message = message.Replace('ː', ':');
+            Content = Content.Replace('ː', ':');
 
             // steam discards long messages
-            if (message.Length > 2000)
-                message = message.Substring(0, 2000) + "...";
+            if (Content.Length > 2000)
+                Content = Content.Substring(0, 2000) + "...";
 
-            message = string.Format("[{0}] {1}", session.Name, message);
-            chat.Send(message);
+            var roomName = room.RoomInfo.ShortName;
+            var userName = session.AccountInfo.Name;
+            var line = new ChatLine(Util.GetCurrentUnixTimestamp(), roomName, "RohBot", userName, session.AccountInfo.SteamId, Content, false);
+            room.Send(line);
         }
     }
 }

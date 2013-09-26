@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using EzSteam;
+using SteamKit2;
 
 namespace SteamMobile.Commands
 {
@@ -10,25 +14,31 @@ namespace SteamMobile.Commands
 
         public override void Handle(CommandTarget target, string[] parameters)
         {
-            if (target.Account == null || !target.Account.Permissions.HasFlag(Permissions.Admin) || parameters.Length < 1)
+            if (!target.IsGroupChat || parameters.Length == 0)
                 return;
 
-            try
-            {
-                var name = parameters[0];
-                Program.Logger.InfoFormat("User '{0}' banning '{1}'", target.Account.Name, name);
+            var member = target.Room.Chat.Group.Members.FirstOrDefault(m => m.Id == target.SteamId);
+            if (member == null || (member.Rank != ClanRank.Owner && member.Rank != ClanRank.Officer && member.Rank != ClanRank.Moderator))
+                return;
 
-                string res;
-                Session.Ban(name.ToLower(), true, out res);
-                target.Send(res);
-                Program.Kick(name, out res);
-            }
-            catch (Exception e)
+            parameters[0] = parameters[0].ToLower();
+            var inRoom = Program.SessionManager.List.Where(s => s.Room == target.Room.RoomInfo.ShortName && s.AccountInfo.Name.ToLower() == parameters[0]).ToList();
+            if (inRoom.Count > 0)
             {
-                Program.Logger.Error("Ban", e);
-                target.Send("Failed to ban. Check logs.");
-                throw;
+                target.Room.Ban(ulong.Parse(inRoom[0].AccountInfo.SteamId));
+                target.Send("Account banned.");
+                return;
             }
+
+            ulong steamId;
+            if (ulong.TryParse(parameters[0], out steamId) && ((SteamID)steamId).IsIndividualAccount)
+            {
+                target.Room.Ban(steamId);
+                target.Send("Account banned.");
+                return;
+            }
+
+            target.Send("No matching name or SteamID.");
         }
     }
 }

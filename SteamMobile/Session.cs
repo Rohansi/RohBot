@@ -1,95 +1,104 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Fleck;
+using MongoDB.Bson;
+using MongoDB.Driver.Linq;
 
 namespace SteamMobile
 {
+    public class AccountInfo
+    {
+        public ObjectId Id;
+        public string SteamId;
+        public string Name;
+        public long LastNameChange;
+        public string DefaultRoom;
+
+        public class Comparer : IEqualityComparer<AccountInfo>
+        {
+            public bool Equals(AccountInfo x, AccountInfo y)
+            {
+                if (ReferenceEquals(x, y))
+                    return true;
+                if (ReferenceEquals(x, null) || ReferenceEquals(y, null))
+                    return false;
+                return x.SteamId == y.SteamId;
+            }
+
+            public int GetHashCode(AccountInfo obj)
+            {
+                if (ReferenceEquals(obj, null))
+                    return 0;
+                return obj.SteamId.GetHashCode();
+            }
+        }
+    }
+
     public class Session
     {
+        public AccountInfo AccountInfo;
+        public string Room;
+        
         public readonly IWebSocketConnection Socket;
-        public readonly string RemoteAddress;
-
-        public Account Account
-        {
-            get { return Accounts.Get(Username ?? ""); }
-        }
-
-        public string Username { get; private set; }
-
-        public bool Authenticated
-        {
-            get { return !string.IsNullOrWhiteSpace(Username); }
-        }
-
-        public string Name
-        {
-            get { return Account != null ? Account.Name : "NOLOGIN"; }
-        }
-
-        public Permissions Permissions
-        {
-            get { return Account != null ? Account.Permissions : Permissions.None; }
-        }
-
-        public bool HasBacklog = false;
-        public string Chat = Settings.DefaultChat;
+        public readonly string Address;
 
         public Session(IWebSocketConnection socket)
         {
             Socket = socket;
-            RemoteAddress = socket.ConnectionInfo.ClientIpAddress; // using modified Fleck for this, uses X-Real-IP if needed
-            Username = "";
+            Address = socket.ConnectionInfo.ClientIpAddress;
+
+            var sourceTokens = socket.ConnectionInfo.Cookies.Values.ToList();
+            var token = Database.LoginTokens.AsQueryable()
+                                            .Where(r => r.Address == socket.ConnectionInfo.ClientIpAddress)
+                                            .Where(r => sourceTokens.Contains(r.Token))
+                                            .OrderByDescending(r => r.Created)
+                                            .FirstOrDefault();
+            if (token == null)
+            {
+                AccountInfo = new AccountInfo
+                {
+                    SteamId = "0",
+                    Name = "Guest",
+                    DefaultRoom = Program.Settings.DefaultRoom
+                };
+            }
+            else
+            {
+                AccountInfo = Database.AccountInfo.AsQueryable().FirstOrDefault(r => r.SteamId == token.SteamId);
+
+                if (AccountInfo == null)
+                {
+                    AccountInfo = new AccountInfo
+                    {
+                        SteamId = token.SteamId,
+                        Name = null,
+                        DefaultRoom = Program.Settings.DefaultRoom
+                    };
+
+                    Database.AccountInfo.Save(AccountInfo);
+                }
+            }
+
+            Room = AccountInfo.DefaultRoom;
+
+            var ready = new Packets.Ready();
+            ready.SteamId = AccountInfo.SteamId;
+            Send(ready);
+
+            var room = Program.RoomManager.Get(Room);
+            if (room != null)
+                room.SendHistory(this);
         }
 
-        public bool Login(string user, string pass)
+        public void Send(Packet packet)
         {
-            var account = Accounts.Get(user);
-
-            if (account == null)
-            {
-                Program.Logger.Info("Account null");
-                return false;
-            }
-
-            if (pass != account.Password || account.Banned)
-            {
-                Program.Logger.Info("Bad pass or banned");
-                return false;
-            }
-
-            Username = user;
-            Chat = account.DefaultChat;
-
-            if (!Program.Chats.ContainsKey(Chat))
-            {
-                Chat = Settings.DefaultChat;
-                account.DefaultChat = Chat;
-                account.Save();
-            }
-
-            return true;
+            Socket.Send(Packet.WriteToMessage(packet));
         }
 
-        public static bool Ban(string user, bool banned, out string response)
+        public void SendRaw(string str)
         {
-            var account = Accounts.Find(user);
-            
-            if (account == null)
-            {
-                response = "Account does not exist.";
-                return false;
-            }
-
-            if (banned && account.Permissions.HasFlag(Permissions.BanProof))
-            {
-                response = "Account can not be banned.";
-                return false;
-            }
-
-            account.Banned = banned;
-            account.Save();
-
-            response = banned ? "Account banned." : "Account unbanned.";
-            return true;
+            Socket.Send(str);
         }
     }
 }

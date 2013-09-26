@@ -1,64 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using SteamKit2;
 
 namespace SteamMobile
 {
-    static class Settings
+    public class Settings
     {
-        public static string Username { get; private set; }
-        public static string Password { get; private set; }
-        public static string PersonaName { get; private set; }
-        public static int MaxDataSize { get; private set; }
-        public static Dictionary<string, string> Alias { get; private set; }
-        public static List<SteamID> CommandIgnore { get; private set; } 
-        public static string DefaultChat { get; private set; }
+        public string Username;
+        public string Password;
+        public string PersonaName;
+        public string Host;
+        public ulong Admin;
 
-        public static string DbServer { get; private set; }
-        public static string DbName { get; private set; }
-        public static string DbUser { get; private set; }
-        public static string DbPass { get; private set; }
+        public string DbServer;
+        public string DbName;
+        public string DbUser;
+        public string DbPass;
 
-        public static Dictionary<string, SteamID> Chats { get; private set; }
+        public string DefaultRoom;
+        public List<RoomInfo> Rooms;
 
-        static Settings()
+        public static Settings Load(string fileName)
         {
-            Reload();
-        }
-
-        public static void Reload()
-        {
-            dynamic settings = JsonConvert.DeserializeObject(File.ReadAllText("settings.json"));
-
-            Username = (string)settings.Username;
-            Password = (string)settings.Password;
-            PersonaName = (string)settings.PersonaName;
-            MaxDataSize = (int)settings.MaxDataSize;
-
-            DbServer = (string)settings.DbServer;
-            DbName = (string)settings.DbName;
-            DbUser = (string)settings.DbUser;
-            DbPass = (string)settings.DbPass;
-
-            Alias = new Dictionary<string, string>();
-            foreach (var kvp in (JObject)settings.Alias)
-            {
-                Alias.Add(kvp.Key, kvp.Value.Value<string>());
-            }
-
-            CommandIgnore = ((JArray)settings.CommandIgnore).Values<string>().Select(s => new SteamID(ulong.Parse(s))).ToList();
-
-            DefaultChat = (string)settings.DefaultChat;
-
-            Chats = new Dictionary<string, SteamID>();
-            foreach (var kvp in (JObject)settings.Chats)
-            {
-                Chats.Add(kvp.Key, new SteamID(ulong.Parse(kvp.Value.Value<string>())));
-            }
+            return JsonConvert.DeserializeObject<Settings>(File.ReadAllText(fileName));
         }
     }
 }
