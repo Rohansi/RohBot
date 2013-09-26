@@ -94,6 +94,8 @@ div.container > #header {
   padding: 6px; }
   div.container > #header h1 {
     font-size: 17pt; }
+  div.container > #header a {
+    margin-left: 6px; }
 
 div.container > #header a, div.container > #header input, div.container > #footer a, div.container > #footer input {
   padding: 6px;
@@ -159,13 +161,13 @@ div.container > #header input, div.container > #footer input {
     -webkit-transition: all 0.2s ease-in-out;
     -moz-transition: all 0.2s ease-in-out;
     transition: all 0.2s ease-in-out; }
-
-div.container > #footer a {
+div.container > #header a, div.container > #footer a {
   background-color: #693d99;
   color: white;
   font-weight: bold;
-  text-decoration: none; }
-  div.container > #footer a:hover {
+  text-decoration: none;
+  cursor: pointer; }
+  div.container > #header a:hover, div.container > #footer a:hover {
     background-color: #8250b9;
     -webkit-transition: all 0.2s ease-in-out;
     -moz-transition: all 0.2s ease-in-out;
@@ -270,13 +272,6 @@ div.container > #footer {
 @media all and (max-width: 600px) {
   div.container > #header h1 {
     display: none; } }
-#signIn {
-  background: url(/login.png) no-repeat center center;
-  width: 143px; }
-
-.button {
-  cursor: pointer; }
-
 #chat > * {
   font-size: 15px;
   color: #d1cfcd; }

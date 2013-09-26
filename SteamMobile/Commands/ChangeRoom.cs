@@ -1,5 +1,4 @@
-﻿using System;
-
+﻿
 namespace SteamMobile.Commands
 {
     public class ChangeRoom : Command
@@ -10,7 +9,7 @@ namespace SteamMobile.Commands
 
         public override void Handle(CommandTarget target, string[] parameters)
         {
-            if (!target.IsSession)
+            if (!target.IsSession || target.Session.Account == null)
                 return;
 
             if (parameters.Length < 1)
@@ -23,7 +22,7 @@ namespace SteamMobile.Commands
             {
                 case "default":
                     {
-                        var defaultRoom = target.Session.AccountInfo.DefaultRoom;
+                        var defaultRoom = target.Session.Account.DefaultRoom;
                         var set = (parameters.Length < 2 ? defaultRoom : parameters[1]).ToLower();
 
                         var room = Program.RoomManager.Get(set);
@@ -37,8 +36,8 @@ namespace SteamMobile.Commands
 
                         if (parameters.Length >= 2)
                         {
-                            target.Session.AccountInfo.DefaultRoom = set;
-                            Database.AccountInfo.Save(target.Session.AccountInfo);
+                            target.Session.Account.DefaultRoom = set;
+                            Database.Accounts.Save(target.Session.Account);
                         }
 
                         room.SendHistory(target.Session);

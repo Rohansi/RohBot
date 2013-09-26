@@ -1,11 +1,12 @@
-﻿
+﻿using System;
+
 namespace SteamMobile.Commands
 {
-    public class Reload : Command
+    public class Reboot : Command
     {
         public override string Type
         {
-            get { return "reload"; }
+            get { return "reboot"; }
         }
 
         public override string Format
@@ -18,7 +19,8 @@ namespace SteamMobile.Commands
             if (!target.IsSteam || target.SteamId != Program.Settings.Admin)
                 return;
 
-            Program.LoadSettings();
+            Program.Logger.Info("Reboot requested");
+            Environment.Exit(0);
         }
     }
 }

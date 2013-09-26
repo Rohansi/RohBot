@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
 
 namespace SteamMobile.Packets
 {
@@ -18,7 +17,7 @@ namespace SteamMobile.Packets
 
             internal User(string name, string steamId, string rank, string avatar, string playing, bool web)
             {
-                Name = WebUtility.HtmlEncode(name);
+                Name = Util.HtmlEncode(name);
                 SteamId = steamId;
                 Rank = rank;
                 Avatar = avatar;

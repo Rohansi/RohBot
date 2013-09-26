@@ -31,7 +31,7 @@ namespace SteamMobile.Packets
                 lines = new List<HistoryLine>();
             }
             
-            var history = new ChatHistory()
+            var history = new ChatHistory
             {
                 Requested = true,
                 Chat = session.Room,

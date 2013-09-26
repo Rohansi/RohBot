@@ -27,7 +27,7 @@ namespace SteamMobile.Commands
             var userList = new Packets.UserList();
             var chat = room.Chat;
             var steamUsers = Program.Steam.Status == Steam.ConnectionStatus.Connected ? chat.Members.ToList() : new List<SteamID>();
-            var sessions = Program.SessionManager.List;
+            var sessions = Program.SessionManager.List.Where(s => s.Account != null).ToList();
 
             foreach (var id in steamUsers.Where(i => i != Program.Steam.Bot.PersonaId))
             {
@@ -36,12 +36,12 @@ namespace SteamMobile.Commands
                 var groupMember = chat.Group.Members.FirstOrDefault(m => m.Id == id);
                 var rank = groupMember != null ? groupMember.Rank.ToString() : "Member";
                 var avatar = BitConverter.ToString(persona.Avatar).Replace("-", "").ToLower();
-                var usingWeb = sessions.Any(s => s.Room == roomName && s.AccountInfo.SteamId == steamId);
+                var usingWeb = sessions.Any(s => s.Room == roomName && s.Account.SteamId == steamId);
                 userList.AddUser(persona.Name, steamId, rank, avatar, persona.PlayingName, usingWeb);
             }
 
-            var accounts = sessions.Where(s => s.Room == roomName && steamUsers.All(id => ulong.Parse(s.AccountInfo.SteamId) != id))
-                                   .Select(s => s.AccountInfo).Distinct(new AccountInfo.Comparer());
+            var accounts = sessions.Where(s => s.Room == roomName && steamUsers.All(id => ulong.Parse(s.Account.SteamId) != id))
+                                   .Select(s => s.Account).Distinct(new Account.Comparer());
             
             foreach (var account in accounts)
             {

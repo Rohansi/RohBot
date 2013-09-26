@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F72AC1F6-E3D0-4773-A8A3-B20DE26187FE}</ProjectGuid>
+    <ProjectGuid>{9AC06D28-23DF-4A1A-AA18-0AC4E7CC7B56}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SteamMobile</RootNamespace>
@@ -62,11 +62,12 @@
     <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Account.cs" />
     <Compile Include="Command.cs" />
-    <Compile Include="Commands\Name.cs" />
     <Compile Include="Commands\ChangeRoom.cs" />
     <Compile Include="Commands\Ban.cs" />
     <Compile Include="Commands\Me.cs" />
+    <Compile Include="Commands\Reboot.cs" />
     <Compile Include="Commands\Reload.cs" />
     <Compile Include="Commands\Sessions.cs" />
     <Compile Include="Commands\Unban.cs" />
@@ -74,11 +75,11 @@
     <Compile Include="Database.cs" />
     <Compile Include="HistoryLine.cs" />
     <Compile Include="LinkTitles.cs" />
-    <Compile Include="LoginServer.cs" />
     <Compile Include="Packet.cs" />
+    <Compile Include="Packets\Authenticate.cs" />
+    <Compile Include="Packets\AuthenticateResponse.cs" />
     <Compile Include="Packets\ChatHistory.cs" />
     <Compile Include="Packets\ChatHistoryRequest.cs" />
-    <Compile Include="Packets\Ready.cs" />
     <Compile Include="Packets\Message.cs" />
     <Compile Include="Packets\Ping.cs" />
     <Compile Include="Packets\SendMessage.cs" />

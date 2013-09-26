@@ -1,6 +1,4 @@
-﻿using System;
-using System.Net;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
 
@@ -22,7 +20,7 @@ namespace SteamMobile
         {
             Date = date;
             Chat = chat;
-            Content = WebUtility.HtmlEncode(content);
+            Content = Util.HtmlEncode(content);
         }
     }
 
@@ -38,8 +36,8 @@ namespace SteamMobile
         public ChatLine(long date, string chat, string userType, string sender, string senderId, string content, bool inGame)
             : base(date, chat, content)
         {
-            UserType = WebUtility.HtmlEncode(userType);
-            Sender = WebUtility.HtmlEncode(sender);
+            UserType = Util.HtmlEncode(userType);
+            Sender = Util.HtmlEncode(sender);
             SenderId = senderId;
             InGame = inGame;
         }
@@ -58,10 +56,10 @@ namespace SteamMobile
         public StateLine(long date, string chat, string state, string @for, string forId, string by, string byId, string content)
             : base(date, chat, content)
         {
-            State = WebUtility.HtmlEncode(state);
-            For = WebUtility.HtmlEncode(@for);
+            State = Util.HtmlEncode(state);
+            For = Util.HtmlEncode(@for);
             ForId = forId;
-            By = WebUtility.HtmlEncode(by);
+            By = Util.HtmlEncode(by);
             ById = byId;
         }
     }
@@ -76,8 +74,8 @@ namespace SteamMobile
         public WhisperLine(long date, string sender, string receiver, string content)
             : base(date, "whisper", content)
         {
-            Sender = WebUtility.HtmlEncode(sender);
-            Receiver = WebUtility.HtmlEncode(receiver);
+            Sender = Util.HtmlEncode(sender);
+            Receiver = Util.HtmlEncode(receiver);
         }
     }
 }

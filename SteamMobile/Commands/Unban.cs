@@ -1,7 +1,5 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using EzSteam;
-using SteamKit2;
 
 namespace SteamMobile.Commands
 {
@@ -20,14 +18,7 @@ namespace SteamMobile.Commands
             if (member == null || (member.Rank != ClanRank.Owner && member.Rank != ClanRank.Officer && member.Rank != ClanRank.Moderator))
                 return;
 
-            ulong steamId;
-            if (!ulong.TryParse(parameters[0], out steamId) || !((SteamID)steamId).IsIndividualAccount)
-            {
-                target.Send("Invalid SteamID64.");
-                return;
-            }
-
-            target.Room.Unban(steamId);
+            target.Room.Unban(parameters[0]);
             target.Send("Account unbanned.");
         }
     }

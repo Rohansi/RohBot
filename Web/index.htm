@@ -13,6 +13,15 @@
 		<script src="rohbot.api.js"></script>
 		
 		<script>
+			var storage;
+			try {
+				var uid = new Date;
+				(storage = window.localStorage).setItem(uid, uid);
+				var fail = storage.getItem(uid) != uid;
+				storage.removeItem(uid);
+				fail && (storage = false);
+			} catch(e) { storage = false; }
+			
 			var requestedHistory;
 			var oldestMessage;
 			
@@ -21,33 +30,14 @@
 				var serverUri = "wss://fpp.literallybrian.com/ws/";
 				if (window.location.search == "?noproxy")
 					serverUri = "ws://fpp.literallybrian.com:12000/"; // ws://209.141.59.194:12000/
-					
-				var addRohBotMessage = function(line, oldLine) {
-					switch (line.Type) {
-						case "chat":
-							addMessage(line.Date, line.Sender, line.Content, line.InGame, line.UserType, oldLine);
-							break;
-						case "state":
-							addMessage(line.Date, "*", line.Content, line.InGame, "", oldLine);
-							break;
-						case "whisper":
-							var nameText;
-							if (line.Sender === rohbot.username)
-								nameText = "To " + line.Receiver;
-							else
-								nameText = "From " + line.Sender;
-							addMessage(line.Date, nameText, line.Content, false, "", oldLine);
-							break;
-					}
-				};
 				
 				rohbot = new RohBot(serverUri); 
-				rohbot.onconnected = function() {
+				rohbot.onConnected = function() {
 					oldestMessage = 0x3FFFFFFFFFFFFFF;
 					requestedHistory = false;
 				};
 				
-				rohbot.onready = function(id) {
+				rohbot.onLogin = function() {
 					if (id != "0") {
 						$("#header").hide();
 						$("#messageBox").removeAttr("disabled");
@@ -61,7 +51,7 @@
 					$("#chat").scrollTop($("#chat")[0].scrollHeight);
 				};
 				
-				rohbot.onchathistory = function(data) {
+				rohbot.onChatHistory = function(data) {
 					if (!data.Requested) {
 						$("#chat").html("");
 						for (var i = 0; i < data.Lines.length; i++) {
@@ -81,15 +71,16 @@
 					oldestMessage = data.OldestLine;
 				};
 				
-				rohbot.onmessage = function(line) {
+				rohbot.onMessage = function(line) {
 					addRohBotMessage(line, false);
 				};
 				
-				rohbot.onsysmessage = function(data) {
-					addMessage(data.Date, "*", data.Content, false);
+				rohbot.onSysMessage = function(line) {
+					line.Type = "state";
+					addRohBotMessage(line, false);
 				};
 				
-				rohbot.onuserlist = function(users) {
+				rohbot.onUserList = function(users) {
 					addMessage(0, "*", "Currently in Chat:");
 					var html = '<div class="userList">';
 					for (var i = 0; i < users.length; i++) {
@@ -119,19 +110,37 @@
 				rohbot.connect();
 			}
 			
-			function addMessage(date, sender, message, inGame, userType, oldLine) {
-				if (date == 0)
-					date = new Date().getTime() / 1000;
+			function addRohBotMessage(line, oldLine) {
+				switch (line.Type) {
+					case "chat": {
+						var sender = line.Sender;
+						if (userType == "RohBot")
+							sender = '<span class="rohBot">' + sender + '</span>';
+						else if (inGame)
+							sender = '<span class="inGame">' + sender + '</span>';
+						
+						var html = '<div><span class="sender">' + formatTime(line.Date) + ' - ' + sender + '</span>' + linkify(line.Content) + '</div>';
+						addHtml(html, oldLine);
+						break;
+					}
 					
-				sender = sender == "*" ? "" : sender + ": ";
-				if (userType == "RohBot")
-					sender = '<span class="rohBot">' + sender + '</span>';
-				else if (inGame)
-					sender = '<span class="inGame">' + sender + '</span>';
-				
-				var html = '<div><span class="sender">' + formatTime(date) + ' - ' + sender + '</span>' + linkify(message) + '</div>';
-				addHtml(html, oldLine);
-			}
+					case "state": {
+						var html = '<div><span class="sender">' + formatTime(line.Date) + ' - </span>' + line.Content + '</div>';
+						addHtml(html, oldLine);
+						break;
+					}
+					
+					case "whisper": {
+						line.Type = "chat";
+						if (line.Sender === rohbot.name)
+							line.Sender = "To " + line.Receiver;
+						else
+							line.Sender = "From " + line.Sender;
+						addRohBotMessage(line, oldLine);
+						break;
+					}
+				}
+			};
 			
 			function addHtml(html, old) {
 				var elem = $("#chat");
@@ -168,7 +177,6 @@
 				return hour + ":" + min + " " + suffix;
 			}
 			
-			// http://stackoverflow.com/a/7123542/1056845
 			function linkify(str) {
 				str = urlize(str, { target: '_blank' }).replace(/\n/g, '<br/>');
 				var res = $("<div/>");
@@ -248,12 +256,13 @@
 		<div class="container">
 			<div id="header">
 				<h1>FP Programmers</h1>
-				<a id="signIn" href="/login/"></a>
+				<a id="login">Login</a>
+				<a id="login">Register</a>
 			</div>
 			<div id="chat"></div>
 			<div id="footer">
 				<input id="messageBox" type="text" placeholder="enter message ..." />
-				<a id="send" class="button">Send</a>
+				<a id="send">Send</a>
 			</div>
 		</div>
     </body>

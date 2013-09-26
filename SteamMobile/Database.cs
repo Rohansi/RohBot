@@ -1,5 +1,4 @@
-﻿using System;
-using MongoDB.Driver;
+﻿using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
 namespace SteamMobile
@@ -24,10 +23,11 @@ namespace SteamMobile
             ChatHistory.EnsureIndex(IndexKeys<HistoryLine>.Descending(r => r.Date));
             ChatHistory.EnsureIndex(IndexKeys<HistoryLine>.Hashed(r => r.Chat));
 
+            Accounts.EnsureIndex(IndexKeys<Account>.Hashed(r => r.Name));
+            Accounts.EnsureIndex(IndexKeys<Account>.Hashed(r => r.NameLower));
+
             LoginTokens.EnsureIndex(IndexKeys<LoginToken>.Hashed(r => r.Token));
             LoginTokens.EnsureIndex(IndexKeys<LoginToken>.Hashed(r => r.Address));
-
-            AccountInfo.EnsureIndex(IndexKeys<AccountInfo>.Hashed(r => r.SteamId));
 
             RoomBans.EnsureIndex(IndexKeys<RoomBans>.Hashed(r => r.Room));
         }
@@ -45,14 +45,14 @@ namespace SteamMobile
             get { return GetCollection<HistoryLine>("ChatHistory"); }
         }
 
+        public static MongoCollection<Account> Accounts
+        {
+            get { return GetCollection<Account>("Accounts"); }
+        }
+
         public static MongoCollection<LoginToken> LoginTokens
         {
             get { return GetCollection<LoginToken>("LoginTokens"); }
-        }
-
-        public static MongoCollection<AccountInfo> AccountInfo
-        {
-            get { return GetCollection<AccountInfo>("AccountInfo"); }
         }
 
         public static MongoCollection<RoomBans> RoomBans

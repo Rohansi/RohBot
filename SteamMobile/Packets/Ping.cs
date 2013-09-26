@@ -1,5 +1,4 @@
-﻿using System;
-
+﻿
 namespace SteamMobile.Packets
 {
     public class Ping : Packet

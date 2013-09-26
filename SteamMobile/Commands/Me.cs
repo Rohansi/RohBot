@@ -1,5 +1,4 @@
-﻿using System;
-using SteamMobile.Packets;
+﻿using SteamMobile.Packets;
 
 namespace SteamMobile.Commands
 {
@@ -11,8 +10,7 @@ namespace SteamMobile.Commands
 
         public override void Handle(CommandTarget target, string[] parameters)
         {
-            if (!target.IsSession || parameters.Length == 0 || 
-                target.Session.AccountInfo.SteamId == "0" || target.Session.AccountInfo.Name == null)
+            if (!target.IsSession || target.Session.Account == null || parameters.Length == 0)
             {
                 return;
             }
@@ -28,13 +26,13 @@ namespace SteamMobile.Commands
                 return;
             }
 
-            if (room.IsBanned(ulong.Parse(target.Session.AccountInfo.SteamId)))
+            if (room.IsBanned(target.Session.Account.Name))
             {
                 target.Send("You are banned from this chat.");
                 return;
             }
 
-            room.Send(string.Format("{0} {1}", target.Session.AccountInfo.Name, parameters[0]));
+            room.Send(string.Format("{0} {1}", target.Session.Account.Name, parameters[0]));
         }
     }
 }

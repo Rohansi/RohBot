@@ -1,5 +1,4 @@
-﻿using System;
-
+﻿
 namespace SteamMobile.Packets
 {
     // C -> S
@@ -11,7 +10,7 @@ namespace SteamMobile.Packets
 
         public override void Handle(Session session)
         {
-            if (session.AccountInfo.SteamId == "0")
+            if (session.Account == null)
             {
                 session.Send(new SysMessage
                 {
@@ -32,7 +31,7 @@ namespace SteamMobile.Packets
                 return;
             }
 
-            if (room.IsBanned(ulong.Parse(session.AccountInfo.SteamId)))
+            if (room.IsBanned(session.Account.Name))
             {
                 session.Send(new SysMessage
                 {
@@ -56,16 +55,6 @@ namespace SteamMobile.Packets
             if (Content.StartsWith("//") || Content.StartsWith("~~"))
                 Content = Content.Substring(1);
 
-            if (session.AccountInfo.Name == null)
-            {
-                session.Send(new SysMessage
-                {
-                    Date = Util.GetCurrentUnixTimestamp(),
-                    Content = "You have not set your name yet. To set your name, type: /name YourNameHere"
-                });
-                return;
-            }
-
             // can't send emoticons from web
             Content = Content.Replace('ː', ':');
 
@@ -74,8 +63,9 @@ namespace SteamMobile.Packets
                 Content = Content.Substring(0, 2000) + "...";
 
             var roomName = room.RoomInfo.ShortName;
-            var userName = session.AccountInfo.Name;
-            var line = new ChatLine(Util.GetCurrentUnixTimestamp(), roomName, "RohBot", userName, session.AccountInfo.SteamId, Content, false);
+            var userName = session.Account.Name;
+            var steamId = session.Account.SteamId;
+            var line = new ChatLine(Util.GetCurrentUnixTimestamp(), roomName, "RohBot", userName, steamId, Content, false);
             room.Send(line);
         }
     }

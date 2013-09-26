@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -111,32 +110,29 @@ namespace SteamMobile
             }
         }
 
-        public void Ban(ulong steamId)
+        public void Ban(string name)
         {
             lock (_bans)
             {
-                var steamIdStr = steamId.ToString();
-                _bans.Bans.Add(steamIdStr);
+                _bans.Bans.Add(name.ToLower());
                 Database.RoomBans.Save(_bans);
             }
         }
 
-        public void Unban(ulong steamId)
+        public void Unban(string name)
         {
             lock (_bans)
             {
-                var steamIdStr = steamId.ToString();
-                _bans.Bans.Remove(steamIdStr);
+                _bans.Bans.Remove(name.ToLower());
                 Database.RoomBans.Save(_bans);
             }
         }
 
-        public bool IsBanned(ulong steamId)
+        public bool IsBanned(string name)
         {
             lock (_bans)
             {
-                var steamIdStr = steamId.ToString();
-                return _bans.Bans.Contains(steamIdStr);
+                return _bans.Bans.Contains(name.ToLower());
             }
         }
 

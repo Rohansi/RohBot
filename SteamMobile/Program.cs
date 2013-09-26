@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using log4net;
 
@@ -10,14 +8,13 @@ namespace SteamMobile
     {
         public static readonly ILog Logger = LogManager.GetLogger("Steam");
         public static Settings Settings;
-        public static LoginServer LoginServer;
         public static SessionManager SessionManager;
         public static RoomManager RoomManager;
         public static Steam Steam;
 
         private static TaskScheduler _taskScheduler;
 
-        static void Main(string[] args)
+        static void Main()
         {
             Logger.Info("Process starting");
 
@@ -31,7 +28,6 @@ namespace SteamMobile
 
             LoadSettings();
 
-            LoginServer = new LoginServer();
             SessionManager = new SessionManager();
             RoomManager = new RoomManager();
             Steam = new Steam();

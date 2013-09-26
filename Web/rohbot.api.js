@@ -5,16 +5,15 @@ RohBot = function(server) {
 	var firstConnect = true;
 	var hasConnected = false;
 	
-	_this.username = null;
+	_this.name = null;
 	
-	_this.onconnected = null;
-	_this.ondisconnected = null;
-	_this.onlogin = null;
-	_this.onchathistory = null;
-	_this.onsysmessage = null;
-	_this.onmessage = null;
-	_this.onuserlist = null;
-	_this.onuserdata = null;
+	_this.onConnected = null;
+	_this.onDisconnected = null;
+	_this.onLogin = null;
+	_this.onChatHistory = null;
+	_this.onSysMessage = null;
+	_this.onMessage = null;
+	_this.onUserList = null;
 	
 	var getCurrentTime = function() {
 		return new Date().getTime() / 1000;
@@ -27,8 +26,8 @@ RohBot = function(server) {
 	
 	_this.connect = function() {
 		if (firstConnect) {
-			if (_this.onsysmessage != null)
-				_this.onsysmessage({Date: getCurrentTime(), Content: "Connecting to RohBot..."});
+			if (_this.onSysMessage != null)
+				_this.onSysMessage({Date: getCurrentTime(), Content: "Connecting to RohBot..."});
 			firstConnect = false;
 		}
 		
@@ -51,22 +50,22 @@ RohBot = function(server) {
 			hasConnected = true;
 		};
 		
-		socket.onclose = function (event) {
+		socket.onclose = socket.onerror = function (event) {
 			socket = null;
 			
 			if (hasConnected) {
-				if (_this.onsysmessage != null)
-					_this.onsysmessage({Date: getCurrentTime(), Content: "Lost connection to RohBot."});
+				if (_this.onSysMessage != null)
+					_this.onSysMessage({Date: getCurrentTime(), Content: "Lost connection to RohBot."});
 				hasConnected = false;
 			}
 			
-			if (_this.ondisconnected != null)
-				_this.ondisconnected();
+			if (_this.onDisconnected != null)
+				_this.onDisconnected();
 			
 			setTimeout(function () {
-				_this.onsysmessage({Date: getCurrentTime(), Content: "Connecting to RohBot..."});
+				_this.onSysMessage({Date: getCurrentTime(), Content: "Connecting to RohBot..."});
 				_this.connect();
-			}, 15000);
+			}, 5000);
 		};
 		
 		socket.onmessage = function (event) {
@@ -74,41 +73,35 @@ RohBot = function(server) {
 			
 			switch (data.Type)
 			{
-				case "clientPermissions": {
-					_this.username = data.Username;
-					if (_this.onlogin != null)
-						_this.onlogin(data);
+				case "authResponse": {
+					_this.name = data.Name;
+					if (_this.onLogin != null)
+						_this.onLogin();
 					break;
 				}
 				
 				case "chatHistory": {
-					if (_this.onchathistory != null)
-						_this.onchathistory(data);
+					if (_this.onChatHistory != null)
+						_this.onChatHistory(data);
 					break;
 				}
 				
 				case "message": {
-					if (_this.onmessage != null)
-						_this.onmessage(data.Line);
+					if (_this.onMessage != null)
+						_this.onMessage(data.Line);
 					break;
 				}
 				
 				case "sysMessage": {
-					if (_this.onsysmessage != null)
-						_this.onsysmessage(data);
+					if (_this.onSysMessage != null)
+						_this.onSysMessage(data);
 					break;
 				}
 				
 				case "userList": {
-					if (_this.onuserlist != null)
-						_this.onuserlist(data.Users);
+					if (_this.onUserList != null)
+						_this.onUserList(data.Users);
 					break;
-				}
-				
-				case "userData": {
-					if (data.Action != "loaded") break;
-					if (_this.onuserdata != null)
-						_this.onuserdata(data.Data);
 				}
 			}
 		};
@@ -124,8 +117,12 @@ RohBot = function(server) {
 		} catch (err) { }
 	};
 	
-	_this.login = function(user, pass) {
-		send({Type: "login", Username: user, Password: pass});
+	_this.login = function(user, pass, tokens) {
+		send({Type: "auth", Method: "login", Username: user, Password: pass, Tokens: tokens});
+	};
+	
+	_this.register = function(user, pass) {
+		send({Type: "auth", Method: "register", Username: user, Password: pass});
 	};
 	
 	_this.requestHistory = function(afterDate) {
@@ -134,13 +131,5 @@ RohBot = function(server) {
 	
 	_this.sendMessage = function(message) {
 		send({Type: "sendMessage", Content: message});
-	};
-	
-	_this.loadUserData = function() {
-		send({Type: "userData", Action: "load"});
-	};
-	
-	_this.storeUserData = function(data) {
-		send({Type: "userData", Action: "store", Data: data});
 	};
 }
