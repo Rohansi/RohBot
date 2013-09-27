@@ -57,13 +57,13 @@ namespace SteamMobile.Commands
                         var room = Program.RoomManager.Get(set);
                         if (room == null)
                         {
-                            target.Send("Chat does not exist.");
+                            target.Send("Room does not exist.");
                             return;
                         }
 
                         target.Session.Room = set;
                         room.SendHistory(target.Session);
-                        target.Send("Switched to chat: " + set);
+                        target.Send("Switched to room: " + set);
                         break;
                     }
             }

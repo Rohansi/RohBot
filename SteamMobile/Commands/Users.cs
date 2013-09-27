@@ -43,7 +43,8 @@ namespace SteamMobile.Commands
             
             foreach (var account in accounts)
             {
-                userList.AddUser(account.Name, "0", "Member", "", "", true);
+                var userId = account.Name.GetHashCode().ToString("D");
+                userList.AddUser(account.Name, userId, "Member", "", "", true);
             }
 
             userList.Users = userList.Users.OrderBy(u => u.Name).ToList();

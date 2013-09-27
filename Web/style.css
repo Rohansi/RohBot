@@ -332,3 +332,8 @@ div.container > #footer {
     height: 32px;
     vertical-align: text-top;
     float: left; }
+  .userList a {
+    color: inherit !important;
+    text-decoration: none; }
+    .userList a:hover {
+      text-decoration: underline; }

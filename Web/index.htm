@@ -107,6 +107,7 @@
 						var game = user.Playing != "" ? "In-Game: " + user.Playing : "&nbsp;";
 						var avatarUrl = "/steamcommunity/public/images/avatars/" + user.Avatar.substring(0, 2) + "/" + user.Avatar + "_full.jpg";
 						if (user.Avatar == "") avatarUrl = "rohbot.png";
+						if (!user.Web) user.Name = '<a href="http://steamcommunity.com/profiles/' + user.SteamId + '" target="_blank">' + user.Name + '</a>';
 						html += '<img src="' + avatarUrl + '"/>';
 						html += '<div data-color="' + (inGame ? "ingame" : (user.Web ? "web" : "")) + '" data-rank="' + user.Rank + '">' + user.Name + '<br/>' + game + '</div>';
 						html += '</div>';
