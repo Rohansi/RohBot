@@ -1,6 +1,6 @@
 SteamMobile
 ===========
-Steam chat interface for mobile devices.
+Steam group chat interface for mobile devices.
 
 Commands
 ----------
@@ -27,7 +27,7 @@ Display a list of accounts that are banned from the current room.
 Bans an account from the room. Can only be used by Steam accounts with a star. `/ban stan` will ban Stan from the room.
 
 ### unban ###
-Unbans an accound from the room. Can only be used by Steam accounts with a star. `/unban stan` will unban Stan from the room.
+Unbans an account from the room. Can only be used by Steam accounts with a star. `/unban stan` will unban Stan from the room.
 
 ### sessions ###
 Display a list of web accounts that are logged in.
