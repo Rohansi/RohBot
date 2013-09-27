@@ -1,6 +1,6 @@
 SteamMobile
 ===========
-Steam group chat interface for mobile devices.
+Steam web interface for group chats.
 
 Commands
 ----------
