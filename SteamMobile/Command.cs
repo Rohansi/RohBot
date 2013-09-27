@@ -211,6 +211,7 @@ namespace SteamMobile
 
         public CommandTarget(Session session)
         {
+            Room = Program.RoomManager.Get(session.Room);
             Session = session;
         }
 

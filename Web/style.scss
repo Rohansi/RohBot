@@ -380,6 +380,10 @@ $ulPadding: 4px;
 				color: $colInGame;
 			}
 			
+			&[data-color=web] {
+				color: $colWeb;
+			}
+			
 			&[data-rank=Owner]:before {
 				content: '★ ';
 				color: #FECB00;
@@ -403,8 +407,4 @@ $ulPadding: 4px;
 		vertical-align: text-top;
 		float: left;
 	}
-}
-
-.webIcon {
-	color: $colWeb;
 }

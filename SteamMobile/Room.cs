@@ -4,6 +4,7 @@ using System.Net;
 using System.Threading;
 using EzSteam;
 using MongoDB.Bson;
+using MongoDB.Driver.Builders;
 using MongoDB.Driver.Linq;
 
 namespace SteamMobile
@@ -47,12 +48,14 @@ namespace SteamMobile
                 };
                 Database.RoomBans.Insert(_bans);
             }
-            _history = new LinkedList<HistoryLine>();
-        }
 
-        public IEnumerable<HistoryLine> History
-        {
-            get { return _history; }
+            _history = new LinkedList<HistoryLine>();
+            var lines = Database.ChatHistory.AsQueryable().Where(r => r.Chat == RoomInfo.ShortName).OrderByDescending(r => r.Date).Take(100).ToList();
+            lines.Reverse();
+            foreach (var line in lines)
+            {
+                _history.AddLast(line);
+            }
         }
 
         public void Send(HistoryLine line)
@@ -109,6 +112,15 @@ namespace SteamMobile
                 session.Send(chatHistory);
             }
         }
+
+        public List<string> Banned
+        {
+            get
+            {
+                lock (_bans)
+                    return _bans.Bans.ToList();
+            }
+        } 
 
         public void Ban(string name)
         {

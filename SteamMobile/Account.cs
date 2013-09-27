@@ -8,6 +8,7 @@ namespace SteamMobile
     public class Account
     {
         public ObjectId Id;
+        public string Address;
         public string Name;
         public string NameLower;
         public byte[] Password;

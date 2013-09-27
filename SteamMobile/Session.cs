@@ -21,6 +21,11 @@ namespace SteamMobile
 
             Socket = socket;
             Address = socket.ConnectionInfo.ClientIpAddress;
+
+            Room = Program.Settings.DefaultRoom;
+            var room = Program.RoomManager.Get(Room);
+            if (room != null)
+                room.SendHistory(this);
         }
 
         public void Login(string username, string password, List<string> tokens)
@@ -35,6 +40,9 @@ namespace SteamMobile
                     break;
                 }
 
+                var usernameLower = username.ToLower();
+                var existingTokens = Database.LoginTokens.AsQueryable().Where(r => r.Name == usernameLower).ToList();
+
                 if (string.IsNullOrEmpty(password))
                 {
                     if (tokens.Count == 0)
@@ -42,9 +50,7 @@ namespace SteamMobile
                         message = "Missing password.";
                         break;
                     }
-
-                    var usernameLower = username.ToLower();
-                    var existingTokens = Database.LoginTokens.AsQueryable().Where(r => r.Name == usernameLower).ToList();
+                    
                     if (!existingTokens.Any(t => t.Address == Address && tokens.Contains(t.Token)))
                     {
                         message = "Automatic login failed.";
@@ -77,7 +83,22 @@ namespace SteamMobile
                         break;
                     }
 
+                    LoginToken newToken = existingTokens.FirstOrDefault(t => t.Address == Address);
+                    if (newToken == null)
+                    {
+                        newToken = new LoginToken
+                        {
+                            Name = account.Name.ToLower(),
+                            Address = Address,
+                            Token = Util.GenerateLoginToken(),
+                            Created = Util.GetCurrentUnixTimestamp()
+                        };
+                        Database.LoginTokens.Insert(newToken);
+                        existingTokens.Add(newToken);
+                    }
+
                     Account = account;
+                    tokens = existingTokens.Select(t => t.Token).ToList();
                     message = string.Format("Logged in as {0}.", Account.Name);
                 }
             } while (false);
@@ -100,7 +121,7 @@ namespace SteamMobile
             Send(new Packets.AuthenticateResponse
             {
                 Name = Account == null ? "Guest" : Account.Name,
-                Success = Account == null,
+                Success = Account != null,
                 Tokens = string.Join(",", tokens)
             });
         }
@@ -129,9 +150,17 @@ namespace SteamMobile
                     break;
                 }
 
+                var accountsFromAddress = Database.Accounts.AsQueryable().Count(a => a.Address == Address);
+                if (accountsFromAddress >= 5)
+                {
+                    message = "Too many accounts were created from this location.";
+                    break;
+                }
+
                 var salt = Util.GenerateSalt();
                 var account = new Account
                 {
+                    Address = Address,
                     Name = username,
                     NameLower = username.ToLower(),
                     Password = Util.HashPassword(password, salt),

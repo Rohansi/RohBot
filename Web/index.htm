@@ -33,24 +33,31 @@
 				
 				rohbot = new RohBot(serverUri); 
 				rohbot.onConnected = function() {
-					oldestMessage = 0x3FFFFFFFFFFFFFF;
+					oldestMessage = 0xFFFFFFFFFFFF;
 					requestedHistory = false;
 					
-					// TODO: auto login
+					if (storage && storage.getItem("tokens") !== null) {
+						rohbot.login(storage.getItem("name"), null, storage.getItem("tokens"));
+					}
 				};
 				
-				rohbot.onLogin = function() {
-					if (rohbot.name != "Guest") {
+				rohbot.onLogin = function(data) {
+					if (data.Success) {
 						$("#header").hide();
 						$("#messageBox").removeAttr("disabled");
 						$("#messageBox").val("");
+						$("#password").val("");
+						
+						if (storage) {
+							storage.setItem("name", data.Name);
+							storage.setItem("tokens", data.Tokens);
+						}
 					} else {
 						$("#header").show();
 						$("#messageBox").attr("disabled","disabled");
 						$("#messageBox").val("Guests can not speak.");
 					}
 					
-					$("#password").val("");
 					$("#chat").scrollTop($("#chat")[0].scrollHeight);
 				};
 				
@@ -100,9 +107,8 @@
 						var game = user.Playing != "" ? "In-Game: " + user.Playing : "&nbsp;";
 						var avatarUrl = "/steamcommunity/public/images/avatars/" + user.Avatar.substring(0, 2) + "/" + user.Avatar + "_full.jpg";
 						if (user.Avatar == "") avatarUrl = "rohbot.png";
-						if (user.Web) user.Name = '<span class="webIcon">@&nbsp;</span>' + user.Name;
 						html += '<img src="' + avatarUrl + '"/>';
-						html += '<div data-color="' + (inGame ? "ingame" : "") + '" data-rank="' + user.Rank + '">' + user.Name + '<br/>' + game + '</div>';
+						html += '<div data-color="' + (inGame ? "ingame" : (user.Web ? "web" : "")) + '" data-rank="' + user.Rank + '">' + user.Name + '<br/>' + game + '</div>';
 						html += '</div>';
 					}
 					
@@ -117,12 +123,12 @@
 				switch (line.Type) {
 					case "chat": {
 						var sender = line.Sender;
-						if (userType == "RohBot")
+						if (line.UserType == "RohBot")
 							sender = '<span class="rohBot">' + sender + '</span>';
-						else if (inGame)
+						else if (line.InGame)
 							sender = '<span class="inGame">' + sender + '</span>';
 						
-						var html = '<div><span class="sender">' + formatTime(line.Date) + ' - ' + sender + '</span>' + linkify(line.Content) + '</div>';
+						var html = '<div><span class="sender">' + formatTime(line.Date) + ' - ' + sender + ': </span>' + linkify(line.Content) + '</div>';
 						addHtml(html, oldLine);
 						break;
 					}

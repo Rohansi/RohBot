@@ -43,10 +43,10 @@ RohBot = function(server) {
 		socket = new WebSocket(server);
 		
 		socket.onopen = function (event) {
-			if (_this.onsysmessage != null)
-				_this.onsysmessage({Date: getCurrentTime(), Content: "Connected to RohBot!"});
-			if (_this.onconnected != null)
-				_this.onconnected();
+			if (_this.onSysMessage != null)
+				_this.onSysMessage({Date: getCurrentTime(), Content: "Connected to RohBot!"});
+			if (_this.onConnected != null)
+				_this.onConnected();
 			hasConnected = true;
 		};
 		
@@ -76,7 +76,7 @@ RohBot = function(server) {
 				case "authResponse": {
 					_this.name = data.Name;
 					if (_this.onLogin != null)
-						_this.onLogin();
+						_this.onLogin(data);
 					break;
 				}
 				

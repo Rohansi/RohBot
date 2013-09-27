@@ -18,6 +18,12 @@ namespace SteamMobile.Commands
             if (member == null || (member.Rank != ClanRank.Owner && member.Rank != ClanRank.Officer && member.Rank != ClanRank.Moderator))
                 return;
 
+            if (!Util.IsValidUsername(parameters[0]))
+            {
+                target.Send("Invalid username.");
+                return;
+            }
+
             target.Room.Ban(parameters[0]);
             target.Send("Account banned.");
         }
