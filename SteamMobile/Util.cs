@@ -8,10 +8,10 @@ namespace SteamMobile
 {
     public static class Util
     {
-        #region Passwords
+        #region Authentication
         public static byte[] HashPassword(string password, byte[] salt)
         {
-            if (salt == null || salt.Length < 8)
+            if (salt == null || salt.Length != 16)
                 throw new Exception("bad salt");
 
             var h = new Rfc2898DeriveBytes(password, salt, 1000);
@@ -30,6 +30,24 @@ namespace SteamMobile
         {
             return Convert.ToBase64String(GenerateSalt());
         }
+
+        public const string InvalidUsernameMessage = "Usernames must be between 2 and 24 characters long and may only contain letters, digits or spaces.";
+        public static bool IsValidUsername(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return false;
+            if (value.Length < 2 || value.Length > 24)
+                return false;
+            return value.All(c => char.IsLetterOrDigit(c) || c == ' ');
+        }
+
+        public const string InvalidPasswordMessage = "Passwords must be at least 6 characters long.";
+        public static bool IsValidPassword(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return false;
+            return value.Length >= 6;
+        }
         #endregion
 
         #region Time
@@ -39,7 +57,12 @@ namespace SteamMobile
 
         public static long GetCurrentUnixTimestamp()
         {
-            return (long)(DateTime.UtcNow - UnixEpoch).TotalSeconds;
+            return GetUnixTimestamp(DateTime.UtcNow);
+        }
+
+        public static long GetUnixTimestamp(DateTime dateTime)
+        {
+            return (long)(dateTime.ToUniversalTime() - UnixEpoch).TotalSeconds;
         }
 
         public static DateTime DateTimeFromUnixTimestamp(long seconds)
@@ -48,6 +71,7 @@ namespace SteamMobile
         }
         #endregion
 
+        #region Misc
         // http://stackoverflow.com/a/654454/1056845
         public static void RemoveAll<TKey, TValue>(this Dictionary<TKey, TValue> dict,
                                      Func<KeyValuePair<TKey, TValue>, bool> condition)
@@ -57,6 +81,7 @@ namespace SteamMobile
                 dict.Remove(cur.Key);
             }
         }
+        #endregion
 
         #region HtmlEncode
         // Replacement HtmlEncode because Mono's is broken

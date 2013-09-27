@@ -94,8 +94,6 @@ div.container > #header {
   padding: 6px; }
   div.container > #header h1 {
     font-size: 17pt; }
-  div.container > #header a {
-    margin-left: 6px; }
 
 div.container > #header a, div.container > #header input, div.container > #footer a, div.container > #footer input {
   padding: 6px;
@@ -302,43 +300,36 @@ div.container > #footer {
     -moz-box-sizing: border-box; } }
 
 .userList {
-  background-color: #262424; }
-
-.ulUser {
-  display: inline-block;
-  width: 256px;
-  height: 32px;
-  padding: 4px;
-  white-space: nowrap; }
-
-.ulAvatar {
-  width: 32px;
-  height: 32px;
-  vertical-align: text-top;
-  float: left; }
-
-.ulName {
-  display: inline-block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 224px;
-  padding-left: 4px;
-  color: #80B4DC; }
+  background-color: #232222; }
+  .userList > div {
+    display: inline-block;
+    width: 256px;
+    height: 32px;
+    padding: 4px;
+    white-space: nowrap; }
+    .userList > div > div {
+      display: inline-block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 224px;
+      padding-left: 4px;
+      color: #80B4DC; }
+      .userList > div > div[data-color=ingame] {
+        color: #a0cc67; }
+      .userList > div > div[data-rank=Owner]:before {
+        content: '★ ';
+        color: #FECB00; }
+      .userList > div > div[data-rank=Officer]:before {
+        content: '★ ';
+        color: #FECB00; }
+      .userList > div > div[data-rank=Moderator]:before {
+        content: '★ ';
+        color: #CFCFCF; }
+  .userList img {
+    width: 32px;
+    height: 32px;
+    vertical-align: text-top;
+    float: left; }
 
 .webIcon {
   color: #b67fff; }
-
-.ulName[data-color=ingame] {
-  color: #a0cc67; }
-
-.ulName[data-rank=Owner]:before {
-  content: '★ ';
-  color: #FECB00; }
-
-.ulName[data-rank=Officer]:before {
-  content: '★ ';
-  color: #FECB00; }
-
-.ulName[data-rank=Moderator]:before {
-  content: '★ ';
-  color: #CFCFCF; }

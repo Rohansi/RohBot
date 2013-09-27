@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Driver.Linq;
 
 namespace SteamMobile
 {
@@ -8,8 +10,15 @@ namespace SteamMobile
         public ObjectId Id;
         public string Name;
         public string NameLower;
-        public string SteamId;
+        public byte[] Password;
+        public byte[] Salt;
         public string DefaultRoom;
+
+        public static Account Get(string username)
+        {
+            username = username.ToLower();
+            return Database.Accounts.AsQueryable().FirstOrDefault(a => a.NameLower == username);
+        }
 
         public class Comparer : IEqualityComparer<Account>
         {
@@ -37,5 +46,6 @@ namespace SteamMobile
         public string Name;
         public string Address;
         public string Token;
+        public long Created;
     }
 }

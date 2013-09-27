@@ -23,11 +23,10 @@ namespace SteamMobile
             ChatHistory.EnsureIndex(IndexKeys<HistoryLine>.Descending(r => r.Date));
             ChatHistory.EnsureIndex(IndexKeys<HistoryLine>.Hashed(r => r.Chat));
 
-            Accounts.EnsureIndex(IndexKeys<Account>.Hashed(r => r.Name));
-            Accounts.EnsureIndex(IndexKeys<Account>.Hashed(r => r.NameLower));
+            Accounts.EnsureIndex(IndexKeys<Account>.Hashed(r => r.NameLower), IndexOptions.SetUnique(true));
 
-            LoginTokens.EnsureIndex(IndexKeys<LoginToken>.Hashed(r => r.Token));
-            LoginTokens.EnsureIndex(IndexKeys<LoginToken>.Hashed(r => r.Address));
+            LoginTokens.EnsureIndex(IndexKeys<LoginToken>.Hashed(r => r.Name));
+            LoginTokens.EnsureIndex(IndexKeys<LoginToken>.Descending(r => r.Created));
 
             RoomBans.EnsureIndex(IndexKeys<RoomBans>.Hashed(r => r.Room));
         }

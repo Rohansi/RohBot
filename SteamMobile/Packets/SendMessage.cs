@@ -64,8 +64,7 @@ namespace SteamMobile.Packets
 
             var roomName = room.RoomInfo.ShortName;
             var userName = session.Account.Name;
-            var steamId = session.Account.SteamId;
-            var line = new ChatLine(Util.GetCurrentUnixTimestamp(), roomName, "RohBot", userName, steamId, Content, false);
+            var line = new ChatLine(Util.GetCurrentUnixTimestamp(), roomName, "RohBot", userName, "0", Content, false);
             room.Send(line);
         }
     }

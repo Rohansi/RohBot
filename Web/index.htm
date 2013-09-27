@@ -35,10 +35,12 @@
 				rohbot.onConnected = function() {
 					oldestMessage = 0x3FFFFFFFFFFFFFF;
 					requestedHistory = false;
+					
+					// TODO: auto login
 				};
 				
 				rohbot.onLogin = function() {
-					if (id != "0") {
+					if (rohbot.name != "Guest") {
 						$("#header").hide();
 						$("#messageBox").removeAttr("disabled");
 						$("#messageBox").val("");
@@ -48,6 +50,7 @@
 						$("#messageBox").val("Guests can not speak.");
 					}
 					
+					$("#password").val("");
 					$("#chat").scrollTop($("#chat")[0].scrollHeight);
 				};
 				
@@ -81,7 +84,7 @@
 				};
 				
 				rohbot.onUserList = function(users) {
-					addMessage(0, "*", "Currently in Chat:");
+					addRohBotMessage({ Type: "state", Date: getCurrentTime(), Content: "Currently in Chat:" });
 					var html = '<div class="userList">';
 					for (var i = 0; i < users.length; i++) {
 						var user = users[i];
@@ -92,14 +95,14 @@
 						if (user.Avatar == "0000000000000000000000000000000000000000")
 							user.Avatar = "fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb";
 						
-						html += '<div class="ulUser">';
+						html += '<div>';
 						var inGame = user.Playing != "";
 						var game = user.Playing != "" ? "In-Game: " + user.Playing : "&nbsp;";
 						var avatarUrl = "/steamcommunity/public/images/avatars/" + user.Avatar.substring(0, 2) + "/" + user.Avatar + "_full.jpg";
 						if (user.Avatar == "") avatarUrl = "rohbot.png";
 						if (user.Web) user.Name = '<span class="webIcon">@&nbsp;</span>' + user.Name;
-						html += '<img class="ulAvatar" src="' + avatarUrl + '"/>';
-						html += '<div class="ulName" data-color="' + (inGame ? "ingame" : "") + '" data-rank="' + user.Rank + '">' + user.Name + '<br/>' + game + '</div>';
+						html += '<img src="' + avatarUrl + '"/>';
+						html += '<div data-color="' + (inGame ? "ingame" : "") + '" data-rank="' + user.Rank + '">' + user.Name + '<br/>' + game + '</div>';
 						html += '</div>';
 					}
 					
@@ -195,10 +198,14 @@
 				return $('<div/>').text(value).html();
 			}
 			
-			$(document).ready(function () {
+			function getCurrentTime() {
+				return new Date().getTime() / 1000;
+			}
+			
+			$(document).ready(function() {
 				initializeRohBot();
 				
-				$("#send").click(function () {
+				$("#send").click(function() {
 					var msg = $("#messageBox").val();
 					var msgL = msg.toLowerCase();
 					
@@ -216,7 +223,7 @@
 				});
 				
 				// http://stackoverflow.com/a/3533099/1056845
-				$("#messageBox").keydown(function (e) {
+				$("#messageBox").keydown(function(e) {
 					if (e.keyCode == 13) {
 						if (e.ctrlKey) {
 							var val = this.value;
@@ -239,14 +246,22 @@
 					}
 				});
 				
-				$("#chat").scroll(function () {
+				$("#loginButton").click(function() {
+					rohbot.login($("#username").val(), $("#password").val(), null);
+				});
+				
+				$("#registerButton").click(function() {
+					rohbot.register($("#username").val(), $("#password").val());
+				});
+				
+				$("#chat").scroll(function() {
 					if ($("#chat").scrollTop() == 0 && !requestedHistory) {
 						rohbot.requestHistory(oldestMessage);
 						requestedHistory = true;
 					}
 				});
 				
-				$(window).resize(function () {
+				$(window).resize(function() {
 					$("#chat").scrollTop($("#chat")[0].scrollHeight);
 				});
 			});
@@ -256,8 +271,10 @@
 		<div class="container">
 			<div id="header">
 				<h1>FP Programmers</h1>
-				<a id="login">Login</a>
-				<a id="login">Register</a>
+				<input id="username" type="text" placeholder="username" spellcheck="false"/>
+				<input id="password" type="password" placeholder="password"/>
+				<a id="loginButton">Login</a>
+				<a id="registerButton" style="margin-left:6px">Register</a>
 			</div>
 			<div id="chat"></div>
 			<div id="footer">

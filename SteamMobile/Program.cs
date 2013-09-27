@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Threading;
+using MongoDB.Bson;
+using MongoDB.Driver.Builders;
 using log4net;
 
 namespace SteamMobile
@@ -38,6 +40,12 @@ namespace SteamMobile
                 SessionManager.Update();
                 RoomManager.Update();
                 Steam.Update();
+            });
+
+            _taskScheduler.Add(TimeSpan.FromHours(1), () =>
+            {
+                var t = Util.GetUnixTimestamp(DateTime.UtcNow - TimeSpan.FromDays(14));
+                Database.LoginTokens.Remove(Query.LT("Created", t));
             });
 
             while (true)

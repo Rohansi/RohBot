@@ -50,7 +50,7 @@ RohBot = function(server) {
 			hasConnected = true;
 		};
 		
-		socket.onclose = socket.onerror = function (event) {
+		socket.onclose = function (event) {
 			socket = null;
 			
 			if (hasConnected) {

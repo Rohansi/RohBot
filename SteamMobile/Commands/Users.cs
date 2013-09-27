@@ -36,16 +36,14 @@ namespace SteamMobile.Commands
                 var groupMember = chat.Group.Members.FirstOrDefault(m => m.Id == id);
                 var rank = groupMember != null ? groupMember.Rank.ToString() : "Member";
                 var avatar = BitConverter.ToString(persona.Avatar).Replace("-", "").ToLower();
-                var usingWeb = sessions.Any(s => s.Room == roomName && s.Account.SteamId == steamId);
-                userList.AddUser(persona.Name, steamId, rank, avatar, persona.PlayingName, usingWeb);
+                userList.AddUser(persona.Name, steamId, rank, avatar, persona.PlayingName, false);
             }
 
-            var accounts = sessions.Where(s => s.Room == roomName && steamUsers.All(id => ulong.Parse(s.Account.SteamId) != id))
-                                   .Select(s => s.Account).Distinct(new Account.Comparer());
+            var accounts = sessions.Where(s => s.Room == roomName).Select(s => s.Account).Distinct(new Account.Comparer());
             
             foreach (var account in accounts)
             {
-                userList.AddUser(account.Name, account.SteamId, "Member", "", "", true);
+                userList.AddUser(account.Name, "0", "Member", "", "", true);
             }
 
             userList.Users = userList.Users.OrderBy(u => u.Name).ToList();
