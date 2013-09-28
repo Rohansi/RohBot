@@ -19,6 +19,7 @@ namespace SteamMobile.Commands
                 return;
 
             Program.LoadSettings();
+            target.Send("Done.");
         }
     }
 }

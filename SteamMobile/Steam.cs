@@ -19,6 +19,7 @@ namespace SteamMobile
         }
 
         private Bot _bot;
+        private bool _hasConnected;
         private Stopwatch _connectStarted = Stopwatch.StartNew();
 
         public Steam()
@@ -39,12 +40,20 @@ namespace SteamMobile
             if (Status != ConnectionStatus.Disconnected)
                 return;
 
+            _hasConnected = false;
             _connectStarted.Restart();
             Program.Logger.Info("Connecting");
 
             _bot = new Bot(Program.Settings.Username, Program.Settings.Password);
             _bot.OnConnected += sender =>
             {
+                _hasConnected = true;
+                Program.SessionManager.Broadcast(new Packets.SysMessage
+                {
+                    Date = Util.GetCurrentUnixTimestamp(),
+                    Content = "Connected to Steam."
+                });
+
                 _connectStarted.Stop();
 
                 _bot.PersonaName = Program.Settings.PersonaName;
@@ -56,6 +65,16 @@ namespace SteamMobile
 
             _bot.OnDisconnected += (sender, reason) =>
             {
+                if (_hasConnected)
+                {
+                    _hasConnected = false;
+                    Program.SessionManager.Broadcast(new Packets.SysMessage
+                    {
+                        Date = Util.GetCurrentUnixTimestamp(),
+                        Content = "Lost connection to Steam."
+                    });
+                }
+
                 Status = ConnectionStatus.Disconnected;
                 Program.Logger.Info("Disconnected");
             };

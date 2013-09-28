@@ -23,7 +23,7 @@ namespace SteamMobile.Commands
             if (banned.Count == 0)
                 target.Send("Nobody is banned.");
             else
-                target.Send(string.Format("Banned from this chat: {0}", string.Join(", ", banned)));
+                target.Send(string.Format("Banned from this room: {0}", string.Join(", ", banned)));
         }
     }
 }

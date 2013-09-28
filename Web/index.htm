@@ -3,10 +3,10 @@
     <head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<title>FP Programmers</title>
-		<link rel="shortcut icon" href="icon.png"/>
+		<link rel="shortcut icon" href="rohbot.png"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 		<meta name="apple-mobile-web-app-capable" content="yes" />
-		<link rel="apple-touch-icon" href="icon.png"/>
+		<link rel="apple-touch-icon" href="rohbot.png"/>
 		<link rel="stylesheet" href="style.css" />
 		<script src="jquery-1.9.1.min.js"></script>
 		<script src="urlize.js"></script>
@@ -38,6 +38,8 @@
 					
 					if (storage && storage.getItem("tokens") !== null) {
 						rohbot.login(storage.getItem("name"), null, storage.getItem("tokens"));
+					} else {
+						rohbot.login("guest", null, null);
 					}
 				};
 				
@@ -82,6 +84,37 @@
 				};
 				
 				rohbot.onMessage = function(line) {
+					if (storage && window.webkitNotifications &&
+						window.webkitNotifications.checkPermission() === 0 &&
+						line.Type == "chat" && line.Sender != rohbot.name)
+					{
+						var regexStr = storage.getItem("notify");
+						if (regexStr !== null && regexStr.length > 0) {
+							try {
+								var regex = new RegExp(regexStr, "gim");
+								if (regex.test(line.Content)) {
+									var notification = window.webkitNotifications.createNotification(
+										'rohbot.png',
+										'RohBot',
+										line.Content
+									);
+									
+									setTimeout(function() {
+										notification.close();
+									}, 3000);
+									
+									notification.onclick = function () {
+										notification.close();
+									}
+									
+									notification.show();
+								}
+							} catch (e) {
+								console.log(e.message);
+							}
+						}
+					}
+					
 					addRohBotMessage(line, false);
 				};
 				
@@ -221,6 +254,28 @@
 					
 					if (msgL.substring(0, 6) == "/clear" || msgL.substring(0, 6) == "~clear") {
 						$("#chat").html("");
+						$("#messageBox").val("");
+						return;
+					}
+					
+					if (msgL.substring(0, 7) == "/notify" || msgL.substring(0, 7) == "~notify") {
+						if (!window.webkitNotifications || !storage) {
+							addRohBotMessage({ Type: "state", Date: getCurrentTime(), Content: "Notifications are not supported by your browser." });
+						} else {
+							if (msgL.length <= 8) {
+								storage.removeItem("notify");
+							} else {
+								if (window.webkitNotifications.checkPermission() !== 0)
+									window.webkitNotifications.requestPermission();
+									
+								try {
+									storage.setItem("notify", new RegExp(msg.substring(8), "gim").source);
+								} catch (e) {
+									addRohBotMessage({ Type: "state", Date: getCurrentTime(), Content: "Invalid regex: " + e.message });
+								}
+							}
+						}
+						
 						$("#messageBox").val("");
 						return;
 					}

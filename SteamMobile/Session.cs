@@ -17,19 +17,22 @@ namespace SteamMobile
         public Session(IWebSocketConnection socket)
         {
             Account = null;
-            Room = Program.Settings.DefaultRoom;
 
             Socket = socket;
             Address = socket.ConnectionInfo.ClientIpAddress;
-
-            Room = Program.Settings.DefaultRoom;
-            var room = Program.RoomManager.Get(Room);
-            if (room != null)
-                room.SendHistory(this);
         }
 
         public void Login(string username, string password, List<string> tokens)
         {
+            if (username.ToLower() == "guest")
+            {
+                Room = Program.Settings.DefaultRoom;
+                var room = Program.RoomManager.Get(Room);
+                if (room != null)
+                    room.SendHistory(this);
+                return;
+            }
+
             string message;
 
             do

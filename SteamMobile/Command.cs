@@ -66,9 +66,12 @@ namespace SteamMobile
                 // default handler for non-existing commands
                 if (!Commands.ContainsKey(type))
                 {
-                    if (target.IsGroupChat)
+                    if (target.IsSession || target.IsPrivateChat)
+                    {
+                        target.Send("Unknown command.");
                         return true;
-                    target.Send("Unknown command.");
+                    }
+
                     return true;
                 }
 

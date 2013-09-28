@@ -38,6 +38,8 @@ namespace SteamMobile
                 return false;
             if (value.Length < 2 || value.Length > 24)
                 return false;
+            if (value.ToLower() == "guest")
+                return false;
             return value.All(c => char.IsLetterOrDigit(c) || c == ' ');
         }
 
