@@ -87,7 +87,7 @@ namespace SteamMobile
             }
         }
 
-        private static Regex _youtube = new Regex(@"youtube\.com/.*?(?:&|\?)v=([a-zA-Z0-9-_]+)", RegexOptions.Compiled);
+        private static Regex _youtube = new Regex(@"youtube\.com/.*?(?:&|&amp;|\?)v=([a-zA-Z0-9-_]+)", RegexOptions.Compiled);
         private static Regex _youtubeShort = new Regex(@"youtu\.be/([a-zA-Z0-9-_]+)", RegexOptions.Compiled);
         private static IEnumerable<Tuple<int, string>> LookupYoutube(string message)
         {
