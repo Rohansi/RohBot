@@ -4,7 +4,6 @@ using System.Net;
 using System.Threading;
 using EzSteam;
 using MongoDB.Bson;
-using MongoDB.Driver.Builders;
 using MongoDB.Driver.Linq;
 
 namespace SteamMobile
@@ -108,7 +107,7 @@ namespace SteamMobile
         {
             lock (_history)
             {
-                var chatHistory = new Packets.ChatHistory { Requested = false, Chat = RoomInfo.ShortName, Lines = _history.ToList() };
+                var chatHistory = new Packets.ChatHistory { Name = RoomInfo.Name, ShortName = RoomInfo.ShortName, Requested = false, Lines = _history.ToList() };
                 session.Send(chatHistory);
             }
         }

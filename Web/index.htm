@@ -2,7 +2,7 @@
 <html>
     <head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-		<title>FP Programmers</title>
+		<title>RohBot</title>
 		<link rel="shortcut icon" href="rohbot.png"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 		<meta name="apple-mobile-web-app-capable" content="yes" />
@@ -22,6 +22,7 @@
 				fail && (storage = false);
 			} catch(e) { storage = false; }
 			
+			var roomName;
 			var requestedHistory;
 			var oldestMessage;
 			
@@ -80,6 +81,7 @@
 						requestedHistory = false;
 					}
 					
+					roomName = document.title = data.Name;
 					oldestMessage = data.OldestLine;
 				};
 				
@@ -95,7 +97,7 @@
 								if (regex.test(line.Content)) {
 									var notification = window.webkitNotifications.createNotification(
 										'rohbot.png',
-										'RohBot',
+										roomName,
 										htmlDecode(line.Content)
 									);
 									

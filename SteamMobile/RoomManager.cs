@@ -17,7 +17,7 @@ namespace SteamMobile
             lock (_rooms)
             {
                 Room result;
-                _rooms.TryGetValue(name, out result);
+                _rooms.TryGetValue(name.ToLower(), out result);
                 return result;
             }
         }

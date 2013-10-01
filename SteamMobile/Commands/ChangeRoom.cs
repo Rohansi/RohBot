@@ -23,7 +23,7 @@ namespace SteamMobile.Commands
                 case "default":
                     {
                         var defaultRoom = target.Session.Account.DefaultRoom;
-                        var set = (parameters.Length < 2 ? defaultRoom : parameters[1]).ToLower();
+                        var set = parameters.Length < 2 ? defaultRoom : parameters[1];
 
                         var room = Program.RoomManager.Get(set);
                         if (room == null)
@@ -53,17 +53,16 @@ namespace SteamMobile.Commands
 
                 default:
                     {
-                        var set = parameters[0].ToLower();
-                        var room = Program.RoomManager.Get(set);
+                        var room = Program.RoomManager.Get(parameters[0]);
                         if (room == null)
                         {
                             target.Send("Room does not exist.");
                             return;
                         }
 
-                        target.Session.Room = set;
+                        target.Session.Room = parameters[0];
                         room.SendHistory(target.Session);
-                        target.Send("Switched to room: " + set);
+                        target.Send("Switched to room: " + parameters[0]);
                         break;
                     }
             }

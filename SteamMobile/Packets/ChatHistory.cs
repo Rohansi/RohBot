@@ -8,7 +8,8 @@ namespace SteamMobile.Packets
     {
         public override string Type { get { return "chatHistory"; } }
 
-        public string Chat;
+        public string Name;
+        public string ShortName;
         public bool Requested;
         public List<HistoryLine> Lines;
         public long OldestLine

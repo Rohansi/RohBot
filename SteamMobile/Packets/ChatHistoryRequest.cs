@@ -16,6 +16,17 @@ namespace SteamMobile.Packets
 
         public override void Handle(Session session)
         {
+            var room = Program.RoomManager.Get(session.Room);
+            if (room == null)
+            {
+                session.Send(new SysMessage
+                {
+                    Date = Util.GetCurrentUnixTimestamp(),
+                    Content = "Room does not exist."
+                });
+                return;
+            }
+
             List<HistoryLine> lines;
 
             if (Util.DateTimeFromUnixTimestamp(AfterDate) > DateTime.UtcNow.AddDays(-7))
@@ -33,8 +44,9 @@ namespace SteamMobile.Packets
             
             var history = new ChatHistory
             {
+                Name = room.RoomInfo.Name,
+                ShortName = room.RoomInfo.ShortName,
                 Requested = true,
-                Chat = session.Room,
                 Lines = lines
             };
 
