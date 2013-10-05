@@ -86,19 +86,27 @@
 				};
 				
 				rohbot.onMessage = function(line) {
+					var window_focus;
+
+					$(window).focus(function() {
+					    window_focus = true;
+					})
+					    .blur(function() {
+					        window_focus = false;
+					    });
 					if (storage && window.webkitNotifications &&
 						window.webkitNotifications.checkPermission() === 0 &&
 						line.Type == "chat" && line.Sender != rohbot.name)
 					{
 						var regexStr = storage.getItem("notify");
-						if (regexStr !== null && regexStr.length > 0) {
+						if ((regexStr !== null && regexStr.length > 0) && (!window_focus)) {
 							try {
 								var regex = new RegExp(regexStr, "gim");
 								if (regex.test(line.Content)) {
 									var notification = window.webkitNotifications.createNotification(
 										'rohbot.png',
 										roomName,
-										htmlDecode(line.Content)
+										htmlDecode(line.Sender + " : " + line.Content)
 									);
 									
 									setTimeout(function() {
