@@ -63,7 +63,7 @@ div.container {
 	background-color: $colBack;
 }
 
-a, input {
+a, input, textarea {
     height: 16px;
 }
 
@@ -120,7 +120,7 @@ div.container > #header {
 }
 
 div.container > #header, div.container > #footer {
-    a, input {
+    a, input, textarea {
 		padding: 6px;
 		font-size: 10pt;
 		outline: none;
@@ -128,7 +128,7 @@ div.container > #header, div.container > #footer {
 		@include transition(all 0.2s ease-in-out);
     }
     
-    & > a, & > input, & > h1 {
+    & > a, & > input, & > textarea, & > h1 {
 		display: block;
     }
 	
@@ -149,7 +149,7 @@ div.container > #header, div.container > #footer {
 		text-align: center;
     }
     
-    & > input {
+    & > input, & > textarea {
         -webkit-box-ordinal-group: 2;
 	    -moz-box-ordinal-group: 2;
 	    -webkit-order: 1;
@@ -181,7 +181,7 @@ div.container > #header, div.container > #footer {
 	    align-self: auto;
     }
 	
-    input {
+    input, textarea {
 		color: lighten(black, 1);
 		background-color: darken(white, 10);
 		border: none;
@@ -274,7 +274,7 @@ div.container > #footer {
     -ms-flex-align: start;
     align-items: flex-start;
     
-    & > a, & > input {
+    & > a, & > textarea {
 		display: block;
     }
 	
@@ -294,7 +294,7 @@ div.container > #footer {
 	    align-self: auto;
     }
     
-    & > input {
+    & > textarea {
         -webkit-box-ordinal-group: 1;
 	    -moz-box-ordinal-group: 1;
 	    -webkit-order: 0;
@@ -308,6 +308,8 @@ div.container > #footer {
 	    -webkit-align-self: auto;
 	    -ms-flex-item-align: auto;
 	    align-self: auto;
+		resize: none;
+		font-family: inherit;
     }
 	
     color: darken(white, 10);

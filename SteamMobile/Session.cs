@@ -154,7 +154,7 @@ namespace SteamMobile
                 }
 
                 var accountsFromAddress = Database.Accounts.AsQueryable().Count(a => a.Address == Address);
-                if (accountsFromAddress >= 5)
+                if (accountsFromAddress >= 3)
                 {
                     message = "Too many accounts were created from this location.";
                     break;

@@ -316,6 +316,14 @@
 					}
 				});
 				
+				$("#password").keydown(function(e) {
+					if (e.keyCode == 13) {
+						$("#password").blur().focus();
+						$("#loginButton").click();
+						return false;
+					}
+				});
+				
 				$("#loginButton").click(function() {
 					rohbot.login($("#username").val(), $("#password").val(), null);
 				});
@@ -348,7 +356,7 @@
 			</div>
 			<div id="chat"></div>
 			<div id="footer">
-				<input id="messageBox" type="text" placeholder="enter message ..." />
+				<textarea id="messageBox" type="text" placeholder="enter message ..."></textarea>
 				<a id="send">Send</a>
 			</div>
 		</div>

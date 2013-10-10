@@ -44,7 +44,7 @@ div.container {
   height: 100%;
   background-color: #2b2929; }
 
-a, input {
+a, input, textarea {
   height: 16px; }
 
 div.container > #header {
@@ -95,14 +95,14 @@ div.container > #header {
   div.container > #header h1 {
     font-size: 17pt; }
 
-div.container > #header a, div.container > #header input, div.container > #footer a, div.container > #footer input {
+div.container > #header a, div.container > #header input, div.container > #header textarea, div.container > #footer a, div.container > #footer input, div.container > #footer textarea {
   padding: 6px;
   font-size: 10pt;
   outline: none;
   -webkit-transition: all 0.2s ease-in-out;
   -moz-transition: all 0.2s ease-in-out;
   transition: all 0.2s ease-in-out; }
-div.container > #header > a, div.container > #header > input, div.container > #header > h1, div.container > #footer > a, div.container > #footer > input, div.container > #footer > h1 {
+div.container > #header > a, div.container > #header > input, div.container > #header > textarea, div.container > #header > h1, div.container > #footer > a, div.container > #footer > input, div.container > #footer > textarea, div.container > #footer > h1 {
   display: block; }
 div.container > #header > a, div.container > #footer > a {
   -webkit-box-ordinal-group: 4;
@@ -119,7 +119,7 @@ div.container > #header > a, div.container > #footer > a {
   -ms-flex-item-align: auto;
   align-self: auto;
   text-align: center; }
-div.container > #header > input, div.container > #footer > input {
+div.container > #header > input, div.container > #header > textarea, div.container > #footer > input, div.container > #footer > textarea {
   -webkit-box-ordinal-group: 2;
   -moz-box-ordinal-group: 2;
   -webkit-order: 1;
@@ -147,13 +147,13 @@ div.container > #header > h1, div.container > #footer > h1 {
   -webkit-align-self: auto;
   -ms-flex-item-align: auto;
   align-self: auto; }
-div.container > #header input, div.container > #footer input {
+div.container > #header input, div.container > #header textarea, div.container > #footer input, div.container > #footer textarea {
   color: #030303;
   background-color: #e6e6e6;
   border: none;
   margin: 0px;
   margin-right: 6px; }
-  div.container > #header input:focus, div.container > #footer input:focus {
+  div.container > #header input:focus, div.container > #header textarea:focus, div.container > #footer input:focus, div.container > #footer textarea:focus {
     color: #333333;
     background-color: #fafafa;
     -webkit-transition: all 0.2s ease-in-out;
@@ -236,7 +236,7 @@ div.container > #footer {
   color: #e6e6e6;
   background-color: #161515;
   padding: 6px; }
-  div.container > #footer > a, div.container > #footer > input {
+  div.container > #footer > a, div.container > #footer > textarea {
     display: block; }
   div.container > #footer > a {
     -webkit-box-ordinal-group: 2;
@@ -252,7 +252,7 @@ div.container > #footer {
     -webkit-align-self: auto;
     -ms-flex-item-align: auto;
     align-self: auto; }
-  div.container > #footer > input {
+  div.container > #footer > textarea {
     -webkit-box-ordinal-group: 1;
     -moz-box-ordinal-group: 1;
     -webkit-order: 0;
@@ -265,7 +265,9 @@ div.container > #footer {
     flex: 20 0 auto;
     -webkit-align-self: auto;
     -ms-flex-item-align: auto;
-    align-self: auto; }
+    align-self: auto;
+    resize: none;
+    font-family: inherit; }
 
 @media all and (max-width: 600px) {
   div.container > #header h1 {
