@@ -85,7 +85,7 @@ namespace SteamMobile.Rooms
                 {
                     Date = Util.GetCurrentUnixTimestamp(),
                     Content = "Connected to Steam."
-                });
+                }, s => s.Room == RoomInfo.ShortName);
             };
 
             Chat.OnLeave += (sender, reason) =>
@@ -95,7 +95,7 @@ namespace SteamMobile.Rooms
                 {
                     Date = Util.GetCurrentUnixTimestamp(),
                     Content = "Lost connection to Steam."
-                });
+                }, s => s.Room == RoomInfo.ShortName);
 
                 Chat = null;
             };
