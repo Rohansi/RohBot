@@ -48,12 +48,6 @@ namespace SteamMobile
             _bot.OnConnected += sender =>
             {
                 _hasConnected = true;
-                Program.SessionManager.Broadcast(new Packets.SysMessage
-                {
-                    Date = Util.GetCurrentUnixTimestamp(),
-                    Content = "Connected to Steam."
-                });
-
                 _connectStarted.Stop();
 
                 _bot.PersonaName = Program.Settings.PersonaName;
@@ -68,11 +62,6 @@ namespace SteamMobile
                 if (_hasConnected)
                 {
                     _hasConnected = false;
-                    Program.SessionManager.Broadcast(new Packets.SysMessage
-                    {
-                        Date = Util.GetCurrentUnixTimestamp(),
-                        Content = "Lost connection to Steam."
-                    });
                 }
 
                 Status = ConnectionStatus.Disconnected;

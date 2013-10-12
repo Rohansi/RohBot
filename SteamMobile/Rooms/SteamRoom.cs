@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using EzSteam;
+using SteamMobile.Packets;
 
 namespace SteamMobile.Rooms
 {
@@ -45,6 +46,20 @@ namespace SteamMobile.Rooms
             base.Leave();
         }
 
+        public override void SendHistory(Session session)
+        {
+            base.SendHistory(session);
+
+            if (Chat == null)
+            {
+                session.Send(new SysMessage
+                {
+                    Date = Util.GetCurrentUnixTimestamp(),
+                    Content = "Not connected to Steam."
+                });
+            }
+        }
+
         public override void Update()
         {
             if (!Active)
@@ -62,10 +77,26 @@ namespace SteamMobile.Rooms
                 return;
 
             Chat = Program.Steam.Bot.Join(ulong.Parse(RoomInfo["SteamId"]));
-            Chat.OnEnter += sender => Program.Logger.Info("Entered " + RoomInfo.ShortName);
+
+            Chat.OnEnter += sender =>
+            {
+                Program.Logger.Info("Entered " + RoomInfo.ShortName);
+                Program.SessionManager.Broadcast(new SysMessage
+                {
+                    Date = Util.GetCurrentUnixTimestamp(),
+                    Content = "Connected to Steam."
+                });
+            };
+
             Chat.OnLeave += (sender, reason) =>
             {
                 Program.Logger.Info("Left " + RoomInfo.ShortName + ": " + reason);
+                Program.SessionManager.Broadcast(new SysMessage
+                {
+                    Date = Util.GetCurrentUnixTimestamp(),
+                    Content = "Lost connection to Steam."
+                });
+
                 Chat = null;
             };
 
