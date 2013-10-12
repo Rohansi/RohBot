@@ -2,21 +2,22 @@
     "Username": "",
     "Password": "",
     "PersonaName": "~",
-	"Host": "http://localhost/",
-	"Admin": 76561198002164049,
-	
+    "Host": "http://localhost/",
+    "Admin": 76561198002164049,
+    
     "DbServer": "127.0.0.1",
     "DbName": "rohbot",
     "DbUser": "server",
     "DbPass": "",
-
+    
     "DefaultRoom": "fpp",
-	"Rooms": [
+    "Rooms": [
 		{
-			"Name": "FP Programmers",
-			"ShortName": "fpp",
-			"Link": "http://steamcommunity.com/groups/best_fpp",
-			"Id": "103582791434244897"
-		}
-	]
+            "Type": "SteamRoom",
+            "Name": "FP Programmers",
+            "ShortName": "fpp",
+            "LinkTitles": "true",
+            "SteamId": "103582791434244897"
+        }
+    ]
 }

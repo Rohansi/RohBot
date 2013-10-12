@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using SteamKit2;
+using SteamMobile.Rooms;
 
 namespace SteamMobile.Commands
 {
     public class Users : Command
     {
-        public override string Type { get { return "users"; }  }
+        public override string Type { get { return "users"; } }
 
         public override string Format { get { return "]"; } }
 
@@ -24,9 +25,10 @@ namespace SteamMobile.Commands
                 return;
             }
 
+            var steamRoom = room as SteamRoom;
             var userList = new Packets.UserList();
-            var chat = room.Chat;
-            var steamUsers = Program.Steam.Status == Steam.ConnectionStatus.Connected ? chat.Members.ToList() : new List<SteamID>();
+            var chat = Program.Steam.Status == Steam.ConnectionStatus.Connected && steamRoom != null ? steamRoom.Chat : null;
+            var steamUsers = chat != null ? chat.Members.ToList() : new List<SteamID>();
             var sessions = Program.SessionManager.List.Where(s => s.Account != null).ToList();
 
             foreach (var id in steamUsers.Where(i => i != Program.Steam.Bot.PersonaId))
@@ -40,7 +42,7 @@ namespace SteamMobile.Commands
             }
 
             var accounts = sessions.Where(s => s.Room == roomName).Select(s => s.Account).Distinct(new Account.Comparer());
-            
+
             foreach (var account in accounts)
             {
                 var userId = account.Name.GetHashCode().ToString("D");

@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using EzSteam;
+using SteamMobile.Rooms;
 
 namespace SteamMobile.Commands
 {
@@ -11,15 +12,19 @@ namespace SteamMobile.Commands
 
         public override void Handle(CommandTarget target, string[] parameters)
         {
-            if (!target.IsGroupChat || parameters.Length == 0)
+            if (!target.IsRoom || parameters.Length == 0)
                 return;
 
-            var member = target.Room.Chat.Group.Members.FirstOrDefault(m => m.Id == target.SteamId);
-            if (member == null || (member.Rank != ClanRank.Owner && member.Rank != ClanRank.Officer && member.Rank != ClanRank.Moderator))
-                return;
+            var room = target.Room as SteamRoom;
+            if (room != null)
+            {
+                var member = room.Chat.Group.Members.FirstOrDefault(m => m.Id == target.SteamId);
+                if (member == null || (member.Rank != ClanRank.Owner && member.Rank != ClanRank.Officer && member.Rank != ClanRank.Moderator))
+                    return;
 
-            target.Room.Unban(parameters[0]);
-            target.Send("Account unbanned.");
+                target.Room.Unban(parameters[0]);
+                target.Send("Account unbanned.");
+            }
         }
     }
 }

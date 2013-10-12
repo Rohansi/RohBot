@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using SteamMobile.Rooms;
 
 namespace SteamMobile
 {
@@ -29,7 +32,7 @@ namespace SteamMobile
                 lock (_rooms)
                     return _rooms.Keys.ToList();
             }
-        } 
+        }
 
         public void Update()
         {
@@ -38,14 +41,16 @@ namespace SteamMobile
                 _rooms.RemoveAll(room => !room.Value.Active);
 
                 var settings = Program.Settings;
-                foreach (var room in _rooms.Values.Where(r1 => settings.Rooms.All(r2 => r2.ShortName != r1.RoomInfo.ShortName)).ToList())
+                foreach (var room in _rooms.Values.Where(r1 => settings.Rooms.All(r2 => r2["ShortName"] != r1.RoomInfo.ShortName)).ToList())
                 {
                     room.Leave();
                 }
-                    
-                foreach (var room in settings.Rooms.Where(r => !_rooms.ContainsKey(r.ShortName)).ToList())
+
+                foreach (var room in settings.Rooms.Where(r => !_rooms.ContainsKey(r["ShortName"])).ToList())
                 {
-                    _rooms.Add(room.ShortName, new Room(room));
+                    var roomInfo = new RoomInfo(room);
+                    var roomObj = (Room)Activator.CreateInstance(RoomTypes[roomInfo.Type], roomInfo);
+                    _rooms.Add(room["ShortName"], roomObj);
                 }
 
                 foreach (var room in _rooms.Values)
@@ -54,5 +59,22 @@ namespace SteamMobile
                 }
             }
         }
+
+        #region Static
+        private static readonly Dictionary<string, Type> RoomTypes;
+
+        static RoomManager()
+        {
+            RoomTypes = new Dictionary<string, Type>();
+
+            var assembly = Assembly.GetCallingAssembly();
+            var types = assembly.GetExportedTypes().Where(type => typeof(Room).IsAssignableFrom(type));
+
+            foreach (var type in types)
+            {
+                RoomTypes[type.Name] = type;
+            }
+        }
+        #endregion
     }
 }

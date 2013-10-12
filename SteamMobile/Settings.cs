@@ -18,7 +18,7 @@ namespace SteamMobile
         public string DbPass;
 
         public string DefaultRoom;
-        public List<RoomInfo> Rooms;
+        public List<Dictionary<string, string>> Rooms;
 
         public static Settings Load(string fileName)
         {

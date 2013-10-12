@@ -1,4 +1,5 @@
-﻿
+﻿using SteamMobile.Rooms;
+
 namespace SteamMobile.Packets
 {
     // C -> S

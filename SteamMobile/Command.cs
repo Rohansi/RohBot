@@ -6,6 +6,7 @@ using System.Reflection;
 using EzSteam;
 using SteamKit2;
 using SteamMobile.Packets;
+using SteamMobile.Rooms;
 
 namespace SteamMobile
 {
@@ -196,7 +197,7 @@ namespace SteamMobile
         public readonly Session Session;
 
         public bool IsSteam { get { return Session == null; } }
-        public bool IsGroupChat { get { return Room != null; } }
+        public bool IsRoom { get { return Room != null; } }
         public bool IsPrivateChat { get { return PrivateChat != null; } }
         public bool IsSession { get { return Session != null; } }
 
@@ -222,7 +223,7 @@ namespace SteamMobile
         {
             if (IsSession)
                 Session.Send(new SysMessage { Content = message, Date = Util.GetCurrentUnixTimestamp() });
-            else if (IsGroupChat)
+            else if (IsRoom)
                 Room.Send(message);
             else if (IsPrivateChat)
                 PrivateChat.Send(message);

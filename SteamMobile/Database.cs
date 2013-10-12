@@ -1,5 +1,6 @@
 ﻿using MongoDB.Driver;
 using MongoDB.Driver.Builders;
+using SteamMobile.Rooms;
 
 namespace SteamMobile
 {

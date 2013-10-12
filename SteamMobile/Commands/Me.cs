@@ -15,7 +15,7 @@ namespace SteamMobile.Commands
                 return;
             }
 
-            Room room = Program.RoomManager.Get(target.Session.Room);
+            var room = Program.RoomManager.Get(target.Session.Room);
             if (room == null)
             {
                 target.Session.Send(new SysMessage
