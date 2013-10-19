@@ -45,16 +45,16 @@
 				};
 				
 				rohbot.onLogin = function(data) {
+					if (storage) {
+						storage.setItem("name", data.Name);
+						storage.setItem("tokens", data.Tokens);
+					}
+						
 					if (data.Success) {
 						$("#header").hide();
 						$("#messageBox").removeAttr("disabled");
 						$("#messageBox").val("");
 						$("#password").val("");
-						
-						if (storage) {
-							storage.setItem("name", data.Name);
-							storage.setItem("tokens", data.Tokens);
-						}
 					} else {
 						$("#header").show();
 						$("#messageBox").attr("disabled","disabled");
@@ -70,6 +70,7 @@
 						for (var i = 0; i < data.Lines.length; i++) {
 							addRohBotMessage(data.Lines[i], data.Requested);
 						}
+						$("#chat").scrollTop($("#chat")[0].scrollHeight);
 					} else {
 						var firstMsg = $("#chat :first");
 						
@@ -98,7 +99,7 @@
 									var notification = window.webkitNotifications.createNotification(
 										'rohbot.png',
 										roomName,
-										htmlDecode(line.Content)
+										htmlDecode(line.Sender) + ": " + htmlDecode(line.Content)
 									);
 									
 									setTimeout(function() {
@@ -228,7 +229,7 @@
 				var e = $("<div/>");
 				e.html(str).contents().each(function (i, elem) {
 					if (elem.nodeType == 3) {
-						res.append(htmlEncode(elem.textContent).replace(/ /g, "&nbsp;").replace(/ː(.+?)ː/img, '<img src="/economy/emoticon/$1"/>'));
+						res.append(htmlEncode(elem.textContent).replace(/ː(.+?)ː/img, '<img src="/economy/emoticon/$1"/>'));
 					} else {
 						res.append(elem);
 					}
@@ -261,6 +262,13 @@
 						return;
 					
 					if (msgL.substring(0, 6) == "/clear" || msgL.substring(0, 6) == "~clear") {
+						$("#chat").html("");
+						$("#messageBox").val("");
+						return;
+					}
+					
+					if (msgL.substring(0, 7) == "/logout" || msgL.substring(0, 7) == "~logout") {
+						rohbot.login("guest", null, null);
 						$("#chat").html("");
 						$("#messageBox").val("");
 						return;

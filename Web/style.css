@@ -189,7 +189,8 @@ div.container > #chat {
   overflow-y: scroll;
   word-wrap: break-word;
   min-height: 0px;
-  height: 0%; }
+  height: 0%;
+  white-space: pre-wrap; }
 
 div.container > #footer {
   -webkit-box-ordinal-group: 3;

@@ -26,10 +26,20 @@ namespace SteamMobile
         {
             if (username.ToLower() == "guest")
             {
+                Account = null;
                 Room = Program.Settings.DefaultRoom;
+
                 var room = Program.RoomManager.Get(Room);
                 if (room != null)
                     room.SendHistory(this);
+
+                Send(new Packets.AuthenticateResponse
+                {
+                    Name = "Guest",
+                    Success = false,
+                    Tokens = ""
+                });
+
                 return;
             }
 
@@ -56,7 +66,7 @@ namespace SteamMobile
                     
                     if (!existingTokens.Any(t => t.Address == Address && tokens.Contains(t.Token)))
                     {
-                        message = "Automatic login failed.";
+                        message = "Automatic login failed. Login with your username and password.";
                         break;
                     }
                     
@@ -96,6 +106,7 @@ namespace SteamMobile
                             Token = Util.GenerateLoginToken(),
                             Created = Util.GetCurrentUnixTimestamp()
                         };
+
                         Database.LoginTokens.Insert(newToken);
                         existingTokens.Add(newToken);
                     }
