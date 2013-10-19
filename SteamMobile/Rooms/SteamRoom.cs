@@ -8,6 +8,8 @@ namespace SteamMobile.Rooms
     {
         public Chat Chat { get; private set; }
 
+        private bool _hasConnected;
+
         public SteamRoom(RoomInfo roomInfo)
             : base(roomInfo)
         {
@@ -76,11 +78,14 @@ namespace SteamMobile.Rooms
             if (Program.Steam.Status != Steam.ConnectionStatus.Connected || Chat != null)
                 return;
 
+            _hasConnected = false;
             Chat = Program.Steam.Bot.Join(ulong.Parse(RoomInfo["SteamId"]));
 
             Chat.OnEnter += sender =>
             {
+                _hasConnected = true;
                 Program.Logger.Info("Entered " + RoomInfo.ShortName);
+
                 Program.SessionManager.Broadcast(new SysMessage
                 {
                     Date = Util.GetCurrentUnixTimestamp(),
@@ -90,12 +95,17 @@ namespace SteamMobile.Rooms
 
             Chat.OnLeave += (sender, reason) =>
             {
-                Program.Logger.Info("Left " + RoomInfo.ShortName + ": " + reason);
-                Program.SessionManager.Broadcast(new SysMessage
+                if (_hasConnected)
                 {
-                    Date = Util.GetCurrentUnixTimestamp(),
-                    Content = "Lost connection to Steam."
-                }, s => s.Room == RoomInfo.ShortName);
+                    Program.Logger.Info("Left " + RoomInfo.ShortName + ": " + reason);
+                    _hasConnected = false;
+
+                    Program.SessionManager.Broadcast(new SysMessage
+                    {
+                        Date = Util.GetCurrentUnixTimestamp(),
+                        Content = "Lost connection to Steam."
+                    }, s => s.Room == RoomInfo.ShortName);
+                }
 
                 Chat = null;
             };

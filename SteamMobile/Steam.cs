@@ -61,11 +61,11 @@ namespace SteamMobile
             {
                 if (_hasConnected)
                 {
+                    Program.Logger.Info("Disconnected");
                     _hasConnected = false;
                 }
 
                 Status = ConnectionStatus.Disconnected;
-                Program.Logger.Info("Disconnected");
             };
 
             _bot.OnFriendRequest += (sender, user) => _bot.AddFriend(user.Id);
