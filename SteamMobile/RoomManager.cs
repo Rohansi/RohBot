@@ -38,7 +38,7 @@ namespace SteamMobile
         {
             lock (_rooms)
             {
-                _rooms.RemoveAll(room => !room.Value.Active);
+                _rooms.RemoveAll(room => !room.Value.IsActive);
 
                 var settings = Program.Settings;
                 foreach (var room in _rooms.Values.Where(r1 => settings.Rooms.All(r2 => r2["ShortName"] != r1.RoomInfo.ShortName)).ToList())
@@ -56,6 +56,20 @@ namespace SteamMobile
                 foreach (var room in _rooms.Values)
                 {
                     room.Update();
+                }
+            }
+        }
+
+        public void Broadcast(string message, Func<Room, bool> filter = null)
+        {
+            lock (_rooms)
+            {
+                foreach (var room in _rooms.Values)
+                {
+                    if (filter == null || filter(room))
+                    {
+                        room.Send(message);
+                    }
                 }
             }
         }

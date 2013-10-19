@@ -8,9 +8,9 @@ namespace SteamMobile.Rooms
 {
     public class RoomInfo
     {
-        public string Type;
-        public string Name;
-        public string ShortName;
+        public readonly string Type;
+        public readonly string Name;
+        public readonly string ShortName;
 
         public string this[string key]
         {
@@ -44,7 +44,13 @@ namespace SteamMobile.Rooms
     public class Room
     {
         public readonly RoomInfo RoomInfo;
-        public bool Active { get; private set; }
+        public bool IsActive { get; private set; }
+        public readonly bool IsWhitelisted;
+
+        /// <summary>
+        /// If not null, commands used in this room will potentially resolve to commands that use the prefix.
+        /// </summary>
+        public virtual string CommandPrefix { get { return null; } }
 
         private RoomBans _bans;
         private readonly LinkedList<HistoryLine> _history;
@@ -53,7 +59,7 @@ namespace SteamMobile.Rooms
         public Room(RoomInfo roomInfo)
         {
             RoomInfo = roomInfo;
-            Active = true;
+            IsActive = true;
 
             _bans = Database.RoomBans.AsQueryable().FirstOrDefault(r => r.Room == RoomInfo.ShortName);
             if (_bans == null)
@@ -74,7 +80,8 @@ namespace SteamMobile.Rooms
                 _history.AddLast(line);
             }
 
-            _showLinkTitles = roomInfo["LinkTitles"].ToLower() == "true";
+            _showLinkTitles = (roomInfo["LinkTitles"] ?? "").ToLower() == "true";
+            IsWhitelisted = (roomInfo["Whitelist"] ?? "").ToLower() == "true";
         }
 
         /// <summary>
@@ -114,7 +121,7 @@ namespace SteamMobile.Rooms
         /// </summary>
         public virtual void Leave()
         {
-            Active = false;
+            IsActive = false;
         }
 
         /// <summary>
@@ -127,14 +134,6 @@ namespace SteamMobile.Rooms
                 var chatHistory = new Packets.ChatHistory { Name = RoomInfo.Name, ShortName = RoomInfo.ShortName, Requested = false, Lines = _history.ToList() };
                 session.Send(chatHistory);
             }
-        }
-
-        /// <summary>
-        /// Transform a username into a room-local name.
-        /// </summary>
-        public virtual string TransformName(string name)
-        {
-            return name;
         }
 
         public virtual void Update()
@@ -173,7 +172,7 @@ namespace SteamMobile.Rooms
         {
             lock (_bans)
             {
-                return _bans.Bans.Contains(name.ToLower());
+                return IsWhitelisted ^ _bans.Bans.Contains(name.ToLower());
             }
         }
 

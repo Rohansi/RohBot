@@ -64,8 +64,12 @@ namespace SteamMobile
                 var reader = new StringReader(commandStr);
                 var type = (ReadWord(reader) ?? "").ToLower();
 
+                Command command;
+                if (!target.IsRoom || !Commands.TryGetValue(target.Room.CommandPrefix + type, out command))
+                    Commands.TryGetValue(type, out command);
+
                 // default handler for non-existing commands
-                if (!Commands.ContainsKey(type))
+                if (command == null)
                 {
                     if (target.IsSession || target.IsPrivateChat)
                     {
@@ -76,7 +80,6 @@ namespace SteamMobile
                     return true;
                 }
 
-                var command = Commands[type];
                 var parameters = new List<string>();
 
                 foreach (var p in command.Format)

@@ -21,9 +21,19 @@ namespace SteamMobile.Commands
             var banned = target.Room.Banned;
 
             if (banned.Count == 0)
-                target.Send("Nobody is banned.");
+            {
+                if (!target.Room.IsWhitelisted)
+                    target.Send("Nobody is banned.");
+                else
+                    target.Send("Everybody is banned.");
+            }
             else
-                target.Send(string.Format("Banned from this room: {0}", string.Join(", ", banned)));
+            {
+                if (!target.Room.IsWhitelisted)
+                    target.Send(string.Format("Banned from this room: {0}", string.Join(", ", banned)));
+                else
+                    target.Send(string.Format("Allowed in this room: {0}", string.Join(", ", banned)));
+            }
         }
     }
 }

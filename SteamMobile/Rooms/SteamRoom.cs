@@ -62,7 +62,7 @@ namespace SteamMobile.Rooms
 
         public override void Update()
         {
-            if (!Active)
+            if (!IsActive)
             {
                 if (Chat != null)
                 {
