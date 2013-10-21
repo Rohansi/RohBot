@@ -21,14 +21,14 @@ namespace SteamMobile.Commands
                 target.Session.Send(new SysMessage
                 {
                     Date = Util.GetCurrentUnixTimestamp(),
-                    Content = "RohBot is not in the current chat."
+                    Content = "RohBot is not in this room."
                 });
                 return;
             }
 
             if (room.IsBanned(target.Session.Account.Name))
             {
-                target.Send("You are banned from this chat.");
+                target.Send("You are banned from this room.");
                 return;
             }
 

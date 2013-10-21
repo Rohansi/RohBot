@@ -27,17 +27,7 @@ namespace SteamMobile.Packets
                 session.Send(new SysMessage
                 {
                     Date = Util.GetCurrentUnixTimestamp(),
-                    Content = "RohBot is not in the current chat."
-                });
-                return;
-            }
-
-            if (room.IsBanned(session.Account.Name))
-            {
-                session.Send(new SysMessage
-                {
-                    Date = Util.GetCurrentUnixTimestamp(),
-                    Content = "You are banned from this chat."
+                    Content = "RohBot is not in this room."
                 });
                 return;
             }
@@ -52,6 +42,16 @@ namespace SteamMobile.Packets
 
             if (!Content.StartsWith("~~") && Command.Handle(new CommandTarget(session), Content, "~"))
                 return;
+
+            if (room.IsBanned(session.Account.Name))
+            {
+                session.Send(new SysMessage
+                {
+                    Date = Util.GetCurrentUnixTimestamp(),
+                    Content = "You are banned from this room."
+                });
+                return;
+            }
 
             if (Content.StartsWith("//") || Content.StartsWith("~~"))
                 Content = Content.Substring(1);

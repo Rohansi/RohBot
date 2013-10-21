@@ -20,7 +20,7 @@ namespace SteamMobile.Commands
                 var room = Program.RoomManager.Get(roomName);
                 if (room == null)
                 {
-                    target.Send("RohBot is not in the current chat.");
+                    target.Send("RohBot is not in this room.");
                     return;
                 }
 
@@ -56,7 +56,7 @@ namespace SteamMobile.Commands
                 var roomName = target.Room.RoomInfo.ShortName;
                 var sessions = Program.SessionManager.List.Where(s => s.Account != null).ToList();
                 var accounts = sessions.Where(s => s.Room == roomName).Select(s => s.Account).Distinct(new Account.Comparer());
-                target.Send("In this chat: " + string.Join(", ", accounts.Select(a => a.Name)));
+                target.Send("In this room: " + string.Join(", ", accounts.Select(a => a.Name)));
             }
         }
     }

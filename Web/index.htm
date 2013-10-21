@@ -82,7 +82,9 @@
 						requestedHistory = false;
 					}
 					
-					roomName = document.title = data.Name;
+					roomName = data.Name;
+					document.title = roomName;
+					$("#title").text(roomName);
 					oldestMessage = data.OldestLine;
 				};
 				
@@ -356,7 +358,7 @@
     <body>
 		<div class="container">
 			<div id="header">
-				<h1>FP Programmers</h1>
+				<h1 id="title">FP Programmers</h1>
 				<input id="username" type="text" placeholder="username" spellcheck="false"/>
 				<input id="password" type="password" placeholder="password"/>
 				<a id="loginButton">Login</a>

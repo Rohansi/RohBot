@@ -3,15 +3,9 @@ namespace SteamMobile.Commands
 {
     public class Banned : Command
     {
-        public override string Type
-        {
-            get { return "banned"; }
-        }
+        public override string Type { get { return "banned"; } }
 
-        public override string Format
-        {
-            get { return ""; }
-        }
+        public override string Format { get { return ""; } }
 
         public override void Handle(CommandTarget target, string[] parameters)
         {

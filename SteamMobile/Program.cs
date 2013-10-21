@@ -48,6 +48,8 @@ namespace SteamMobile
                 Database.LoginTokens.Remove(Query.LT("Created", t));
             });
 
+            _taskScheduler.Add(TimeSpan.FromSeconds(5), () => GC.Collect(0));
+
             while (true)
             {
                 _taskScheduler.Run();
