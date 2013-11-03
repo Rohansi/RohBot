@@ -1,25 +1,33 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using Fleck;
+using System.Net;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
+using SuperWebSocket;
 
 namespace SteamMobile
 {
-    public class Session
+    public class Session : WebSocketSession<Session>
     {
         public Account Account;
         public string Room;
-        
-        public readonly IWebSocketConnection Socket;
-        public readonly string Address;
 
-        public Session(IWebSocketConnection socket)
+        public string Address { get; private set; }
+
+        protected override void OnSessionStarted()
         {
             Account = null;
 
-            Socket = socket;
-            Address = socket.ConnectionInfo.ClientIpAddress;
+            try
+            {
+                var isLocal = RemoteEndPoint.Address.ToString() == "127.0.0.1";
+                Address = isLocal ? Items["X-Real-IP"].ToString() : RemoteEndPoint.Address.ToString();
+            }
+            catch
+            {
+                Address = "127.0.0.1";
+            }
         }
 
         public void Login(string username, string password, List<string> tokens)
@@ -204,12 +212,7 @@ namespace SteamMobile
 
         public void Send(Packet packet)
         {
-            Socket.Send(Packet.WriteToMessage(packet));
-        }
-
-        public void SendRaw(string str)
-        {
-            Socket.Send(str);
+            Send(Packet.WriteToMessage(packet));
         }
     }
 }

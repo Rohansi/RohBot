@@ -1,86 +1,57 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Fleck;
+using SuperSocket.SocketBase;
+using SuperWebSocket;
 
 namespace SteamMobile
 {
     public class SessionManager
     {
-        private WebSocketServer _server;
-        private Dictionary<Guid, Session> _sessions;
+        private class Server : WebSocketServer<Session>
+        {
+            
+        }
+       
+        private Server _server;
          
         public SessionManager()
         {
-            _sessions = new Dictionary<Guid, Session>();
+            _server = new Server();
+            _server.Setup("0.0.0.0", 12000);
+            _server.Start();
 
-            _server = new WebSocketServer("ws://0.0.0.0:12000/");
-            _server.Start(socket =>
-            {
-                socket.OnOpen = () => OnConnected(socket);
-                socket.OnClose = () => OnDisconnect(socket);
-                socket.OnMessage = message => OnReceive(socket, message);
-            });
+            _server.NewMessageReceived += OnReceive;
         }
 
         public void Broadcast(Packet packet, Func<Session, bool> filter = null)
         {
             var packetStr = Packet.WriteToMessage(packet);
 
-            lock (_sessions)
+            foreach (var session in _server.GetAllSessions())
             {
-                foreach (var session in _sessions.Values)
+                if (filter == null || filter(session))
                 {
-                    if (filter == null || filter(session))
-                    {
-                        session.SendRaw(packetStr);
-                    }
+                    session.Send(packetStr);
                 }
             }
         }
 
         public void Update()
         {
-            lock (_sessions)
-                _sessions.RemoveAll(kv => !kv.Value.Socket.IsAvailable);
+            
         }
 
         public List<Session> List
         {
             get
             {
-                lock (_sessions)
-                    return _sessions.Values.ToList();
+                return _server.GetAllSessions().ToList();
             }
-        } 
-
-        private void OnConnected(IWebSocketConnection socket)
-        {
-            lock (_sessions)
-                _sessions.Add(socket.ConnectionInfo.Id, new Session(socket));
         }
 
-        private void OnDisconnect(IWebSocketConnection socket)
+        private void OnReceive(Session session, string message)
         {
-            lock (_sessions)
-                _sessions.Remove(socket.ConnectionInfo.Id);
-        }
-
-        private void OnReceive(IWebSocketConnection socket, string message)
-        {
-            Session session;
-
-            try
-            {
-                lock (_sessions)
-                    session = _sessions[socket.ConnectionInfo.Id];
-            }
-            catch
-            {
-                socket.Close();
-                return;
-            }
-
             try
             {
                 Packet.ReadFromMessage(message).Handle(session);

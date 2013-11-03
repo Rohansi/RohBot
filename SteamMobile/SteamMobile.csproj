@@ -35,9 +35,6 @@
     <Reference Include="EzSteam">
       <HintPath>..\Libraries\EzSteam.dll</HintPath>
     </Reference>
-    <Reference Include="Fleck">
-      <HintPath>..\Libraries\Fleck.dll</HintPath>
-    </Reference>
     <Reference Include="log4net">
       <HintPath>..\Libraries\log4net.dll</HintPath>
     </Reference>
@@ -56,7 +53,23 @@
     <Reference Include="SteamKit2">
       <HintPath>..\Libraries\SteamKit2.dll</HintPath>
     </Reference>
+    <Reference Include="SuperSocket.Common">
+      <HintPath>..\Libraries\SuperSocket.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="SuperSocket.Facility">
+      <HintPath>..\Libraries\SuperSocket.Facility.dll</HintPath>
+    </Reference>
+    <Reference Include="SuperSocket.SocketBase">
+      <HintPath>..\Libraries\SuperSocket.SocketBase.dll</HintPath>
+    </Reference>
+    <Reference Include="SuperSocket.SocketEngine">
+      <HintPath>..\Libraries\SuperSocket.SocketEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="SuperWebSocket">
+      <HintPath>..\Libraries\SuperWebSocket.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Web" />
