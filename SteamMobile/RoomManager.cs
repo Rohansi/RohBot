@@ -34,6 +34,15 @@ namespace SteamMobile
             }
         }
 
+        public List<Room> List
+        {
+            get
+            {
+                lock (_rooms)
+                    return _rooms.Values.ToList();
+            }
+        }
+
         public void Update()
         {
             lock (_rooms)
