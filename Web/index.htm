@@ -37,7 +37,9 @@
 					oldestMessage = 0xFFFFFFFFFFFF;
 					requestedHistory = false;
 					
-					if (storage && storage.getItem("tokens") !== null) {
+					if (storage && storage.getItem("password") !== null) {
+						rohbot.login(storage.getItem("name"), storage.getItem("password"), null);
+					} else if (storage && storage.getItem("tokens") !== null) {
 						rohbot.login(storage.getItem("name"), null, storage.getItem("tokens"));
 					} else {
 						rohbot.login("guest", null, null);
@@ -192,7 +194,7 @@
 			
 			function addHtml(html, old) {
 				var elem = $("#chat");
-				var atBottom = (elem[0].scrollHeight - elem.scrollTop() == elem.outerHeight());
+				var atBottom = (elem.outerHeight() >= (elem[0].scrollHeight - elem.scrollTop() - 32));
 				
 				if (!old)
 					$("#chat").append(html);
@@ -271,7 +273,27 @@
 					
 					if (msgL.substring(0, 7) == "/logout" || msgL.substring(0, 7) == "~logout") {
 						rohbot.login("guest", null, null);
-						$("#chat").html("");
+						$("#messageBox").val("");
+						return;
+					}
+					
+					if (msgL.substring(0, 9) == "/password" || msgL.substring(0, 9) == "~password") {
+						if (storage) {
+							var pass = msg.substring(10);
+							
+							if (pass.length == 0) {
+								storage.removeItem("password");
+								addRohBotMessage({ Type: "state", Date: getCurrentTime(), Content: "Password removed." });
+							} else if (pass.length < 6) {
+								addRohBotMessage({ Type: "state", Date: getCurrentTime(), Content: "Password too short." });
+							} else {
+								storage.setItem("password", msg.substring(10));
+								addRohBotMessage({ Type: "state", Date: getCurrentTime(), Content: "Password saved." });
+							}
+						} else {
+							addRohBotMessage({ Type: "state", Date: getCurrentTime(), Content: "No local storage, no password saving." });
+						}
+						
 						$("#messageBox").val("");
 						return;
 					}

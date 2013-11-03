@@ -21,17 +21,6 @@ namespace SteamMobile.Packets
                 return;
             }
 
-            Room room = Program.RoomManager.Get(session.Room);
-            if (room == null)
-            {
-                session.Send(new SysMessage
-                {
-                    Date = Util.GetCurrentUnixTimestamp(),
-                    Content = "RohBot is not in this room."
-                });
-                return;
-            }
-
             Content = Content.Trim();
 
             if (Content.Length == 0)
@@ -42,6 +31,17 @@ namespace SteamMobile.Packets
 
             if (!Content.StartsWith("~~") && Command.Handle(new CommandTarget(session), Content, "~"))
                 return;
+
+            Room room = Program.RoomManager.Get(session.Room);
+            if (room == null)
+            {
+                session.Send(new SysMessage
+                {
+                    Date = Util.GetCurrentUnixTimestamp(),
+                    Content = "RohBot is not in this room."
+                });
+                return;
+            }
 
             if (room.IsBanned(session.Account.Name))
             {

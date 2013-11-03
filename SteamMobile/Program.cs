@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
-using MongoDB.Bson;
 using MongoDB.Driver.Builders;
+using SteamKit2;
 using log4net;
 
 namespace SteamMobile
@@ -48,7 +48,13 @@ namespace SteamMobile
                 Database.LoginTokens.Remove(Query.LT("Created", t));
             });
 
-            _taskScheduler.Add(TimeSpan.FromSeconds(5), () => GC.Collect(0));
+            _taskScheduler.Add(TimeSpan.FromMinutes(2.5), () =>
+            {
+                if (Steam.Status == Steam.ConnectionStatus.Connected)
+                {
+                    Steam.Bot.PersonaState = EPersonaState.Online;
+                }
+            });
 
             while (true)
             {

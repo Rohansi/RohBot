@@ -101,7 +101,14 @@ namespace SteamMobile
 
                 try
                 {
-                    var apiRequestUrl = string.Format(@"http://gdata.youtube.com/feeds/api/videos/{0}?alt=json", match.Groups[1].Value);
+                    var videoId = match.Groups[1].Value;
+
+                    // youtube video ids are 11 characters and will ignore extra characters
+                    // the api however does not
+                    if (videoId.Length > 11)
+                        videoId = videoId.Substring(0, 11);
+
+                    var apiRequestUrl = string.Format(@"http://gdata.youtube.com/feeds/api/videos/{0}?alt=json", videoId);
                     var responseFromServer = DownloadPage(apiRequestUrl, "UTF-8");
 
                     var token = JObject.Parse(responseFromServer);

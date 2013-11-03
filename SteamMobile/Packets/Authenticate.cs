@@ -21,11 +21,11 @@ namespace SteamMobile.Packets
             switch (Method)
             {
                 case "login":
-                    Program.Logger.InfoFormat("Login '{1}' from {0}, password={2}", session.Socket.ConnectionInfo.ClientIpAddress, Username, passwordHash);
+                    Program.Logger.InfoFormat("Login '{1}' from {0}, password={2}", session.Address, Username, passwordHash);
                     session.Login(Username, Password, (Tokens ?? "").Split(',').ToList());
                     break;
                 case "register":
-                    Program.Logger.InfoFormat("Register '{1}' from {0}, password={2}", session.Socket.ConnectionInfo.ClientIpAddress, Username, passwordHash);
+                    Program.Logger.InfoFormat("Register '{1}' from {0}, password={2}", session.Address, Username, passwordHash);
                     session.Register(Username, Password);
                     break;
             }
