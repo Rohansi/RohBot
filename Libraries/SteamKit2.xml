@@ -1311,100 +1311,150 @@
         </member>
         <member name="T:SteamKit2.CDNClient">
             <summary>
-            Represents a client able to connect to the Steam3 CDN and download games on the new content system.
+            The CDNClient class is used for downloading game content from the Steam servers.
             </summary>
         </member>
-        <member name="M:SteamKit2.CDNClient.#ctor(SteamKit2.CDNClient.ClientEndPoint,System.Byte[])">
+        <member name="M:SteamKit2.CDNClient.#ctor(SteamKit2.SteamClient,System.UInt32,System.Byte[],System.Byte[])">
             <summary>
             Initializes a new instance of the <see cref="T:SteamKit2.CDNClient"/> class.
             </summary>
-            <param name="cdnServer">The CDN server to connect to.</param>
-            <param name="appticket">The appticket of the app this instance is for.</param>
+            <param name="steamClient">
+            The <see cref="T:SteamKit2.SteamClient"/> this instance will be associated with.
+            The SteamClient instance must be connected and logged onto Steam.</param>
+            <param name="depotId">The DepotID of the depot that will be downloaded.</param>
+            <param name="appTicket">
+            The optional appticket for the depot that will be downloaded.
+            This must be present when connected to steam non-anonymously.
+            </param>
+            <param name="depotKey">
+            The optional depot decryption key for the depot that will be downloaded.
+            This is used for decrypting filenames (if needed) in depot manifests, and processing depot chunks.
+            </param>
         </member>
-        <member name="M:SteamKit2.CDNClient.#ctor(SteamKit2.CDNClient.ClientEndPoint,System.UInt32,SteamKit2.SteamID)">
+        <member name="M:SteamKit2.CDNClient.FetchServerList(System.Net.IPEndPoint,System.Nullable{System.UInt32},System.Int32)">
             <summary>
-            Initializes a new instance of the <see cref="T:SteamKit2.CDNClient"/> class without an application ticket.
+            Fetches a list of content servers.
             </summary>
-            <param name="cdnServer">The CDN server to connect to.</param>
-            <param name="steamID">The SteamID of the current user.</param>
-            <param name="depotID">Depot ID being requested.</param>
+            <param name="csServer">
+            The optional Steam3 content server to fetch the list from.
+            If this parameter is not specified, a random CS server will be selected.
+            </param>
+            <param name="cellId">
+            The optional CellID used to specify which regional servers should be returned in the list.
+            If this parameter is not specified, Steam's GeoIP suggested CellID will be used instead.
+            </param>
+            <param name="maxServers">The maximum amount of servers to request.</param>
+            <returns>A list of servers.</returns>
+            <exception cref="T:System.InvalidOperationException">
+            No Steam CS servers available, or the suggested CellID is unavailable.
+            Check that the <see cref="T:SteamKit2.SteamClient"/> associated with this <see cref="T:SteamKit2.CDNClient"/> instance is logged onto Steam.
+            </exception>
         </member>
-        <member name="M:SteamKit2.CDNClient.Finalize">
+        <member name="M:SteamKit2.CDNClient.Connect(SteamKit2.CDNClient.Server)">
             <summary>
-            Releases unmanaged resources and performs other cleanup operations before the
-            <see cref="T:SteamKit2.CDNClient"/> is reclaimed by garbage collection.
+            Connects and authenticates to the specified content server.
             </summary>
+            <param name="csServer">The content server to connect to.</param>
+            <exception cref="T:System.ArgumentNullException">csServer was null.</exception>
         </member>
-        <member name="M:SteamKit2.CDNClient.PointTo(SteamKit2.CDNClient.ClientEndPoint)">
+        <member name="M:SteamKit2.CDNClient.DownloadManifest(System.UInt64)">
             <summary>
-            Points this <see cref="T:SteamKit2.CDNClient"/> instance to another server.
+            Downloads the depot manifest specified by the given manifest ID, and optionally decrypts the manifest's filenames if the depot decryption key has been provided.
             </summary>
-            <param name="ep">The endpoint.</param>
+            <param name="manifestId">The unique identifier of the manifest to be downloaded.</param>
+            <returns>A <see cref="T:SteamKit2.DepotManifest"/> instance that contains information about the files present within a depot.</returns>
         </member>
-        <member name="M:SteamKit2.CDNClient.Connect">
+        <member name="M:SteamKit2.CDNClient.DownloadDepotChunk(SteamKit2.DepotManifest.ChunkData)">
             <summary>
-            Connects this instance to the server.
+            Downloads the specified depot chunk, and optionally processes the chunk and verifies the checksum if the depot decryption key has been provided.
             </summary>
-            <returns><c>true</c> if the connection was a success; otherwise, <c>false</c>.</returns>
+            <param name="chunk">
+            A <see cref="T:SteamKit2.DepotManifest.ChunkData"/> instance that represents the chunk to download.
+            This value should come from a manifest downloaded with <see cref="M:SteamKit2.CDNClient.DownloadManifest(System.UInt64)"/>.
+            </param>
+            <returns>A <see cref="T:SteamKit2.CDNClient.DepotChunk"/> instance that contains the data for the given chunk.</returns>
         </member>
-        <member name="M:SteamKit2.CDNClient.DownloadDepotManifest(System.Int32,System.UInt64)">
+        <member name="T:SteamKit2.CDNClient.Server">
             <summary>
-            Downloads the depot manifest for the given depot and manifest.
-            </summary>
-            <param name="depotid">The depotid.</param>
-            <param name="manifestid">The manifestid.</param>
-            <returns>A <see cref="T:SteamKit2.DepotManifest"/> instance on success; otherwise, <c>null</c>.</returns>
-        </member>
-        <member name="M:SteamKit2.CDNClient.DownloadDepotChunk(System.Int32,System.String)">
-            <summary>
-            Downloads the specified depot chunk from the content server.
-            </summary>
-            <param name="depotid">The DepotID of the chunk to download.</param>
-            <param name="chunkid">The the ID of the chunk to download.</param>
-            <returns></returns>
-        </member>
-        <member name="M:SteamKit2.CDNClient.ProcessChunk(System.Byte[],System.Byte[])">
-            <summary>
-            Processes a chunk by decrypting and decompressing it.
-            </summary>
-            <param name="chunk">The chunk to process.</param>
-            <param name="depotkey">The AES encryption key to use when decrypting the chunk.</param>
-            <returns>The processed chunk.</returns>
-        </member>
-        <member name="M:SteamKit2.CDNClient.FetchServerList(SteamKit2.CDNClient.ClientEndPoint,System.Int32)">
-            <summary>
-            Fetches a server list from the given content server for the provided CellID.
-            </summary>
-            <param name="csServer">The server to request a server list from.</param>
-            <param name="cellID">The CellID.</param>
-            <returns>A list of content servers.</returns>
-        </member>
-        <member name="T:SteamKit2.CDNClient.ClientEndPoint">
-            <summary>
-            Represents the endpoint of a Steam3 content server.
+            Represents a single Steam3 'Steampipe' content server.
             </summary>
         </member>
-        <member name="M:SteamKit2.CDNClient.ClientEndPoint.#ctor(System.String,System.Int32,System.String)">
+        <member name="M:SteamKit2.CDNClient.Server.op_Implicit(System.Net.IPEndPoint)~SteamKit2.CDNClient.Server">
             <summary>
-            Initializes a new instance of the <see cref="T:SteamKit2.CDNClient.ClientEndPoint"/> class.
+            Performs an implicit conversion from <see cref="T:System.Net.IPEndPoint"/> to <see cref="T:SteamKit2.CDNClient.Server"/>.
             </summary>
-            <param name="host">The server host.</param>
-            <param name="port">The server port.</param>
-            <param name="type">The server type.</param>
+            <param name="endPoint">A IPEndPoint to convert into a <see cref="T:SteamKit2.CDNClient.Server"/>.</param>
+            <returns>
+            The result of the conversion.
+            </returns>
         </member>
-        <member name="P:SteamKit2.CDNClient.ClientEndPoint.Host">
+        <member name="M:SteamKit2.CDNClient.Server.ToString">
             <summary>
-            Gets the server host.
+            Returns a <see cref="T:System.String"/> that represents this server.
+            </summary>
+            <returns>
+            A <see cref="T:System.String"/> that represents this server.
+            </returns>
+        </member>
+        <member name="P:SteamKit2.CDNClient.Server.Host">
+            <summary>
+            Gets the hostname of the server.
             </summary>
         </member>
-        <member name="P:SteamKit2.CDNClient.ClientEndPoint.Port">
+        <member name="P:SteamKit2.CDNClient.Server.Port">
             <summary>
-            Gets the server port.
+            Gets the port of the server.
             </summary>
         </member>
-        <member name="P:SteamKit2.CDNClient.ClientEndPoint.Type">
+        <member name="P:SteamKit2.CDNClient.Server.Type">
             <summary>
-            Gets the server type.
+            Gets the type of the server.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.CDNClient.Server.CellID">
+            <summary>
+            Gets the CellID this server belongs to.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.CDNClient.Server.Load">
+            <summary>
+            Gets the load value associated with this server.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.CDNClient.Server.WeightedLoad">
+            <summary>
+            Gets the weighted load.
+            </summary>
+        </member>
+        <member name="T:SteamKit2.CDNClient.DepotChunk">
+            <summary>
+            Represents a single downloaded chunk from a file in a depot.
+            </summary>
+        </member>
+        <member name="M:SteamKit2.CDNClient.DepotChunk.Process(System.Byte[])">
+            <summary>
+            Processes the specified depot key by decrypting the data with the given depot encryption key, and then by decompressing the data.
+            If the chunk has already been processed, this function does nothing.
+            </summary>
+            <param name="depotKey">The depot decryption key.</param>
+            <exception cref="T:System.IO.InvalidDataException">Thrown if the processed data does not match the expected checksum given in it's chunk information.</exception>
+        </member>
+        <member name="P:SteamKit2.CDNClient.DepotChunk.ChunkInfo">
+            <summary>
+            Gets the depot manifest chunk information associated with this chunk.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.CDNClient.DepotChunk.IsProcessed">
+            <summary>
+            Gets a value indicating whether this chunk has been processed. A chunk is processed when the data has been decrypted and decompressed.
+            </summary>
+            <value>
+              <c>true</c> if this chunk has been processed; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:SteamKit2.CDNClient.DepotChunk.Data">
+            <summary>
+            Gets the underlying data for this chunk.
             </summary>
         </member>
         <member name="T:SteamKit2.SteamCloud">
@@ -1942,11 +1992,18 @@
             Sends a message.
             Results are returned in a <see cref="T:SteamKit2.SteamUnifiedMessages.ServiceMethodResponse"/> from a <see cref="T:SteamKit2.SteamClient.JobCallback`1"/>.
             </summary>
-            <typeparam name="T">The type of a protobuf object.</typeparam>
+            <typeparam name="TRequest">The type of a protobuf object.</typeparam>
             <param name="name">Name of the RPC endpoint. Takes the format ServiceName.RpcName</param>
             <param name="message">The message to send.</param>
             <param name="isNotification">Whether this message is a notification or not.</param>
             <returns>The JobID of the request. This can be used to find the appropriate <see cref="T:SteamKit2.SteamClient.JobCallback`1"/>.</returns>
+        </member>
+        <member name="M:SteamKit2.SteamUnifiedMessages.CreateService``1">
+            <summary>
+            Creates a <see cref="T:SteamKit2.SteamUnifiedMessages.UnifiedService`1"/> wrapper for expression-based unified messaging.
+            </summary>
+            <typeparam name="TService">The type of a service interface.</typeparam>
+            <returns>The <see cref="T:SteamKit2.SteamUnifiedMessages.UnifiedService`1"/> wrapper.</returns>
         </member>
         <member name="M:SteamKit2.SteamUnifiedMessages.HandleMsg(SteamKit2.IPacketMsg)">
             <summary>
@@ -1988,8 +2045,48 @@
         </member>
         <member name="P:SteamKit2.SteamUnifiedMessages.ServiceMethodResponse.MethodName">
             <summary>
-            Gets the full name of the service method. This takes the form ServiceName.RpcName.
+            Gets the full name of the service method.
             </summary>
+        </member>
+        <member name="T:SteamKit2.SteamUnifiedMessages.ServiceMethodNotification">
+            <summary>
+            This callback represents a service notification recieved though <see cref="T:SteamKit2.SteamUnifiedMessages"/>.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamUnifiedMessages.ServiceMethodNotification.ServiceName">
+            <summary>
+            Gets the name of the Service.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamUnifiedMessages.ServiceMethodNotification.RpcName">
+            <summary>
+            Gets the name of the RPC method.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamUnifiedMessages.ServiceMethodNotification.MethodName">
+            <summary>
+            Gets the full name of the service method.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamUnifiedMessages.ServiceMethodNotification.Body">
+            <summary>
+            Gets the protobuf notification body.
+            </summary>
+        </member>
+        <member name="T:SteamKit2.SteamUnifiedMessages.UnifiedService`1">
+            <summary>
+            This wrapper is used for expression-based RPC calls using Steam Unified Messaging.
+            </summary>
+        </member>
+        <member name="M:SteamKit2.SteamUnifiedMessages.UnifiedService`1.SendMessage``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},System.Boolean)">
+            <summary>
+            Sends a message.
+            Results are returned in a <see cref="T:SteamKit2.SteamUnifiedMessages.ServiceMethodResponse"/> from a <see cref="T:SteamKit2.SteamClient.JobCallback`1"/>.
+            </summary>
+            <typeparam name="TResponse">The type of the protobuf object which is the response to the RPC call.</typeparam>
+            <param name="expr">RPC call expression, e.g. x =&gt; x.SomeMethodCall(message);</param>
+            <param name="isNotification">Whether this message is a notification or not.</param>
+            <returns>The JobID of the request. This can be used to find the appropriate <see cref="T:SteamKit2.SteamClient.JobCallback`1"/>.</returns>
         </member>
         <member name="T:SteamKit2.SteamWorkshop">
             <summary>
@@ -4868,6 +4965,12 @@
             </summary>
             <param name="details">The details pertaining to the response.</param>
         </member>
+        <member name="M:SteamKit2.SteamUser.RequestWebAPIUserNonce">
+            <summary>
+            Requests a new WebAPI authentication user nonce. This is used if initial loginkey authentication fails.
+            </summary>
+            <returns>The Job ID of the request. This can be used to find the appropriate <see cref="T:SteamKit2.SteamClient.JobCallback`1"/>.</returns>
+        </member>
         <member name="M:SteamKit2.SteamUser.HandleMsg(SteamKit2.IPacketMsg)">
             <summary>
             Handles a client message. This should not be called directly.
@@ -5004,7 +5107,7 @@
         </member>
         <member name="T:SteamKit2.SteamUser.AccountInfoCallback">
             <summary>
-            This callback is recieved when account information is recieved from the network.
+            This callback is received when account information is recieved from the network.
             This generally happens after logon.
             </summary>
         </member>
@@ -5058,7 +5161,7 @@
         </member>
         <member name="T:SteamKit2.SteamUser.WalletInfoCallback">
             <summary>
-            This callback is recieved when wallet info is recieved from the network.
+            This callback is received when wallet info is recieved from the network.
             </summary>
         </member>
         <member name="P:SteamKit2.SteamUser.WalletInfoCallback.HasWallet">
@@ -5081,7 +5184,7 @@
         </member>
         <member name="T:SteamKit2.SteamUser.UpdateMachineAuthCallback">
             <summary>
-            This callback is recieved when the backend wants the client to update it's local machine authentication data.
+            This callback is received when the backend wants the client to update it's local machine authentication data.
             </summary>
         </member>
         <member name="P:SteamKit2.SteamUser.UpdateMachineAuthCallback.Data">
@@ -5141,6 +5244,21 @@
             Gets the OTP time drift.
             </summary>
         </member>
+        <member name="T:SteamKit2.SteamUser.WebAPIUserNonceCallback">
+            <summary>
+            This callback is received when requesting a new WebAPI authentication user nonce.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamUser.WebAPIUserNonceCallback.Result">
+            <summary>
+            Gets the result of the request.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamUser.WebAPIUserNonceCallback.Nonce">
+            <summary>
+            Gets the authentication nonce.
+            </summary>
+        </member>
         <member name="T:SteamKit2.SteamUser.LogOnDetails">
             <summary>
             Represents the details required to log into Steam3 as a user.
@@ -5180,6 +5298,17 @@
             Gets or sets the account instance. 1 for the PC instance or 2 for the Console (PS3) instance.
             </summary>
             <value>The account instance.</value>
+            <seealso cref="F:SteamKit2.SteamID.DesktopInstance"/>
+            <seealso cref="F:SteamKit2.SteamID.ConsoleInstance"/>
+        </member>
+        <member name="P:SteamKit2.SteamUser.LogOnDetails.AccountID">
+            <summary>
+            Gets or sets the account ID used for connecting clients when using the Console instance.
+            </summary>
+            <value>
+            The account ID.
+            </value>
+            <seealso cref="P:SteamKit2.SteamUser.LogOnDetails.AccountInstance"/>
         </member>
         <member name="P:SteamKit2.SteamUser.LogOnDetails.RequestSteam2Ticket">
             <summary>
@@ -5370,6 +5499,12 @@
         <member name="P:SteamKit2.Internal.CMClient.SessionToken">
             <summary>
             Gets the session token assigned to this client from the AM.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.Internal.CMClient.CellID">
+            <summary>
+            Gets the Steam recommended Cell ID of this client. This value is assigned after a logon attempt has succeeded.
+            This value will be <c>null</c> if the client is logged off of Steam.
             </summary>
         </member>
         <member name="P:SteamKit2.Internal.CMClient.SessionID">
@@ -5566,6 +5701,17 @@
         <member name="P:SteamKit2.SteamClient.CMListCallback.Servers">
             <summary>
             Gets the CM server list.
+            </summary>
+        </member>
+        <member name="T:SteamKit2.SteamClient.ServerListCallback">
+            <summary>
+            This callback is fired when the client receives a list of all publically available Steam3 servers.
+            This callback may be fired multiple times for different server lists.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamClient.ServerListCallback.Servers">
+            <summary>
+            Gets the server list.
             </summary>
         </member>
         <member name="T:SteamKit2.GameID">

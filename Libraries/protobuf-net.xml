@@ -94,6 +94,11 @@
             or other initialization code is skipped.
             </summary>
         </member>
+        <member name="F:ProtoBuf.BclHelpers.NetObjectOptions.LateSet">
+            <summary>
+            Should the object index be reserved, rather than creating an object promptly
+            </summary>
+        </member>
         <member name="T:ProtoBuf.BufferExtension">
             <summary>
             Provides a simple buffer-based implementation of an <see cref="T:ProtoBuf.IExtension">extension</see> object.
@@ -448,13 +453,6 @@
             this ensures that we don't get issues with subclasses declaring conflicting types -
             the caller must respect the fields defined for the type they pass in.
             </summary>
-        </member>
-        <member name="M:ProtoBuf.ExtensibleUtil.AppendExtendValueTyped``2(ProtoBuf.Meta.TypeModel,``0,System.Int32,ProtoBuf.DataFormat,``1)">
-            <summary>
-            Stores the given value into the instance's stream; the serializer
-            is inferred from TValue and format.
-            </summary>
-            <remarks>Needs to be public to be callable thru reflection in Silverlight</remarks>
         </member>
         <member name="T:ProtoBuf.Helpers">
             <summary>
@@ -1218,6 +1216,11 @@
             <remarks>A full compilation is restricted to accessing public types / members</remarks>
             <returns>An instance of the newly created compiled type-model</returns>
         </member>
+        <member name="M:ProtoBuf.Meta.RuntimeTypeModel.SetDefaultFactory(System.Reflection.MethodInfo)">
+            <summary>
+            Designate a factory-method to use to create instances of any type; note that this only affect types seen by the serializer *after* setting the factory.
+            </summary>
+        </member>
         <member name="P:ProtoBuf.Meta.RuntimeTypeModel.InferTagFromNameDefault">
             <summary>
             Global default that
@@ -1610,6 +1613,23 @@
             or other initialization code is skipped.
             </summary>
         </member>
+        <member name="P:ProtoBuf.ProtoContractAttribute.AsReferenceDefault">
+            <summary>
+            Should this type be treated as a reference by default? Please also see the implications of this,
+            as recorded on ProtoMemberAttribute.AsReference
+            </summary>
+        </member>
+        <member name="P:ProtoBuf.ProtoContractAttribute.EnumPassthru">
+            <summary>
+            Applies only to enums (not to DTO classes themselves); gets or sets a value indicating that an enum should be treated directly as an int/short/etc, rather
+            than enforcing .proto enum rules. This is useful *in particul* for [Flags] enums.
+            </summary>
+        </member>
+        <member name="P:ProtoBuf.ProtoContractAttribute.EnumPassthruHasValue">
+            <summary>
+            Has a EnumPassthru value been explicitly set?
+            </summary>
+        </member>
         <member name="T:ProtoBuf.ProtoEnumAttribute">
             <summary>
             Used to define protocol-buffer specific behavior for
@@ -1645,6 +1665,9 @@
             <summary>Creates a new ProtoException instance.</summary>
         </member>
         <member name="M:ProtoBuf.ProtoException.#ctor(System.String,System.Exception)">
+            <summary>Creates a new ProtoException instance.</summary>
+        </member>
+        <member name="M:ProtoBuf.ProtoException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
             <summary>Creates a new ProtoException instance.</summary>
         </member>
         <member name="T:ProtoBuf.ProtoIgnoreAttribute">
@@ -1822,6 +1845,11 @@
             <summary>
             Indicates whether this field should *repace* existing values (the default is false, meaning *append*).
             This option only applies to list/array data.
+            </summary>
+        </member>
+        <member name="F:ProtoBuf.MemberSerializationOptions.AsReferenceHasValue">
+            <summary>
+            Determines whether the types AsReferenceDefault value is used, or whether this member's AsReference should be used
             </summary>
         </member>
         <member name="T:ProtoBuf.ProtoPartialMemberAttribute">
