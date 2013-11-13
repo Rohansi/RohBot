@@ -11,9 +11,10 @@ namespace SteamMobile.Commands
         public override void Handle(CommandTarget target, string[] parameters)
         {
             if (!target.IsSession || target.Session.Account == null || parameters.Length == 0)
-            {
                 return;
-            }
+
+            if (Program.DelayManager.AddAndCheck(target.Session, 0.1))
+                return;
 
             var room = Program.RoomManager.Get(target.Session.Room);
             if (room == null)

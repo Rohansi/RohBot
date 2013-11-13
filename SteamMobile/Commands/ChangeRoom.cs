@@ -18,6 +18,9 @@ namespace SteamMobile.Commands
                 return;
             }
 
+            if (Program.DelayManager.AddAndCheck(target.Session, 5))
+                return;
+
             switch (parameters[0])
             {
                 case "default":

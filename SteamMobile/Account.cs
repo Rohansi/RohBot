@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Linq;
 
 namespace SteamMobile
@@ -14,6 +15,9 @@ namespace SteamMobile
         public byte[] Password;
         public byte[] Salt;
         public string DefaultRoom;
+
+        [BsonDefaultValue("")]
+        public string EnabledStyle = "";
 
         public static Account Get(string username)
         {
@@ -29,14 +33,14 @@ namespace SteamMobile
                     return true;
                 if (ReferenceEquals(x, null) || ReferenceEquals(y, null))
                     return false;
-                return x.Name == y.Name;
+                return x.Id == y.Id;
             }
 
             public int GetHashCode(Account obj)
             {
                 if (ReferenceEquals(obj, null))
                     return 0;
-                return obj.Name.GetHashCode();
+                return obj.Id.GetHashCode();
             }
         }
     }

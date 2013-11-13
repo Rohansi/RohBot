@@ -16,6 +16,9 @@ namespace SteamMobile.Packets
 
         public override void Handle(Session session)
         {
+            if (Program.DelayManager.AddAndCheck(session, 5))
+                return;
+
             var room = Program.RoomManager.Get(session.Room);
             if (room == null)
             {

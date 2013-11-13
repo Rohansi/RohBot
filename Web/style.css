@@ -340,3 +340,57 @@ div.container > #footer {
     text-decoration: none; }
     .userList a:hover {
       text-decoration: underline; }
+
+/* Name Styles */
+.rohBot.heart:after {
+  content: ' ❤';
+  color: #FF69B4;
+  animation: heartGlow 2.5s linear infinite alternate;
+  -webkit-animation: heartGlow 2.5s linear infinite alternate; }
+
+@keyframes heartGlow {
+  from {
+    text-shadow: 0 0 0.1em #FF69B4; }
+
+  to {
+    text-shadow: 0 0 0.5em #FF69B4; } }
+
+@-webkit-keyframes heartGlow {
+  from {
+    text-shadow: 0 0 0.1em #FF69B4; }
+
+  to {
+    text-shadow: 0 0 0.5em #FF69B4; } }
+
+.rohBot.glow {
+  color: white;
+  text-shadow: 0 0 0.5em white; }
+
+.rohBot.hacker {
+  color: #0F0;
+  font-family: monospace; }
+
+.rohBot.hitler:before {
+  content: "卐 ";
+  -webkit-transform: rotate(45deg);
+  transform: rotate(45deg);
+  font-size: small;
+  display: inline-block; }
+
+.rohBot.hitler:after {
+  content: " 卐";
+  -webkit-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+  font-size: small;
+  display: inline-block; }
+
+.rohBot.upsidedown {
+  -webkit-transform: rotate(-180deg);
+  transform: rotate(-180deg);
+  display: inline-block; }
+
+.rohBot.rainbow {
+  /* webkit only :( */
+  background-image: -webkit-gradient(linear, left top, right top, color-stop(0, #ff2222), color-stop(0.16, #ff22ff), color-stop(0.32, #22ffff), color-stop(0.48, #22ff22), color-stop(0.64, #22ff22), color-stop(0.8, #ffff22), color-stop(1, #ff2222));
+  -webkit-background-clip: text;
+  color: transparent; }

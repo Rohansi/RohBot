@@ -21,10 +21,14 @@ namespace SteamMobile.Packets
             switch (Method)
             {
                 case "login":
+                    if (Program.DelayManager.AddAndCheck(session, 10))
+                        break;
                     Program.Logger.InfoFormat("Login '{1}' from {0}, password={2}", session.Address, Username, passwordHash);
                     session.Login(Username, Password, (Tokens ?? "").Split(',').ToList());
                     break;
                 case "register":
+                    if (Program.DelayManager.AddAndCheck(session, 50))
+                        break;
                     Program.Logger.InfoFormat("Register '{1}' from {0}, password={2}", session.Address, Username, passwordHash);
                     session.Register(Username, Password);
                     break;

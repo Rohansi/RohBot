@@ -121,7 +121,7 @@ namespace SteamMobile.Rooms
             var senderId = messageSender.Id.ConvertToUInt64().ToString("D");
             var inGame = messageSender.Playing != null && messageSender.Playing.ToUInt64() != 0;
 
-            var line = new ChatLine(Util.GetCurrentUnixTimestamp(), RoomInfo.ShortName, "Steam", senderName, senderId, message, inGame);
+            var line = new ChatLine(Util.GetCurrentUnixTimestamp(), RoomInfo.ShortName, "Steam", senderName, senderId, "", message, inGame);
             Send(line);
 
             Command.Handle(new CommandTarget(this, messageSender.Id), message, "~");

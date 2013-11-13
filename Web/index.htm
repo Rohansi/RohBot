@@ -1,7 +1,7 @@
 ﻿<!doctype html>
 <html>
     <head>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta charset="utf-8">
 		<title>RohBot</title>
 		<link rel="shortcut icon" href="rohbot.png"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
@@ -30,7 +30,7 @@
 			function initializeRohBot() {
 				var serverUri = "wss://fpp.literallybrian.com/ws/";
 				if (window.location.search == "?noproxy")
-					serverUri = "ws://fpp.literallybrian.com:12000/"; // ws://209.141.59.194:12000/
+					serverUri = "ws://fpp.literallybrian.com:12000/";
 				
 				rohbot = new RohBot(serverUri); 
 				rohbot.onConnected = function() {
@@ -165,7 +165,7 @@
 					case "chat": {
 						var sender = line.Sender;
 						if (line.UserType == "RohBot")
-							sender = '<span class="rohBot">' + sender + '</span>';
+							sender = '<span class="rohBot ' + line.SenderStyle + '">' + sender + '</span>';
 						else if (line.InGame)
 							sender = '<span class="inGame">' + sender + '</span>';
 						

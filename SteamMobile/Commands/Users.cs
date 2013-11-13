@@ -44,7 +44,7 @@ namespace SteamMobile.Commands
 
                 foreach (var account in accounts)
                 {
-                    var userId = account.Name.GetHashCode().ToString("D");
+                    var userId = account.Id.ToString();
                     userList.AddUser(account.Name, userId, "Member", "", "", true);
                 }
 

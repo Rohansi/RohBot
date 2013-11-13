@@ -12,6 +12,7 @@ namespace SteamMobile
         public static Settings Settings;
         public static SessionManager SessionManager;
         public static RoomManager RoomManager;
+        public static DelayManager DelayManager;
         public static Steam Steam;
 
         private static TaskScheduler _taskScheduler;
@@ -32,6 +33,7 @@ namespace SteamMobile
 
             SessionManager = new SessionManager();
             RoomManager = new RoomManager();
+            DelayManager = new DelayManager();
             Steam = new Steam();
 
             _taskScheduler = new TaskScheduler();
@@ -39,12 +41,13 @@ namespace SteamMobile
             {
                 SessionManager.Update();
                 RoomManager.Update();
+                DelayManager.Update();
                 Steam.Update();
             });
 
             _taskScheduler.Add(TimeSpan.FromHours(1), () =>
             {
-                var t = Util.GetUnixTimestamp(DateTime.UtcNow - TimeSpan.FromDays(14));
+                var t = Util.GetUnixTimestamp(DateTime.UtcNow - TimeSpan.FromDays(30));
                 Database.LoginTokens.Remove(Query.LT("Created", t));
             });
 

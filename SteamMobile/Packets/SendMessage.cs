@@ -53,6 +53,9 @@ namespace SteamMobile.Packets
                 return;
             }
 
+            if (Program.DelayManager.AddAndCheck(session, 0.1))
+                return;
+
             if (Content.StartsWith("//") || Content.StartsWith("~~"))
                 Content = Content.Substring(1);
 
@@ -65,8 +68,9 @@ namespace SteamMobile.Packets
 
             var roomName = room.RoomInfo.ShortName;
             var userName = session.Account.Name;
-            var userId = session.Account.Name.GetHashCode().ToString("D");
-            var line = new ChatLine(Util.GetCurrentUnixTimestamp(), roomName, "RohBot", userName, userId, Content, false);
+            var userId = session.Account.Id.ToString();
+            var userStyle = session.Account.EnabledStyle;
+            var line = new ChatLine(Util.GetCurrentUnixTimestamp(), roomName, "RohBot", userName, userId, userStyle, Content, false);
             room.Send(line);
         }
     }

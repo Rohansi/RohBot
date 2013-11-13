@@ -112,7 +112,7 @@ namespace SteamMobile.Rooms
         /// </summary>
         public virtual void Send(string str)
         {
-            var line = new ChatLine(Util.GetCurrentUnixTimestamp(), RoomInfo.ShortName, "Steam", Program.Settings.PersonaName, "0", str, false);
+            var line = new ChatLine(Util.GetCurrentUnixTimestamp(), RoomInfo.ShortName, "Steam", Program.Settings.PersonaName, "0", "", str, false);
             Send(line);
         }
 

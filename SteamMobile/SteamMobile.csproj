@@ -89,6 +89,7 @@
     <Compile Include="Commands\Unban.cs" />
     <Compile Include="Commands\Users.cs" />
     <Compile Include="Database.cs" />
+    <Compile Include="DelayManager.cs" />
     <Compile Include="HistoryLine.cs" />
     <Compile Include="LinkTitles.cs" />
     <Compile Include="Packet.cs" />

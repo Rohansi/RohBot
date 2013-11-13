@@ -19,9 +19,23 @@ RohBot = function(server) {
 		return new Date().getTime() / 1000;
 	};
 	
+	var closeSocket = function() {
+		if (socket !== null) {
+			socket.close();
+			socket.onopen = null;
+			socket.onclose = null;
+			socket.onerror = null;
+			socket.onmessage = null;
+			socket = null;
+		}
+	};
+	
 	setInterval(function () {
-		if (socket !== null)
+		if (socket !== null) {
 			send({ Type: "ping" });
+		} else {
+			_this.connect();
+		}
 	}, 2500);
 	
 	_this.connect = function() {
@@ -31,15 +45,7 @@ RohBot = function(server) {
 			firstConnect = false;
 		}
 		
-		if (socket !== null) {
-			if (socket.readyState == 1)
-				socket.close();
-			socket.onopen = null;
-			socket.onclose = null;
-			socket.onmessage = null;
-			socket = null;
-		}
-
+		closeSocket();
 		socket = new WebSocket(server);
 		
 		socket.onopen = function (event) {
@@ -50,22 +56,17 @@ RohBot = function(server) {
 			hasConnected = true;
 		};
 		
-		socket.onclose = function (event) {
-			socket = null;
+		socket.onclose = socket.onerror = function (event) {
+			closeSocket();
 			
 			if (hasConnected) {
 				if (_this.onSysMessage != null)
-					_this.onSysMessage({Date: getCurrentTime(), Content: "Lost connection to RohBot."});
+					_this.onSysMessage({Date: getCurrentTime(), Content: "Lost connection to RohBot. Reconnecting..."});
 				hasConnected = false;
 			}
 			
 			if (_this.onDisconnected != null)
 				_this.onDisconnected();
-			
-			setTimeout(function () {
-				_this.onSysMessage({Date: getCurrentTime(), Content: "Connecting to RohBot..."});
-				_this.connect();
-			}, 5000);
 		};
 		
 		socket.onmessage = function (event) {
@@ -108,7 +109,7 @@ RohBot = function(server) {
 	}
 
 	_this.disconnect = function() {
-		socket.close();
+		closeSocket();
 	};
 	
 	var send = function(obj) {

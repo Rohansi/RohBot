@@ -31,14 +31,16 @@ namespace SteamMobile
         public string UserType;
         public string Sender;
         public string SenderId;
+        public string SenderStyle;
         public bool InGame;
 
-        public ChatLine(long date, string chat, string userType, string sender, string senderId, string content, bool inGame)
+        public ChatLine(long date, string chat, string userType, string sender, string senderId, string senderStyle, string content, bool inGame)
             : base(date, chat, content)
         {
             UserType = Util.HtmlEncode(userType);
             Sender = Util.HtmlEncode(sender);
             SenderId = senderId;
+            SenderStyle = senderStyle;
             InGame = inGame;
         }
     }
