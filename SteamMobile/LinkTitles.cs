@@ -56,14 +56,10 @@ namespace SteamMobile
                     var name = track["name"].ToObject<string>();
                     var artist = track["artists"].First["name"].ToObject<string>();
                     var length = track["length"].ToObject<double>();
-                    var popularity = track["popularity"].ToObject<string>();
 
                     var formattedlength = FormatTime(TimeSpan.FromSeconds(length));
 
-                    var numStars = (int)Math.Round(Convert.ToDouble(popularity) / 0.2);
-                    var stars = new string('★', numStars).PadRight(5, '☆');
-
-                    var chatResponse = string.Format("{0} - {1} ({2}) [{3}]", name, artist, formattedlength, stars);
+                    var chatResponse = string.Format("{0} - {1} ({2})", name, artist, formattedlength);
 
                     var ytName = HttpUtility.UrlEncode(name);
                     var ytArtist = HttpUtility.UrlEncode(artist);

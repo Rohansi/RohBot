@@ -12,7 +12,7 @@ namespace SteamMobile.Commands
             if (!target.IsSteam || target.SteamId != Program.Settings.Admin || parameters.Length < 1)
                 return;
 
-            Program.RoomManager.Broadcast("[Broadcast] " + parameters[0]);
+            Program.RoomManager.Broadcast("Broadcast: " + parameters[0]);
         }
     }
 }
