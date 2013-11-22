@@ -295,7 +295,8 @@ div.container > #footer {
   color: #a0cc67; }
 
 .rohBot {
-  color: #b67fff; }
+  color: #b67fff;
+  line-height: 15px; }
 
 @-moz-document url-prefix() {
   .flex-container {
@@ -367,27 +368,33 @@ div.container > #footer {
   text-shadow: 0 0 0.5em white; }
 
 .rohBot.hacker {
-  color: #0F0;
+  color: #0B0;
   font-family: monospace; }
 
-.rohBot.hitler:before {
-  content: "卐 ";
+.rohBot.hitler:before, .rohBot.hitler:after {
+  content: "卐";
   -webkit-transform: rotate(45deg);
   transform: rotate(45deg);
-  font-size: small;
-  display: inline-block; }
+  display: inline-block;
+  font-size: small; }
+
+.rohBot.hitler:before {
+  margin-right: 3px; }
 
 .rohBot.hitler:after {
-  content: " 卐";
-  -webkit-transform: rotate(-45deg);
-  transform: rotate(-45deg);
-  font-size: small;
-  display: inline-block; }
+  margin-left: 3px; }
 
 .rohBot.upsidedown {
   -webkit-transform: rotate(-180deg);
   transform: rotate(-180deg);
   display: inline-block; }
+
+.rohBot.blur {
+  color: transparent;
+  text-shadow: 0 0 0.5em #b67fff, 0 0 0.25em #b67fff, 0 0 0.1em #8a33ff; }
+
+.rohBot.red {
+  color: #dc2832; }
 
 .rohBot.rainbow {
   /* webkit only :( */

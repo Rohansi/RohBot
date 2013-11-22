@@ -14,15 +14,16 @@ namespace SteamMobile.Commands
 
         public override void Handle(CommandTarget target, string[] parameters)
         {
+            if (!target.IsRoom && !target.IsPrivateChat)
+            {
+                target.Send("RohBot is not in this room.");
+                return;
+            }
+
             if (target.IsSession)
             {
                 var roomName = target.Session.Room;
-                var room = Program.RoomManager.Get(roomName);
-                if (room == null)
-                {
-                    target.Send("RohBot is not in this room.");
-                    return;
-                }
+                var room = target.Room;
 
                 var steamRoom = room as SteamRoom;
                 var userList = new Packets.UserList();
@@ -51,7 +52,7 @@ namespace SteamMobile.Commands
                 userList.Users = userList.Users.OrderBy(u => u.Name).ToList();
                 target.Session.Send(userList);
             }
-            else if (target.IsRoom)
+            else
             {
                 var roomName = target.Room.RoomInfo.ShortName;
                 var sessions = Program.SessionManager.List.Where(s => s.Account != null).ToList();

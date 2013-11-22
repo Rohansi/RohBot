@@ -348,6 +348,7 @@ div.container > #footer {
 
 .rohBot {
 	color: $colWeb;
+	line-height: 15px;
 }
 
 @-moz-document url-prefix() {
@@ -422,8 +423,6 @@ $ulPadding: 4px;
 }
 
 /* Name Styles */
-
-
 .rohBot.heart:after {
 	content: ' ❤';
 	color: #FF69B4;
@@ -447,29 +446,37 @@ $ulPadding: 4px;
 }
 
 .rohBot.hacker {
-	color: #0F0;
+	color: #0B0;
 	font-family: monospace;
 }
 
-.rohBot.hitler:before {
-    content: "卐 ";
+.rohBot.hitler:before, .rohBot.hitler:after {
+    content: "卐";
     -webkit-transform: rotate(45deg);
     transform: rotate(45deg);
-	font-size: small;
     display: inline-block;
+    font-size: small;
+}
+.rohBot.hitler:before {
+    margin-right: 3px;
 }
 .rohBot.hitler:after {
-    content: " 卐";
-    -webkit-transform: rotate(-45deg);
-    transform: rotate(-45deg);
-	font-size: small;
-    display: inline-block;
+    margin-left: 3px;
 }
 
 .rohBot.upsidedown {
 	-webkit-transform: rotate(-180deg);
     transform: rotate(-180deg);
 	display: inline-block;
+}
+
+.rohBot.blur {
+	color: transparent;
+	text-shadow: 0 0 0.5em $colWeb, 0 0 0.25em $colWeb, 0 0 0.1em darken($colWeb, 15);
+}
+
+.rohBot.red {
+	color: rgb(220, 40, 50);
 }
 
 .rohBot.rainbow { /* webkit only :( */
