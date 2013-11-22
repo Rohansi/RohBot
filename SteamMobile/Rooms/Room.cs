@@ -87,7 +87,7 @@ namespace SteamMobile.Rooms
         /// <summary>
         /// Called when a message is beign sent to the room. Should call base.
         /// </summary>
-        public virtual void Send(HistoryLine line)
+        public virtual void SendLine(HistoryLine line)
         {
             var chatLine = line as ChatLine;
             if (chatLine != null && _showLinkTitles && chatLine.SenderId != "0")
@@ -113,7 +113,7 @@ namespace SteamMobile.Rooms
         public virtual void Send(string str)
         {
             var line = new ChatLine(Util.GetCurrentUnixTimestamp(), RoomInfo.ShortName, "Steam", Program.Settings.PersonaName, "0", "", str, false);
-            Send(line);
+            SendLine(line);
         }
 
         /// <summary>

@@ -71,7 +71,7 @@ namespace SteamMobile.Packets
             var userId = session.Account.Id.ToString();
             var userStyle = session.Account.EnabledStyle;
             var line = new ChatLine(Util.GetCurrentUnixTimestamp(), roomName, "RohBot", userName, userId, userStyle, Content, false);
-            room.Send(line);
+            room.SendLine(line);
         }
     }
 }

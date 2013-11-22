@@ -16,7 +16,7 @@ namespace SteamMobile.Rooms
 
         }
 
-        public override void Send(HistoryLine line)
+        public override void SendLine(HistoryLine line)
         {
             var chatLine = line as ChatLine;
             if (chatLine != null && Chat != null && chatLine.UserType == "RohBot")
@@ -24,7 +24,7 @@ namespace SteamMobile.Rooms
                 Chat.Send(string.Format("[{0}] {1}", WebUtility.HtmlDecode(chatLine.Sender), WebUtility.HtmlDecode(chatLine.Content)));
             }
 
-            base.Send(line);
+            base.SendLine(line);
         }
 
         public override void Send(string str)
@@ -122,7 +122,7 @@ namespace SteamMobile.Rooms
             var inGame = messageSender.Playing != null && messageSender.Playing.ToUInt64() != 0;
 
             var line = new ChatLine(Util.GetCurrentUnixTimestamp(), RoomInfo.ShortName, "Steam", senderName, senderId, "", message, inGame);
-            Send(line);
+            SendLine(line);
 
             Command.Handle(new CommandTarget(this, messageSender.Id), message, "~");
         }
@@ -132,7 +132,7 @@ namespace SteamMobile.Rooms
             var message = user.Name + " entered chat.";
 
             var line = new StateLine(Util.GetCurrentUnixTimestamp(), RoomInfo.ShortName, "Enter", user.Name, user.Id.ConvertToUInt64().ToString("D"), "", "0", message);
-            Send(line);
+            SendLine(line);
         }
 
         private void HandleLeave(Chat sender, Persona user, ChatLeaveReason reason, Persona sourceUser)
@@ -158,7 +158,7 @@ namespace SteamMobile.Rooms
             var byId = sourceUser != null ? sourceUser.Id.ConvertToUInt64().ToString("D") : "0";
 
             var line = new StateLine(Util.GetCurrentUnixTimestamp(), RoomInfo.ShortName, reason.ToString(), user.Name, user.Id.ConvertToUInt64().ToString("D"), by, byId, message);
-            Send(line);
+            SendLine(line);
         }
     }
 }
