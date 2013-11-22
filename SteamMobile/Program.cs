@@ -37,7 +37,7 @@ namespace SteamMobile
             Steam = new Steam();
 
             _taskScheduler = new TaskScheduler();
-            _taskScheduler.Add(TimeSpan.FromSeconds(0.1), () =>
+            _taskScheduler.Add(TimeSpan.FromSeconds(0.5), () =>
             {
                 SessionManager.Update();
                 RoomManager.Update();

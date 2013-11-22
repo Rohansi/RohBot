@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System;
+using System.Diagnostics;
+using System.Net;
 using EzSteam;
 using SteamMobile.Packets;
 
@@ -9,11 +11,12 @@ namespace SteamMobile.Rooms
         public Chat Chat { get; private set; }
 
         private bool _hasConnected;
+        private Stopwatch _lastMessage;
 
         public SteamRoom(RoomInfo roomInfo)
             : base(roomInfo)
         {
-
+            _lastMessage = Stopwatch.StartNew();
         }
 
         public override void SendLine(HistoryLine line)
@@ -67,17 +70,21 @@ namespace SteamMobile.Rooms
             if (!IsActive)
             {
                 if (Chat != null)
-                {
                     Chat.Leave(ChatLeaveReason.Left);
-                    Chat = null;
-                }
 
+                return;
+            }
+
+            if (Chat != null && _lastMessage.Elapsed >= TimeSpan.FromMinutes(30))
+            {
+                _lastMessage.Restart();
+                Chat.Leave(ChatLeaveReason.Disconnected);
                 return;
             }
 
             if (Program.Steam.Status != Steam.ConnectionStatus.Connected || Chat != null)
                 return;
-
+            
             _hasConnected = false;
             Chat = Program.Steam.Bot.Join(ulong.Parse(RoomInfo["SteamId"]));
 
@@ -117,6 +124,8 @@ namespace SteamMobile.Rooms
 
         private void HandleMessage(Chat sender, Persona messageSender, string message)
         {
+            _lastMessage.Restart();
+
             var senderName = messageSender.Name;
             var senderId = messageSender.Id.ConvertToUInt64().ToString("D");
             var inGame = messageSender.Playing != null && messageSender.Playing.ToUInt64() != 0;
@@ -129,6 +138,8 @@ namespace SteamMobile.Rooms
 
         private void HandleEnter(Chat sender, Persona user)
         {
+            _lastMessage.Restart();
+
             var message = user.Name + " entered chat.";
 
             var line = new StateLine(Util.GetCurrentUnixTimestamp(), RoomInfo.ShortName, "Enter", user.Name, user.Id.ConvertToUInt64().ToString("D"), "", "0", message);
@@ -137,6 +148,8 @@ namespace SteamMobile.Rooms
 
         private void HandleLeave(Chat sender, Persona user, ChatLeaveReason reason, Persona sourceUser)
         {
+            _lastMessage.Restart();
+
             var message = user.Name;
             switch (reason)
             {
