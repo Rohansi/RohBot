@@ -15,6 +15,15 @@ namespace SteamMobile.Rooms
         public bool IsPlaying { get; private set; }
         public bool IsDay { get; private set; }
 
+        public List<Player> Players
+        {
+            get
+            {
+                lock (_players)
+                    return _players.Values.ToList();
+            }
+        }
+
         public MafiaRoom(RoomInfo roomInfo)
             : base(roomInfo)
         {
