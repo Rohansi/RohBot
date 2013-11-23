@@ -3,7 +3,7 @@ SteamMobile
 Steam web interface for group chats.
 
 Commands
-----------
+--------------
 Commands must be prefixed with the tilde character (~) to work. The website also allows a forward slash (/) to be used instead.
 
 ### room ###
@@ -30,13 +30,24 @@ Bans an account from the room. Can only be used by moderators. `/ban stan` will 
 Unbans an account from the room. Can only be used by moderators. `/unban stan` will unban Stan from the room.
 
 ### mod ###
-Makes an account a room moderator. Can only be used by the room administrators.
+Promotes an account to moderator. Can only be used by administrators.
 
 ### demod ###
-Removes room moderator status from an account. Can only be used by the room administrators.
+Demotes an account from moderator. Can only be used by administrators.
 
 ### modded ###
 Displays a list of modded accounts for the room.
 
 ### sessions ###
-Display a list of accounts that are logged in.
+Displays a list of accounts that are logged in.
+
+Permissions
+-------------
+Permissions are unique to rooms.
+
+| Name            | Description                                                        |
+|-----------------|--------------------------------------------------------------------|
+| Super Admin     | Global permission to everything. The person running the bot.       |
+| Administrator   | Administrator for the room. Gold star or super admin's choice.     |
+| Moderator       | Moderator for the room. Any star or admin's choice.                |
+
