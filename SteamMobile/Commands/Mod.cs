@@ -1,15 +1,15 @@
 ﻿
 namespace SteamMobile.Commands
 {
-    public class Unban : Command
+    public class Mod : Command
     {
-        public override string Type { get { return "unban"; } }
+        public override string Type { get { return "mod"; } }
 
         public override string Format { get { return "]"; } }
 
         public override void Handle(CommandTarget target, string[] parameters)
         {
-            if (!target.IsRoom || !Util.IsMod(target) || parameters.Length == 0)
+            if (!target.IsRoom || !Util.IsAdmin(target) || parameters.Length == 0)
                 return;
 
             if (!Util.IsValidUsername(parameters[0]))
@@ -24,12 +24,8 @@ namespace SteamMobile.Commands
                 return;
             }
 
-            if (!target.Room.IsWhitelisted)
-                target.Room.Unban(parameters[0]);
-            else
-                target.Room.Ban(parameters[0]);
-
-            target.Send("Account unbanned.");
+            target.Room.Mod(parameters[0]);
+            target.Send("Account modded.");
         }
     }
 }

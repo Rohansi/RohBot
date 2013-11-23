@@ -9,7 +9,7 @@ namespace SteamMobile.Commands
 
         public override void Handle(CommandTarget target, string[] parameters)
         {
-            if (!target.IsSteam || target.SteamId != Program.Settings.Admin || parameters.Length < 1)
+            if (!Util.IsSuperAdmin(target) || parameters.Length < 1)
                 return;
 
             Program.RoomManager.Broadcast("Broadcast: " + parameters[0]);

@@ -11,6 +11,7 @@ namespace SteamMobile.Rooms
         public readonly string Type;
         public readonly string Name;
         public readonly string ShortName;
+        public readonly string Admin;
 
         public string this[string key]
         {
@@ -29,16 +30,19 @@ namespace SteamMobile.Rooms
             Type = properties["Type"];
             Name = properties["Name"];
             ShortName = properties["ShortName"];
+            Admin = properties["Admin"];
 
             _properties = properties;
         }
     }
 
+    // TODO: rename to something more relevant
     public class RoomBans
     {
         public ObjectId Id;
         public string Room;
         public HashSet<string> Bans;
+        public HashSet<string> Mods;
     }
 
     public class Room
@@ -46,6 +50,7 @@ namespace SteamMobile.Rooms
         public readonly RoomInfo RoomInfo;
         public bool IsActive { get; private set; }
         public readonly bool IsWhitelisted;
+        public readonly bool IsHidden;
 
         /// <summary>
         /// If not null, commands used in this room will potentially resolve to commands that use the prefix.
@@ -67,7 +72,8 @@ namespace SteamMobile.Rooms
                 _bans = new RoomBans
                 {
                     Room = RoomInfo.ShortName,
-                    Bans = new HashSet<string>()
+                    Bans = new HashSet<string>(),
+                    Mods = new HashSet<string>()
                 };
                 Database.RoomBans.Insert(_bans);
             }
@@ -82,6 +88,7 @@ namespace SteamMobile.Rooms
 
             _showLinkTitles = (roomInfo["LinkTitles"] ?? "").ToLower() == "true";
             IsWhitelisted = (roomInfo["Whitelist"] ?? "").ToLower() == "true";
+            IsHidden = (roomInfo["Hidden"] ?? "").ToLower() == "true";
         }
 
         /// <summary>
@@ -150,7 +157,7 @@ namespace SteamMobile.Rooms
             }
         } 
 
-        public void Ban(string name)
+        public virtual void Ban(string name)
         {
             lock (_bans)
             {
@@ -173,6 +180,44 @@ namespace SteamMobile.Rooms
             lock (_bans)
             {
                 return IsWhitelisted ^ _bans.Bans.Contains(name.ToLower());
+            }
+        }
+
+        public List<string> Modded
+        {
+            get
+            {
+                lock (_bans)
+                    return _bans.Mods.ToList();
+            }
+        } 
+
+        public void Mod(string name)
+        {
+            lock (_bans)
+            {
+                _bans.Mods.Add(name.ToLower());
+                Database.RoomBans.Save(_bans);
+            }
+        }
+
+        public void Demod(string name)
+        {
+            lock (_bans)
+            {
+                _bans.Mods.Remove(name.ToLower());
+                Database.RoomBans.Save(_bans);
+            }
+        }
+
+        public bool IsMod(string name)
+        {
+            name = name.ToLower();
+            var banned = IsBanned(name);
+
+            lock (_bans)
+            {
+                return (!banned && _bans.Mods.Contains(name.ToLower())) || name == RoomInfo.Admin.ToLower();
             }
         }
 

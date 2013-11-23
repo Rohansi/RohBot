@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using EzSteam;
-using SteamMobile.Rooms;
-
+﻿
 namespace SteamMobile.Commands
 {
     public class Ban : Command
@@ -12,23 +9,18 @@ namespace SteamMobile.Commands
 
         public override void Handle(CommandTarget target, string[] parameters)
         {
-            if (!target.IsRoom || parameters.Length == 0)
-                return;
-
-            var hasPermission = false;
-            var room = target.Room as SteamRoom;
-            if (room != null)
-            {
-                var member = room.Chat.Group.Members.FirstOrDefault(m => m.Id == target.SteamId);
-                hasPermission = member != null && (member.Rank == ClanRank.Owner || member.Rank == ClanRank.Officer || member.Rank == ClanRank.Moderator);
-            }
-
-            if (!hasPermission)
+            if (!target.IsRoom || !Util.IsMod(target) || parameters.Length == 0)
                 return;
 
             if (!Util.IsValidUsername(parameters[0]))
             {
                 target.Send("Invalid username.");
+                return;
+            }
+
+            if (!Account.Exists(parameters[0]))
+            {
+                target.Send("Account does not exist.");
                 return;
             }
             

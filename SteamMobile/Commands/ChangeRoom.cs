@@ -1,4 +1,5 @@
-﻿
+﻿using System.Linq;
+
 namespace SteamMobile.Commands
 {
     public class ChangeRoom : Command
@@ -50,7 +51,8 @@ namespace SteamMobile.Commands
 
                 case "list":
                     {
-                        target.Send("Available rooms: " + string.Join(", ", Program.RoomManager.Names));
+                        var roomNames = Program.RoomManager.List.Where(r => !r.IsHidden).Select(r => r.RoomInfo.ShortName);
+                        target.Send("Available rooms: " + string.Join(", ", roomNames));
                         break;
                     }
 

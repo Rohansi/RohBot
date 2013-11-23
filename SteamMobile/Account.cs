@@ -25,6 +25,11 @@ namespace SteamMobile
             return Database.Accounts.AsQueryable().FirstOrDefault(a => a.NameLower == username);
         }
 
+        public static bool Exists(string username)
+        {
+            return Get(username) != null;
+        }
+
         public class Comparer : IEqualityComparer<Account>
         {
             public bool Equals(Account x, Account y)

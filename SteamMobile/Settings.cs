@@ -10,7 +10,9 @@ namespace SteamMobile
         public string Password;
         public string PersonaName;
         public string Host;
-        public ulong Admin;
+
+        public ulong SuperAdminSteam;
+        public string SuperAdmin;
 
         public string DbServer;
         public string DbName;

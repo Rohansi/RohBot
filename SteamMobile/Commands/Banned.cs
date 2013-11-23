@@ -1,4 +1,5 @@
-﻿
+﻿using System.Linq;
+
 namespace SteamMobile.Commands
 {
     public class Banned : Command
@@ -9,10 +10,11 @@ namespace SteamMobile.Commands
 
         public override void Handle(CommandTarget target, string[] parameters)
         {
-            if (target.Room == null)
+            if (!target.IsRoom)
                 return;
 
             var banned = target.Room.Banned;
+            banned = banned.OrderBy(s => s).ToList();
 
             if (banned.Count == 0)
             {

@@ -3,11 +3,107 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using EzSteam;
+using SteamKit2;
+using SteamMobile.Rooms;
 
 namespace SteamMobile
 {
     public static class Util
     {
+        #region Permissions
+        public static bool IsSuperAdmin(string username)
+        {
+            username = username.ToLower();
+            return username == Program.Settings.SuperAdmin;
+        }
+
+        public static bool IsSuperAdmin(SteamID steamId)
+        {
+            return steamId == Program.Settings.SuperAdminSteam;
+        }
+
+        public static bool IsSuperAdmin(CommandTarget target)
+        {
+            if (target.IsSteam)
+                return IsSuperAdmin(target.SteamId);
+            if (target.IsSession && target.Session.Account != null)
+                return IsSuperAdmin(target.Session.Account.Name);
+            return false;
+        }
+
+        public static bool IsAdmin(Room room, string username)
+        {
+            username = username.ToLower();
+            if (IsSuperAdmin(username))
+                return true;
+            return username == room.RoomInfo.Admin.ToLower();
+        }
+
+        public static bool IsAdmin(Room room, SteamID steamId)
+        {
+            if (IsSuperAdmin(steamId))
+                return true;
+
+            var steamRoom = room as SteamRoom;
+            if (steamRoom != null)
+            {
+                var member = steamRoom.Chat.Group.Members.FirstOrDefault(m => m.Id == steamId);
+                return member != null && (member.Rank == ClanRank.Owner || member.Rank == ClanRank.Officer);
+            }
+
+            return false;
+        }
+
+        public static bool IsAdmin(CommandTarget target)
+        {
+            if (!target.IsRoom)
+                return false;
+
+            if (target.IsSteam)
+                return IsAdmin(target.Room, target.SteamId);
+            if (target.IsSession && target.Session.Account != null)
+                return IsAdmin(target.Room, target.Session.Account.Name);
+            return false;
+        }
+
+        public static bool IsMod(Room room, string username)
+        {
+            username = username.ToLower();
+            if (IsAdmin(room, username))
+                return true;
+
+            return room.IsMod(username);
+        }
+
+        public static bool IsMod(Room room, SteamID steamId)
+        {
+            if (IsSuperAdmin(steamId))
+                return true;
+
+            var steamRoom = room as SteamRoom;
+            if (steamRoom != null)
+            {
+                var member = steamRoom.Chat.Group.Members.FirstOrDefault(m => m.Id == steamId);
+                return member != null && (member.Rank == ClanRank.Owner || member.Rank == ClanRank.Officer || member.Rank == ClanRank.Moderator);
+            }
+
+            return false;
+        }
+
+        public static bool IsMod(CommandTarget target)
+        {
+            if (!target.IsRoom)
+                return false;
+
+            if (target.IsSteam)
+                return IsMod(target.Room, target.SteamId);
+            if (target.IsSession && target.Session.Account != null)
+                return IsMod(target.Room, target.Session.Account.Name);
+            return false;
+        }
+        #endregion
+
         #region Authentication
         public static byte[] HashPassword(string password, byte[] salt)
         {

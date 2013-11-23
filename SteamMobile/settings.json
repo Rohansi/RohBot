@@ -3,8 +3,10 @@
     "Password": "",
     "PersonaName": "~",
     "Host": "http://localhost/",
-    "Admin": 76561198002164049,
-    
+
+    "SuperAdminSteam": 76561198002164049,
+    "SuperAdmin": "Rohan",
+
     "DbServer": "127.0.0.1",
     "DbName": "rohbot",
     "DbUser": "server",
@@ -16,6 +18,7 @@
             "Type": "SteamRoom",
             "Name": "FP Programmers",
             "ShortName": "fpp",
+            "Admin": "Rohan",
             "LinkTitles": "true",
             "SteamId": "103582791434244897"
         }

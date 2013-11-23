@@ -9,7 +9,7 @@ namespace SteamMobile.Commands
 
         public override void Handle(CommandTarget target, string[] parameters)
         {
-            if (!target.IsSteam || target.SteamId != Program.Settings.Admin)
+            if (!Util.IsSuperAdmin(target))
                 return;
 
             Program.LoadSettings();

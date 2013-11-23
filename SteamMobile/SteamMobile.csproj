@@ -81,8 +81,11 @@
     <Compile Include="Commands\Broadcast.cs" />
     <Compile Include="Commands\ChangeRoom.cs" />
     <Compile Include="Commands\Ban.cs" />
+    <Compile Include="Commands\Demod.cs" />
     <Compile Include="Commands\FixSteam.cs" />
     <Compile Include="Commands\Me.cs" />
+    <Compile Include="Commands\Mod.cs" />
+    <Compile Include="Commands\Modded.cs" />
     <Compile Include="Commands\Reboot.cs" />
     <Compile Include="Commands\Reload.cs" />
     <Compile Include="Commands\Sessions.cs" />
