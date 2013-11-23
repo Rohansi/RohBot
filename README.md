@@ -9,13 +9,13 @@ Commands must be prefixed with the tilde character (~) to work. The website also
 ### room ###
 Allows you to switch between rooms on the website.
 - `/room` display which room you are in
-- `/room fpp` switch to room fpp
+- `/room fp` switch to room fp
 - `/room default` switch to your default room
-- `/room default fpp` set your default room to fpp and switch to it
+- `/room default fp` set your default room to fp and switch to it
 - `/room list` show a list of available rooms
 
 ### users ###
-Display a list of users in the room. Only works on the website.
+Display a list of users in the room.
 
 ### me ###
 Does exactly what you think it does. `/me bites Brian.` will send `YourName bites Brian.` to the current room.
@@ -24,10 +24,19 @@ Does exactly what you think it does. `/me bites Brian.` will send `YourName bite
 Display a list of accounts that are banned from the current room.
 
 ### ban ###
-Bans an account from the room. Can only be used by Steam accounts with a star. `/ban stan` will ban Stan from the room.
+Bans an account from the room. Can only be used by moderators. `/ban stan` will ban Stan from the room.
 
 ### unban ###
-Unbans an account from the room. Can only be used by Steam accounts with a star. `/unban stan` will unban Stan from the room.
+Unbans an account from the room. Can only be used by moderators. `/unban stan` will unban Stan from the room.
+
+### mod ###
+Makes an account a room moderator. Can only be used by the room administrators.
+
+### demod ###
+Removes room moderator status from an account. Can only be used by the room administrators.
+
+### modded ###
+Displays a list of modded accounts for the room.
 
 ### sessions ###
-Display a list of web accounts that are logged in.
+Display a list of accounts that are logged in.

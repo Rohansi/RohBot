@@ -14,7 +14,7 @@ namespace SteamMobile.Commands
                 return;
 
             var modded = target.Room.Modded;
-            modded.Add(target.Room.RoomInfo.Admin);
+            modded.Add(target.Room.RoomInfo.Admin.ToLower());
             modded = modded.OrderBy(n => n).ToList();
 
             target.Send(string.Format("Mods for this room: {0}", string.Join(", ", modded)));
