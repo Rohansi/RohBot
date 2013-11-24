@@ -131,7 +131,7 @@
 				};
 				
 				rohbot.onUserList = function(users) {
-					addRohBotMessage({ Type: "state", Date: getCurrentTime(), Content: "Currently in Chat:" });
+					addRohBotMessage({ Type: "state", Date: getCurrentTime(), Content: "In this room:" });
 					var html = '<div class="userList">';
 					for (var i = 0; i < users.length; i++) {
 						var user = users[i];

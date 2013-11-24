@@ -325,6 +325,7 @@ div.container > #footer {
 }
 
 #chat > * {
+	line-height: 18px;
 	font-size: 15px;
 	color: $colText;
 }
@@ -348,7 +349,6 @@ div.container > #footer {
 
 .rohBot {
 	color: $colWeb;
-	line-height: 16px;
 }
 
 @-moz-document url-prefix() {
@@ -446,6 +446,7 @@ $ulPadding: 4px;
 }
 
 .rohBot.hacker {
+	font-size: 16px;
 	color: #0B0;
 	font-family: monospace;
 }
@@ -477,6 +478,16 @@ $ulPadding: 4px;
 
 .rohBot.red {
 	color: rgb(220, 40, 50);
+}
+
+.rohBot.hot {
+	font-weight: bold;
+	color: #FF69B4;
+}
+
+.rohBot.orangepeel {
+	font-weight: bold;
+	color: #DD4814;
 }
 
 .rohBot.rainbow { /* webkit only :( */

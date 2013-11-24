@@ -274,6 +274,7 @@ div.container > #footer {
   div.container > #header h1 {
     display: none; } }
 #chat > * {
+  line-height: 18px;
   font-size: 15px;
   color: #d1cfcd; }
 
@@ -295,8 +296,7 @@ div.container > #footer {
   color: #a0cc67; }
 
 .rohBot {
-  color: #b67fff;
-  line-height: 16px; }
+  color: #b67fff; }
 
 @-moz-document url-prefix() {
   .flex-container {
@@ -368,6 +368,7 @@ div.container > #footer {
   text-shadow: 0 0 0.5em white; }
 
 .rohBot.hacker {
+  font-size: 16px;
   color: #0B0;
   font-family: monospace; }
 
@@ -395,6 +396,14 @@ div.container > #footer {
 
 .rohBot.red {
   color: #dc2832; }
+
+.rohBot.hot {
+  font-weight: bold;
+  color: #FF69B4; }
+
+.rohBot.orangepeel {
+  font-weight: bold;
+  color: #DD4814; }
 
 .rohBot.rainbow {
   /* webkit only :( */
