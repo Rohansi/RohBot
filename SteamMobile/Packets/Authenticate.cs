@@ -16,20 +16,18 @@ namespace SteamMobile.Packets
 
         public override void Handle(Session session)
         {
-            var passwordHash = Password != null ? Password.GetHashCode() : 0;
-
             switch (Method)
             {
                 case "login":
                     if (Program.DelayManager.AddAndCheck(session, 10))
                         break;
-                    Program.Logger.InfoFormat("Login '{1}' from {0}, password={2}", session.Address, Username, passwordHash);
+                    Program.Logger.InfoFormat("Login '{1}' from {0}", session.Address, Username);
                     session.Login(Username, Password, (Tokens ?? "").Split(',').ToList());
                     break;
                 case "register":
-                    if (Program.DelayManager.AddAndCheck(session, 50))
+                    if (Program.DelayManager.AddAndCheck(session, 10))
                         break;
-                    Program.Logger.InfoFormat("Register '{1}' from {0}, password={2}", session.Address, Username, passwordHash);
+                    Program.Logger.InfoFormat("Register '{1}' from {0}", session.Address, Username);
                     session.Register(Username, Password);
                     break;
             }

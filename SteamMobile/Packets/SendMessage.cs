@@ -53,7 +53,7 @@ namespace SteamMobile.Packets
                 return;
             }
 
-            if (Program.DelayManager.AddAndCheck(session, 0.1))
+            if (Program.DelayManager.AddAndCheck(session, 1))
                 return;
 
             if (Content.StartsWith("//") || Content.StartsWith("~~"))
