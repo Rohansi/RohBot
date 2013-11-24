@@ -46,7 +46,8 @@ namespace SteamMobile.Commands
                 foreach (var account in accounts)
                 {
                     var userId = account.Id.ToString();
-                    userList.AddUser(account.Name, userId, "Member", "", "", true);
+                    var rank = Util.GetRank(target.Room, account.Name).ToString();
+                    userList.AddUser(account.Name, userId, rank, "", "", true);
                 }
 
                 userList.Users = userList.Users.OrderBy(u => u.Name).ToList();

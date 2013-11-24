@@ -15,7 +15,7 @@ namespace SteamMobile
         public static bool IsSuperAdmin(string username)
         {
             username = username.ToLower();
-            return username == Program.Settings.SuperAdmin;
+            return username == Program.Settings.SuperAdmin.ToLower();
         }
 
         public static bool IsSuperAdmin(SteamID steamId)
@@ -101,6 +101,17 @@ namespace SteamMobile
             if (target.IsSession && target.Session.Account != null)
                 return IsMod(target.Room, target.Session.Account.Name);
             return false;
+        }
+
+        public static ClanRank GetRank(Room room, string username)
+        {
+            if (IsAdmin(room, username))
+                return ClanRank.Officer;
+            if (IsMod(room, username))
+                return ClanRank.Moderator;
+            if (room.IsBanned(username))
+                return ClanRank.Guest;
+            return ClanRank.Member;
         }
         #endregion
 

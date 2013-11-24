@@ -77,6 +77,7 @@ namespace SteamMobile.Rooms
 
             if (Chat != null && _lastMessage.Elapsed >= TimeSpan.FromMinutes(30))
             {
+                Program.Logger.Info("Rejoining " + RoomInfo.ShortName);
                 _lastMessage.Restart();
                 Chat.Leave(ChatLeaveReason.Disconnected);
                 return;
