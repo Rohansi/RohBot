@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SuperSocket.SocketBase;
 using SuperWebSocket;
 
 namespace SteamMobile

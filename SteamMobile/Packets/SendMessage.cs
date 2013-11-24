@@ -26,39 +26,6 @@ namespace SteamMobile.Packets
             if (Content.Length == 0)
                 return;
 
-            if (!Content.StartsWith("//") && Command.Handle(new CommandTarget(session), Content))
-                return;
-
-            if (!Content.StartsWith("~~") && Command.Handle(new CommandTarget(session), Content, "~"))
-                return;
-
-            Room room = Program.RoomManager.Get(session.Room);
-            if (room == null)
-            {
-                session.Send(new SysMessage
-                {
-                    Date = Util.GetCurrentUnixTimestamp(),
-                    Content = "RohBot is not in this room."
-                });
-                return;
-            }
-
-            if (room.IsBanned(session.Account.Name))
-            {
-                session.Send(new SysMessage
-                {
-                    Date = Util.GetCurrentUnixTimestamp(),
-                    Content = "You are banned from this room."
-                });
-                return;
-            }
-
-            if (Program.DelayManager.AddAndCheck(session, 1))
-                return;
-
-            if (Content.StartsWith("//") || Content.StartsWith("~~"))
-                Content = Content.Substring(1);
-
             // can't send emoticons from web
             Content = Content.Replace('ː', ':');
 
@@ -66,12 +33,28 @@ namespace SteamMobile.Packets
             if (Content.Length > 2000)
                 Content = Content.Substring(0, 2000) + "...";
 
-            var roomName = room.RoomInfo.ShortName;
-            var userName = session.Account.Name;
-            var userId = session.Account.Id.ToString();
-            var userStyle = session.Account.EnabledStyle;
-            var line = new ChatLine(Util.GetCurrentUnixTimestamp(), roomName, "RohBot", userName, userId, userStyle, Content, false);
-            room.SendLine(line);
+            Room room = Program.RoomManager.Get(session.Room);
+            if (room == null)
+            {
+                if (Command.Handle(new CommandTarget(session), Content, "/"))
+                    return;
+
+                if (Command.Handle(new CommandTarget(session), Content, "~"))
+                    return;
+
+                session.Send(new SysMessage
+                {
+                    Date = Util.GetCurrentUnixTimestamp(),
+                    Content = "RohBot is not in this room."
+                });
+
+                return;
+            }
+
+            if (Program.DelayManager.AddAndCheck(session, 1))
+                return;
+
+            room.OnSendMessage(session, Content);
         }
     }
 }

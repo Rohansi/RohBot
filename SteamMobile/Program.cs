@@ -68,7 +68,15 @@ namespace SteamMobile
 
         public static void LoadSettings()
         {
-            Settings = Settings.Load("settings.json");
+            try
+            {
+                var newSettings = Settings.Load("settings.json");
+                Settings = newSettings;
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Failed to load settings", e);
+            }
         }
     }
 }

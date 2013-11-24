@@ -5,7 +5,8 @@ namespace SteamMobile.Commands
     {
         public override string Type { get { return "reload"; } }
 
-        public override string Format { get { return ""; } }
+        // up to 10 parameters
+        public override string Format { get { return "----------"; } }
 
         public override void Handle(CommandTarget target, string[] parameters)
         {
@@ -13,6 +14,12 @@ namespace SteamMobile.Commands
                 return;
 
             Program.LoadSettings();
+
+            foreach (var roomName in parameters)
+            {
+                Program.RoomManager.Get(roomName).Leave();
+            }
+
             target.Send("Done.");
         }
     }

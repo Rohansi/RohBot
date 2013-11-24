@@ -30,7 +30,7 @@ namespace SteamMobile
 
         public string UserType;
         public string Sender;
-        public string SenderId;
+        public string SenderId;     // TODO: rename Sender out of these
         public string SenderStyle;
         public bool InGame;
 

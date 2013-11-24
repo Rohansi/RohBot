@@ -50,16 +50,31 @@ namespace SteamMobile
                 _rooms.RemoveAll(room => !room.Value.IsActive);
 
                 var settings = Program.Settings;
-                foreach (var room in _rooms.Values.Where(r1 => settings.Rooms.All(r2 => r2["ShortName"] != r1.RoomInfo.ShortName)).ToList())
+
+                try
                 {
-                    room.Leave();
+                    foreach (var room in _rooms.Values.Where(r1 => settings.Rooms.All(r2 => r2["ShortName"] != r1.RoomInfo.ShortName)).ToList())
+                    {
+                        room.Leave();
+                    }
+                }
+                catch (Exception e)
+                {
+                    Program.Logger.Error("Failed to unload rooms", e);
                 }
 
-                foreach (var room in settings.Rooms.Where(r => !_rooms.ContainsKey(r["ShortName"])).ToList())
+                try
                 {
-                    var roomInfo = new RoomInfo(room);
-                    var roomObj = (Room)Activator.CreateInstance(RoomTypes[roomInfo.Type], roomInfo);
-                    _rooms.Add(room["ShortName"], roomObj);
+                    foreach (var room in settings.Rooms.Where(r => !_rooms.ContainsKey(r["ShortName"])).ToList())
+                    {
+                        var roomInfo = new RoomInfo(room);
+                        var roomObj = (Room)Activator.CreateInstance(RoomTypes[roomInfo.Type], roomInfo);
+                        _rooms.Add(room["ShortName"], roomObj);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Program.Logger.Error("Failed to load rooms", e);
                 }
 
                 foreach (var room in _rooms.Values)

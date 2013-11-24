@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq;
+using SteamMobile.Packets;
 
 namespace SteamMobile.Rooms
 {
@@ -23,7 +24,7 @@ namespace SteamMobile.Rooms
             }
         }
 
-        private IDictionary<string, string> _properties; 
+        private IDictionary<string, string> _properties;
 
         public RoomInfo(IDictionary<string, string> properties)
         {
@@ -143,6 +144,38 @@ namespace SteamMobile.Rooms
             }
         }
 
+        /// <summary>
+        /// Called when somebody sends a message. Probably not needed.
+        /// </summary>
+        public virtual void OnSendMessage(Session session, string message)
+        {
+            if (!message.StartsWith("//") && Command.Handle(new CommandTarget(session), message, "/"))
+                return;
+
+            if (!message.StartsWith("~~") && Command.Handle(new CommandTarget(session), message, "~"))
+                return;
+
+            if (message.StartsWith("//") || message.StartsWith("~~"))
+                message = message.Substring(1);
+
+            if (IsBanned(session.Account.Name))
+            {
+                session.Send(new SysMessage
+                {
+                    Date = Util.GetCurrentUnixTimestamp(),
+                    Content = "You are banned from this room."
+                });
+                return;
+            }
+
+            var roomName = RoomInfo.ShortName;
+            var userName = session.Account.Name;
+            var userId = session.Account.Id.ToString();
+            var userStyle = session.Account.EnabledStyle;
+            var line = new ChatLine(Util.GetCurrentUnixTimestamp(), roomName, "RohBot", userName, userId, userStyle, message, false);
+            SendLine(line);
+        }
+
         public virtual void Update()
         {
 
@@ -155,7 +188,7 @@ namespace SteamMobile.Rooms
                 lock (_bans)
                     return _bans.Bans.ToList();
             }
-        } 
+        }
 
         public virtual void Ban(string name)
         {
@@ -190,7 +223,7 @@ namespace SteamMobile.Rooms
                 lock (_bans)
                     return _bans.Mods.ToList();
             }
-        } 
+        }
 
         public void Mod(string name)
         {

@@ -49,7 +49,7 @@ namespace SteamMobile
             }
         }
 
-        public static bool Handle(CommandTarget target, string message, string commandHeader = "/")
+        public static bool Handle(CommandTarget target, string message, string commandHeader)
         {
             if (string.IsNullOrWhiteSpace(message) || !message.StartsWith(commandHeader))
                 return false;
