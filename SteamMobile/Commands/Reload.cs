@@ -6,9 +6,9 @@ namespace SteamMobile.Commands
         public override string Type { get { return "reload"; } }
 
         // up to 10 parameters
-        public override string Format { get { return "----------"; } }
+        public override string Format(string type) { return "----------"; }
 
-        public override void Handle(CommandTarget target, string[] parameters)
+        public override void Handle(CommandTarget target, string type, string[] parameters)
         {
             if (!Util.IsSuperAdmin(target))
                 return;

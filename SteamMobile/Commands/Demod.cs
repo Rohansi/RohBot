@@ -5,9 +5,9 @@ namespace SteamMobile.Commands
     {
         public override string Type { get { return "demod"; } }
 
-        public override string Format { get { return "]"; } }
+        public override string Format(string type) { return "]"; }
 
-        public override void Handle(CommandTarget target, string[] parameters)
+        public override void Handle(CommandTarget target, string type, string[] parameters)
         {
             if (!target.IsRoom || !Util.IsAdmin(target) || parameters.Length == 0)
                 return;

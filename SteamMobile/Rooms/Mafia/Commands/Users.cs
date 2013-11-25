@@ -6,9 +6,9 @@ namespace SteamMobile.Rooms.Mafia.Commands
     {
         public override string Type { get { return "mafia_users"; } }
 
-        public override string Format { get { return ""; } }
+        public override string Format(string type) { return ""; }
 
-        public override void Handle(CommandTarget target, string[] parameters)
+        public override void Handle(CommandTarget target, string type, string[] parameters)
         {
             if (!target.IsSession || !target.IsRoom || !(target.Room is MafiaRoom))
                 return;

@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿
 namespace SteamMobile.Rooms.Mafia.Commands
 {
     public class Join : Command
     {
         public override string Type { get { return "mafia_join"; } }
 
-        public override string Format { get { return "]"; } }
+        public override string Format(string type) { return "]"; }
 
-        public override void Handle(CommandTarget target, string[] parameters)
+        public override void Handle(CommandTarget target, string type, string[] parameters)
         {
             if (!target.IsSession || !target.IsRoom || target.Session.Account == null || !(target.Room is MafiaRoom))
                 return;

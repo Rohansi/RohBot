@@ -54,9 +54,9 @@ namespace SteamMobile.Rooms
         public readonly bool IsHidden;
 
         /// <summary>
-        /// If not null, commands used in this room will potentially resolve to commands that use the prefix.
+        /// If not empty, commands used in this room will potentially resolve to commands that use the prefix.
         /// </summary>
-        public virtual string CommandPrefix { get { return null; } }
+        public virtual string CommandPrefix { get { return ""; } }
 
         private RoomBans _bans;
         private readonly LinkedList<HistoryLine> _history;

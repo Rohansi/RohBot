@@ -5,9 +5,9 @@ namespace SteamMobile.Commands
     {
         public override string Type { get { return "ban"; } }
 
-        public override string Format { get { return "]"; } }
+        public override string Format(string type) { return "]"; }
 
-        public override void Handle(CommandTarget target, string[] parameters)
+        public override void Handle(CommandTarget target, string type, string[] parameters)
         {
             if (!target.IsRoom || !Util.IsMod(target) || parameters.Length == 0)
                 return;

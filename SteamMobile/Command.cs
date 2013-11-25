@@ -14,24 +14,27 @@ namespace SteamMobile
     {
         /// <summary>
         /// The command type. This is the text that identifies a specific command
-        /// and followed the Command Header (such as '/').
+        /// and followed the Command Header (such as '/'). An empty string signifies
+        /// a default command handler. Should ALWAYS be lowercase.
         /// </summary>
         public abstract string Type { get; }
 
         /// <summary>
-        /// Parameter format string. '-' is a short parameter and ']' uses remaining space.
+        /// Return a parameter format string. '-' is a short parameter and ']' uses remaining space.
+        /// Type can be ignored if this is not a default handler.
         /// Examples:
         ///   ""        = No parameters
         ///   "-"       = One short parameter (word or text enclosed in double quotes)
         ///   "]"       = One parameter containing all text after Type
         ///   "--]"     = Two short parameters and one parameter containing the leftovers
         /// </summary>
-        public abstract string Format { get; }
+        public abstract string Format(string type);
 
         /// <summary>
-        /// Called when somebody attempts to use this command.
+        /// Called when somebody uses this command.
+        /// Type can be ignored if this is not a default handler.
         /// </summary>
-        public abstract void Handle(CommandTarget target, string[] parameters);
+        public abstract void Handle(CommandTarget target, string type, string[] parameters);
 
         private static readonly Dictionary<string, Command> Commands;
 
@@ -45,7 +48,7 @@ namespace SteamMobile
             foreach (var type in types)
             {
                 var instance = (Command)Activator.CreateInstance(type);
-                Commands[instance.Type] = instance;
+                Commands.Add(instance.Type, instance);
             }
         }
 
@@ -64,25 +67,19 @@ namespace SteamMobile
                 var reader = new StringReader(commandStr);
                 var type = (ReadWord(reader) ?? "").ToLower();
 
+                // TODO: is there a better way to do this?
                 Command command;
                 if (!target.IsRoom || !Commands.TryGetValue(target.Room.CommandPrefix + type, out command))
-                    Commands.TryGetValue(type, out command);
+                    if (!Commands.TryGetValue(type, out command))
+                        if (!target.IsRoom || !Commands.TryGetValue(target.Room.CommandPrefix, out command))
+                            Commands.TryGetValue("", out command);
 
-                // default handler for non-existing commands
                 if (command == null)
-                {
-                    if (target.IsSession || target.IsPrivateChat)
-                    {
-                        target.Send("Unknown command.");
-                        return true;
-                    }
-
                     return true;
-                }
 
                 var parameters = new List<string>();
 
-                foreach (var p in command.Format)
+                foreach (var p in command.Format(type))
                 {
                     var param = "";
 
@@ -102,7 +99,7 @@ namespace SteamMobile
                     parameters.Add(param);
                 }
 
-                command.Handle(target, parameters.ToArray());
+                command.Handle(target, type, parameters.ToArray());
                 return true;
             }
             catch (Exception e)
