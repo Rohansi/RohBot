@@ -32,17 +32,25 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CSScriptLibrary, Version=3.6.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Libraries\CSScriptLibrary.dll</HintPath>
+    </Reference>
     <Reference Include="EzSteam">
       <HintPath>..\Libraries\EzSteam.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
       <HintPath>..\Libraries\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="MongoDB.Bson">
       <HintPath>..\Libraries\MongoDB.Bson.dll</HintPath>
     </Reference>
     <Reference Include="MongoDB.Driver">
       <HintPath>..\Libraries\MongoDB.Driver.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\Libraries\Mono.CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\Libraries\Newtonsoft.Json.dll</HintPath>
@@ -71,7 +79,6 @@
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
@@ -114,6 +121,11 @@
     <Compile Include="Rooms\Mafia\Player.cs" />
     <Compile Include="Rooms\Room.cs" />
     <Compile Include="RoomManager.cs" />
+    <Compile Include="Rooms\ScriptRoom.cs" />
+    <Compile Include="Rooms\Script\Commands\Default.cs" />
+    <Compile Include="Rooms\Script\IScript.cs" />
+    <Compile Include="Rooms\Script\Commands\Compile.cs" />
+    <Compile Include="Rooms\Script\ScriptHost.cs" />
     <Compile Include="Rooms\SteamRoom.cs" />
     <Compile Include="Session.cs" />
     <Compile Include="SessionManager.cs" />

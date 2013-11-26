@@ -21,14 +21,14 @@ namespace SteamMobile
 
         /// <summary>
         /// Return a parameter format string. '-' is a short parameter and ']' uses remaining space.
-        /// Type can be ignored if this is not a default handler.
+        /// Target and type can be ignored if this is not a default handler.
         /// Examples:
         ///   ""        = No parameters
         ///   "-"       = One short parameter (word or text enclosed in double quotes)
         ///   "]"       = One parameter containing all text after Type
         ///   "--]"     = Two short parameters and one parameter containing the leftovers
         /// </summary>
-        public abstract string Format(string type);
+        public abstract string Format(CommandTarget target, string type);
 
         /// <summary>
         /// Called when somebody uses this command.
@@ -79,7 +79,7 @@ namespace SteamMobile
 
                 var parameters = new List<string>();
 
-                foreach (var p in command.Format(type))
+                foreach (var p in command.Format(target, type))
                 {
                     var param = "";
 

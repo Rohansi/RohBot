@@ -93,7 +93,7 @@ namespace SteamMobile.Rooms
         }
 
         /// <summary>
-        /// Called when a message is beign sent to the room. Should call base.
+        /// Called when a message is being sent to the room. Should call base.
         /// </summary>
         public virtual void SendLine(HistoryLine line)
         {
@@ -108,7 +108,7 @@ namespace SteamMobile.Rooms
                 });
             }
 
-            var message = new Packets.Message();
+            var message = new Message();
             message.Line = line;
             Program.SessionManager.Broadcast(message, s => s.Room == RoomInfo.ShortName);
 
@@ -139,7 +139,7 @@ namespace SteamMobile.Rooms
         {
             lock (_history)
             {
-                var chatHistory = new Packets.ChatHistory { Name = RoomInfo.Name, ShortName = RoomInfo.ShortName, Requested = false, Lines = _history.ToList() };
+                var chatHistory = new ChatHistory { Name = RoomInfo.Name, ShortName = RoomInfo.ShortName, Requested = false, Lines = _history.ToList() };
                 session.Send(chatHistory);
             }
         }

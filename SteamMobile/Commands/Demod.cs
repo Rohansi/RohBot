@@ -5,7 +5,7 @@ namespace SteamMobile.Commands
     {
         public override string Type { get { return "demod"; } }
 
-        public override string Format(string type) { return "]"; }
+        public override string Format(CommandTarget target, string type) { return "]"; }
 
         public override void Handle(CommandTarget target, string type, string[] parameters)
         {
