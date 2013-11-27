@@ -13,10 +13,8 @@ namespace SteamMobile.Rooms.Script
 
         internal void Reset()
         {
-            OnSendLine = null;
+            
         }
-
-        public Action<HistoryLine> OnSendLine;
 
         public void RegisterCommand(string type, string format, Action<CommandTarget, string[]> handler)
         {

@@ -21,6 +21,7 @@ namespace SteamMobile
 
         /// <summary>
         /// Return a parameter format string. '-' is a short parameter and ']' uses remaining space.
+        /// Returns null if it can not handle type.
         /// Target and type can be ignored if this is not a default handler.
         /// Examples:
         ///   ""        = No parameters
@@ -66,20 +67,31 @@ namespace SteamMobile
 
                 var reader = new StringReader(commandStr);
                 var type = (ReadWord(reader) ?? "").ToLower();
+                Command command = null;
+                string format = null;
+
+                Func<string, bool> tryResolve = s =>
+                {
+                    if (!Commands.TryGetValue(s, out command))
+                        return false;
+
+                    format = command.Format(target, type);
+                    if (format == null)
+                        return false;
+
+                    return true;
+                };
 
                 // TODO: is there a better way to do this?
-                Command command;
-                if (!target.IsRoom || !Commands.TryGetValue(target.Room.CommandPrefix + type, out command))
-                    if (!Commands.TryGetValue(type, out command))
-                        if (!target.IsRoom || !Commands.TryGetValue(target.Room.CommandPrefix, out command))
-                            Commands.TryGetValue("", out command);
-
-                if (command == null)
-                    return true;
+                if (!target.IsRoom || !tryResolve(target.Room.CommandPrefix + type))
+                    if (!target.IsRoom || !tryResolve(target.Room.CommandPrefix))
+                        if (!tryResolve(type))
+                            if (!tryResolve(""))
+                                return true;
 
                 var parameters = new List<string>();
 
-                foreach (var p in command.Format(target, type))
+                foreach (var p in format)
                 {
                     var param = "";
 

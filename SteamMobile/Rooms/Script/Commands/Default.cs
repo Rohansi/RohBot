@@ -16,7 +16,7 @@ namespace SteamMobile.Rooms.Script.Commands
             var scriptRoom = (ScriptRoom)target.Room;
             ScriptRoom.CommandHandler command;
 
-            return scriptRoom.Commands.TryGetValue(type, out command) ? command.Format : "";
+            return scriptRoom.Commands.TryGetValue(type, out command) ? command.Format : null;
         }
 
         public override void Handle(CommandTarget target, string type, string[] parameters)

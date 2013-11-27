@@ -50,10 +50,28 @@ namespace SteamMobile.Rooms
 
         public override void SendLine(HistoryLine line)
         {
-            if (_script != null && _host.OnSendLine != null)
-                SafeInvoke(() => _host.OnSendLine(line));
+            if (_script != null)
+            {
+                bool cont = true;
+                SafeInvoke(() => cont = _script.OnSendLine(line));
+                if (!cont)
+                    return;
+            }
 
             base.SendLine(line);
+        }
+
+        public override void OnSendMessage(Session session, string message)
+        {
+            if (_script != null)
+            {
+                bool cont = true;
+                SafeInvoke(() => cont = _script.OnSendMessage(session, message));
+                if (!cont)
+                    return;
+            }
+
+            base.OnSendMessage(session, message);
         }
 
         public override void Update()
