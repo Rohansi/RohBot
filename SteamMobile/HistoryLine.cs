@@ -16,6 +16,8 @@ namespace SteamMobile
         public string Chat;
         public string Content;
 
+        protected HistoryLine() { }
+
         protected HistoryLine(long date, string chat, string content)
         {
             Date = date;
@@ -30,9 +32,11 @@ namespace SteamMobile
 
         public string UserType;
         public string Sender;
-        public string SenderId;     // TODO: rename Sender out of these
+        public string SenderId;
         public string SenderStyle;
         public bool InGame;
+
+        protected ChatLine() { }
 
         public ChatLine(long date, string chat, string userType, string sender, string senderId, string senderStyle, string content, bool inGame)
             : base(date, chat, content)
@@ -55,6 +59,8 @@ namespace SteamMobile
         public string By;
         public string ById;
 
+        protected StateLine() { }
+
         public StateLine(long date, string chat, string state, string @for, string forId, string by, string byId, string content)
             : base(date, chat, content)
         {
@@ -72,6 +78,8 @@ namespace SteamMobile
 
         public string Sender;
         public string Receiver;
+
+        protected WhisperLine() { }
 
         public WhisperLine(long date, string sender, string receiver, string content)
             : base(date, "whisper", content)

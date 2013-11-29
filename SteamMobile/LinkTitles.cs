@@ -163,8 +163,7 @@ namespace SteamMobile
             request.Timeout = 5000;
 
             using (var response = request.GetResponse())
-            using (var stream = response.GetResponseStream())
-            using (var reader = new StreamReader(stream, Encoding.GetEncoding(encoding)))
+            using (var reader = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding(encoding)))
                 return reader.ReadToEnd();
         }
 
