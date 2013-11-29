@@ -7,7 +7,8 @@
     "SuperAdminSteam": 76561198002164049,
     "SuperAdmin": "Rohan",
 
-    "DbServer": "127.0.0.1",
+    "DbAddress": "127.0.0.1",
+    "DbPort": 5432,
     "DbName": "rohbot",
     "DbUser": "server",
     "DbPass": "",

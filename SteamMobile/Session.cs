@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
+using Npgsql;
 using SuperWebSocket;
 
 namespace SteamMobile
@@ -59,8 +59,7 @@ namespace SteamMobile
                     break;
                 }
 
-                var usernameLower = username.ToLower();
-                var existingTokens = Database.LoginTokens.AsQueryable().Where(r => r.Name == usernameLower).ToList();
+                var existingTokens = LoginToken.FindAll(username).ToList();
 
                 if (string.IsNullOrEmpty(password))
                 {
@@ -95,8 +94,8 @@ namespace SteamMobile
                         break;
                     }
 
-                    var givenPassword = Util.HashPassword(password, account.Salt);
-                    if (!givenPassword.SequenceEqual(account.Password))
+                    var givenPassword = Convert.ToBase64String(Util.HashPassword(password, Convert.FromBase64String(account.Salt)));
+                    if (givenPassword != account.Password)
                     {
                         message = "Invalid username or password.";
                         break;
@@ -113,7 +112,7 @@ namespace SteamMobile
                             Created = Util.GetCurrentUnixTimestamp()
                         };
 
-                        Database.LoginTokens.Insert(newToken);
+                        newToken.Insert();
                         existingTokens.Add(newToken);
                     }
 
@@ -170,7 +169,7 @@ namespace SteamMobile
                     break;
                 }
 
-                var accountsFromAddress = Database.Accounts.AsQueryable().Count(a => a.Address == Address);
+                var accountsFromAddress = Account.FindWithAddress(Address).Count();
                 if (accountsFromAddress >= 3)
                 {
                     message = "Too many accounts were created from this location.";
@@ -182,18 +181,19 @@ namespace SteamMobile
                 {
                     Address = Address,
                     Name = username,
-                    NameLower = username.ToLower(),
-                    Password = Util.HashPassword(password, salt),
-                    Salt = salt,
-                    DefaultRoom = Program.Settings.DefaultRoom
+                    Password = Convert.ToBase64String(Util.HashPassword(password, salt)),
+                    Salt = Convert.ToBase64String(salt),
+                    DefaultRoom = Program.Settings.DefaultRoom,
+                    EnabledStyle = ""
                 };
 
                 try
                 {
-                    Database.Accounts.Insert(account);
+                    account.Insert();
                 }
-                catch (WriteConcernException)
+                catch (NpgsqlException e)
                 {
+                    Console.WriteLine(e);
                     message = "An account with that name already exists.";
                     break;
                 }

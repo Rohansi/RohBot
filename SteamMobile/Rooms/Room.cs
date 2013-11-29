@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using MongoDB.Bson;
-using MongoDB.Driver.Linq;
 using SteamMobile.Packets;
 
 namespace SteamMobile.Rooms
@@ -37,13 +36,57 @@ namespace SteamMobile.Rooms
         }
     }
 
-    // TODO: rename to something more relevant
-    public class RoomBans
+    public class RoomSettings
     {
-        public ObjectId Id;
+        public long Id { get; private set; }
         public string Room;
         public HashSet<string> Bans;
         public HashSet<string> Mods;
+
+        public RoomSettings()
+        {
+            Id = 0;
+        }
+
+        internal RoomSettings(dynamic row)
+        {
+            Id = row.id;
+            Room = row.room;
+            Bans = new HashSet<string>(row.bans);
+            Mods = new HashSet<string>(row.mods);
+        }
+
+        public void Save()
+        {
+            if (Id == 0)
+                throw new InvalidOperationException("Cannot save row that does not exist");
+
+            var cmd = new SqlCommand("UPDATE rohbot.roomsettings SET bans=:bans, mods=:mods WHERE id=:id;");
+            cmd["id"] = Id;
+            cmd["bans"] = Bans.ToArray();
+            cmd["mods"] = Mods.ToArray();
+            cmd.ExecuteNonQuery();
+        }
+
+        public void Insert()
+        {
+            if (Id != 0)
+                throw new InvalidOperationException("Cannot insert existing row");
+
+            var cmd = new SqlCommand("INSERT INTO rohbot.roomsettings (room,bans,mods) VALUES (:room,:bans,:mods) RETURNING id;");
+            cmd["room"] = Room;
+            cmd["bans"] = Bans.ToArray();
+            cmd["mods"] = Mods.ToArray();
+            Id = (long)cmd.ExecuteScalar();
+        }
+
+        public static RoomSettings Get(string room)
+        {
+            var cmd = new SqlCommand("SELECT * FROM rohbot.roomsettings WHERE lower(room)=lower(:room);");
+            cmd["room"] = room;
+            var row = cmd.Execute().FirstOrDefault();
+            return row == null ? null : new RoomSettings(row);
+        }
     }
 
     public class Room
@@ -58,7 +101,7 @@ namespace SteamMobile.Rooms
         /// </summary>
         public virtual string CommandPrefix { get { return ""; } }
 
-        private RoomBans _bans;
+        private RoomSettings _settings;
         private readonly LinkedList<HistoryLine> _history;
         private bool _showLinkTitles;
 
@@ -67,22 +110,24 @@ namespace SteamMobile.Rooms
             RoomInfo = roomInfo;
             IsActive = true;
 
-            _bans = Database.RoomBans.AsQueryable().FirstOrDefault(r => r.Room == RoomInfo.ShortName);
-            if (_bans == null)
+            _settings = RoomSettings.Get(RoomInfo.ShortName);
+            if (_settings == null)
             {
-                _bans = new RoomBans
+                _settings = new RoomSettings
                 {
                     Room = RoomInfo.ShortName,
                     Bans = new HashSet<string>(),
                     Mods = new HashSet<string>()
                 };
-                Database.RoomBans.Insert(_bans);
+                _settings.Insert();
             }
 
             _history = new LinkedList<HistoryLine>();
-            var lines = Database.ChatHistory.AsQueryable().Where(r => r.Chat == RoomInfo.ShortName).OrderByDescending(r => r.Date).Take(100).ToList();
-            lines.Reverse();
-            foreach (var line in lines)
+
+            var cmd = new SqlCommand("SELECT * FROM rohbot.chathistory WHERE chat=lower(:chat) ORDER BY date DESC LIMIT 100;");
+            cmd["chat"] = RoomInfo.ShortName;
+
+            foreach (var line in cmd.Execute().Reverse().Select(r => HistoryLine.Read(r)))
             {
                 _history.AddLast(line);
             }
@@ -185,34 +230,34 @@ namespace SteamMobile.Rooms
         {
             get
             {
-                lock (_bans)
-                    return _bans.Bans.ToList();
+                lock (_settings)
+                    return _settings.Bans.ToList();
             }
         }
 
         public virtual void Ban(string name)
         {
-            lock (_bans)
+            lock (_settings)
             {
-                _bans.Bans.Add(name.ToLower());
-                Database.RoomBans.Save(_bans);
+                _settings.Bans.Add(name.ToLower());
+                _settings.Save();
             }
         }
 
         public void Unban(string name)
         {
-            lock (_bans)
+            lock (_settings)
             {
-                _bans.Bans.Remove(name.ToLower());
-                Database.RoomBans.Save(_bans);
+                _settings.Bans.Remove(name.ToLower());
+                _settings.Save();
             }
         }
 
         public bool IsBanned(string name)
         {
-            lock (_bans)
+            lock (_settings)
             {
-                return IsWhitelisted ^ _bans.Bans.Contains(name.ToLower());
+                return IsWhitelisted ^ _settings.Bans.Contains(name.ToLower());
             }
         }
 
@@ -220,26 +265,26 @@ namespace SteamMobile.Rooms
         {
             get
             {
-                lock (_bans)
-                    return _bans.Mods.ToList();
+                lock (_settings)
+                    return _settings.Mods.ToList();
             }
         }
 
         public void Mod(string name)
         {
-            lock (_bans)
+            lock (_settings)
             {
-                _bans.Mods.Add(name.ToLower());
-                Database.RoomBans.Save(_bans);
+                _settings.Mods.Add(name.ToLower());
+                _settings.Save();
             }
         }
 
         public void Demod(string name)
         {
-            lock (_bans)
+            lock (_settings)
             {
-                _bans.Mods.Remove(name.ToLower());
-                Database.RoomBans.Save(_bans);
+                _settings.Mods.Remove(name.ToLower());
+                _settings.Save();
             }
         }
 
@@ -248,9 +293,9 @@ namespace SteamMobile.Rooms
             name = name.ToLower();
             var banned = IsBanned(name);
 
-            lock (_bans)
+            lock (_settings)
             {
-                return (!banned && _bans.Mods.Contains(name.ToLower())) || name == RoomInfo.Admin.ToLower();
+                return (!banned && _settings.Mods.Contains(name.ToLower())) || name == RoomInfo.Admin.ToLower();
             }
         }
 
@@ -260,7 +305,7 @@ namespace SteamMobile.Rooms
                 _history.RemoveFirst();
             _history.AddLast(line);
 
-            Database.ChatHistory.Insert(line);
+            line.Insert();
         }
     }
 }

@@ -14,7 +14,8 @@ namespace SteamMobile
         public ulong SuperAdminSteam;
         public string SuperAdmin;
 
-        public string DbServer;
+        public string DbAddress;
+        public int DbPort;
         public string DbName;
         public string DbUser;
         public string DbPass;

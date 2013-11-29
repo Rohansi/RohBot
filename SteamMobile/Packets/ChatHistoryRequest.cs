@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using MongoDB.Driver.Linq;
 
 namespace SteamMobile.Packets
 {
@@ -34,11 +33,10 @@ namespace SteamMobile.Packets
 
             if (Util.DateTimeFromUnixTimestamp(AfterDate) > DateTime.UtcNow.AddDays(-7))
             {
-                lines = Database.ChatHistory.AsQueryable()
-                                .Where(r => r.Chat == session.Room && r.Date < AfterDate)
-                                .OrderByDescending(r => r.Date)
-                                .Take(100).ToList();
-                lines.Reverse();
+                var cmd = new SqlCommand("SELECT * FROM rohbot.chathistory WHERE chat=lower(:chat) AND date<:afterdate ORDER BY date DESC LIMIT 100;");
+                cmd["chat"] = session.Room;
+                cmd["afterdate"] = AfterDate;
+                lines = cmd.Execute().Select(r => (HistoryLine)HistoryLine.Read(r)).Reverse().ToList();
             }
             else
             {

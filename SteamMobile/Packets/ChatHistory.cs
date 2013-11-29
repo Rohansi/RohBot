@@ -14,7 +14,7 @@ namespace SteamMobile.Packets
         public List<HistoryLine> Lines;
         public long OldestLine
         {
-            get { return Lines != null && Lines.Count > 0 ? Lines[0].Date : 0xFFFFFFFFFFFF; }
+            get { return Lines != null && Lines.Count > 0 ? Lines[0].Date : 0xFFFFFFFF; }
             set { /* do nothing */ }
         }
 

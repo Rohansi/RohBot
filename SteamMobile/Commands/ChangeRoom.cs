@@ -41,7 +41,7 @@ namespace SteamMobile.Commands
                         if (parameters.Length >= 2)
                         {
                             target.Session.Account.DefaultRoom = set;
-                            Database.Accounts.Save(target.Session.Account);
+                            target.Session.Account.Save();
                         }
 
                         room.SendHistory(target.Session);

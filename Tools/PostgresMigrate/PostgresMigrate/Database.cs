@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
 using System.Linq;
 using Npgsql;
 
-namespace SteamMobile
+namespace PostgresMigrate
 {
-    public static class Database
+    static class Database
     {
         private static List<NpgsqlConnection> _connections;
 
@@ -21,9 +22,8 @@ namespace SteamMobile
 
             if (conn == null)
             {
-                var settings = Program.Settings;
                 var connectionStr = string.Format("Server={0};Port={1};User Id={2};Password={3};Database={4};Encoding=UNICODE;",
-                    settings.DbAddress, settings.DbPort, settings.DbUser, settings.DbPass, settings.DbName);
+                    "127.0.0.1", "5432", "server", "", "rohbot");
 
                 conn = new NpgsqlConnection(connectionStr);
                 conn.Open();
@@ -43,12 +43,12 @@ namespace SteamMobile
         }
     }
 
-    public class SqlCommand
+    class Command
     {
         private NpgsqlConnection _connection;
         private readonly NpgsqlCommand _command;
 
-        public SqlCommand(string sql)
+        public Command(string sql)
         {
             _connection = Database.CreateConnection();
             _command = new NpgsqlCommand(sql, _connection);
@@ -84,7 +84,7 @@ namespace SteamMobile
                 while (reader.Read())
                 {
                     var no = reader.GetValues(values);
-                    yield return new SqlResult(names, values);
+                    yield return new Result(names, values);
                 }
             }
             finally
@@ -124,11 +124,11 @@ namespace SteamMobile
         }
     }
 
-    public class SqlResult : DynamicObject
+    class Result : DynamicObject
     {
         private readonly Dictionary<string, object> _columns;
 
-        public SqlResult(string[] names, object[] values)
+        public Result(string[] names, object[] values)
         {
             _columns = new Dictionary<string, object>();
 
