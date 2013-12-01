@@ -51,7 +51,10 @@ namespace SteamMobile.Commands
 
                 case "list":
                     {
-                        var roomNames = Program.RoomManager.List.Where(r => !r.IsHidden).Select(r => r.RoomInfo.ShortName);
+                        var roomNames = Program.RoomManager.List
+                            .Where(r => !r.IsHidden)
+                            .Select(r => r.RoomInfo)
+                            .Select(r => string.Format("{0} ({1})", r.Name, r.ShortName));
                         target.Send("Available rooms: " + string.Join(", ", roomNames));
                         break;
                     }
