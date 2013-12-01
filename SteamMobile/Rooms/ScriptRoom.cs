@@ -61,17 +61,17 @@ namespace SteamMobile.Rooms
             base.SendLine(line);
         }
 
-        public override void OnSendMessage(Session session, string message)
+        public override void SendHistory(Session session)
         {
             if (_script != null)
             {
                 bool cont = true;
-                SafeInvoke(() => cont = _script.OnSendMessage(session, message));
+                SafeInvoke(() => cont = _script.OnSendHistory(session));
                 if (!cont)
                     return;
             }
 
-            base.OnSendMessage(session, message);
+            base.SendHistory(session);
         }
 
         public override void Update()
@@ -148,8 +148,7 @@ namespace SteamMobile.Rooms
                 evaluator.ReferenceAssemblyByNamespace("System.Text");
                 evaluator.ReferenceAssemblyByNamespace("log4net");
                 evaluator.ReferenceAssemblyByNamespace("Newtonsoft.Json");
-                evaluator.ReferenceAssemblyByNamespace("MongoDB.Driver");
-                evaluator.ReferenceAssemblyByNamespace("MongoDB.Bson");
+                evaluator.ReferenceAssemblyByNamespace("Npgsql");
                 evaluator.ReferenceAssemblyByNamespace("SteamKit2");
                 evaluator.ReferenceAssemblyByNamespace("EzSteam");
 

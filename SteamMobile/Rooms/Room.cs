@@ -180,7 +180,7 @@ namespace SteamMobile.Rooms
         }
 
         /// <summary>
-        /// Called when somebody joins the room. Must call base.
+        /// Called when somebody joins the room. Should call base.
         /// </summary>
         public virtual void SendHistory(Session session)
         {
@@ -192,9 +192,9 @@ namespace SteamMobile.Rooms
         }
 
         /// <summary>
-        /// Called when somebody sends a message. Probably not needed.
+        /// Called when somebody sends a message.
         /// </summary>
-        public virtual void OnSendMessage(Session session, string message)
+        public void SendMessage(Session session, string message)
         {
             if (!message.StartsWith("//") && Command.Handle(new CommandTarget(session), message, "/"))
                 return;

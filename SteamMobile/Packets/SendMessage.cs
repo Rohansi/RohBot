@@ -54,7 +54,7 @@ namespace SteamMobile.Packets
             if (Program.DelayManager.AddAndCheck(session, 1))
                 return;
 
-            room.OnSendMessage(session, Content);
+            room.SendMessage(session, Content);
         }
     }
 }

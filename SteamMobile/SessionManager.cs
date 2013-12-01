@@ -49,6 +49,12 @@ namespace SteamMobile
             }
         }
 
+        public Session Get(string name)
+        {
+            name = name.ToLower();
+            return _server.GetAllSessions().FirstOrDefault(s => s.Account != null && s.Account.Name.ToLower() == name);
+        }
+
         private void OnReceive(Session session, string message)
         {
             try
