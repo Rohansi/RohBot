@@ -13,11 +13,7 @@ namespace SteamMobile.Packets
         {
             if (session.Account == null)
             {
-                session.Send(new SysMessage
-                {
-                    Date = Util.GetCurrentUnixTimestamp(),
-                    Content = "Guests can not speak."
-                });
+                session.SendSysMessage("Guests can not speak.");
                 return;
             }
 
@@ -42,12 +38,7 @@ namespace SteamMobile.Packets
                 if (Command.Handle(new CommandTarget(session), Content, "~"))
                     return;
 
-                session.Send(new SysMessage
-                {
-                    Date = Util.GetCurrentUnixTimestamp(),
-                    Content = "RohBot is not in this room."
-                });
-
+                session.SendSysMessage("RohBot is not in this room.");
                 return;
             }
 

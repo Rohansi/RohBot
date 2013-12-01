@@ -52,13 +52,7 @@ namespace SteamMobile
                 var shouldDelay = (delay + cost) >= DelayThreshold;
 
                 if (shouldDelay)
-                {
-                    session.Send(new Packets.SysMessage
-                    {
-                        Date = Util.GetCurrentUnixTimestamp(),
-                        Content = "Too many requests are coming from your location and your request has been canceled. Please wait and try again in a few minutes."
-                    });
-                }
+                    session.SendSysMessage("Too many requests are coming from your location and your request has been canceled. Please wait and try again in a few minutes.");
 
                 return shouldDelay;
             }

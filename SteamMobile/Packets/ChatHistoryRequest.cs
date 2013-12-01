@@ -21,11 +21,7 @@ namespace SteamMobile.Packets
             var room = Program.RoomManager.Get(session.Room);
             if (room == null)
             {
-                session.Send(new SysMessage
-                {
-                    Date = Util.GetCurrentUnixTimestamp(),
-                    Content = "Room does not exist."
-                });
+                session.SendSysMessage("Room does not exist.");
                 return;
             }
 

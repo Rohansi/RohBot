@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Npgsql;
+using SteamMobile.Packets;
 using SuperWebSocket;
 
 namespace SteamMobile
@@ -28,18 +29,15 @@ namespace SteamMobile
             }
         }
 
-        public void Login(string username, string password, List<string> tokens)
+        public void Login(string username, string password, List<string> tokens, string roomOverride)
         {
             if (username.ToLower() == "guest")
             {
                 Account = null;
-                Room = Program.Settings.DefaultRoom;
+                Room = string.IsNullOrWhiteSpace(roomOverride) ? Program.Settings.DefaultRoom : roomOverride;
+                SwitchRoom(Room);
 
-                var room = Program.RoomManager.Get(Room);
-                if (room != null)
-                    room.SendHistory(this);
-
-                Send(new Packets.AuthenticateResponse
+                Send(new AuthenticateResponse
                 {
                     Name = "Guest",
                     Success = false,
@@ -122,22 +120,15 @@ namespace SteamMobile
                 }
             } while (false);
 
-            if (Account != null && Account.DefaultRoom != Room)
+            if (Account != null)
             {
-                Room = Account.DefaultRoom;
-
-                var room = Program.RoomManager.Get(Room);
-                if (room != null)
-                    room.SendHistory(this);
+                Room = string.IsNullOrWhiteSpace(roomOverride) ? Account.DefaultRoom : roomOverride;
+                SwitchRoom(Room);
             }
 
-            Send(new Packets.SysMessage
-            {
-                Date = Util.GetCurrentUnixTimestamp(),
-                Content = message
-            });
+            SendSysMessage(message);
 
-            Send(new Packets.AuthenticateResponse
+            Send(new AuthenticateResponse
             {
                 Name = Account == null ? "Guest" : Account.Name,
                 Success = Account != null,
@@ -201,16 +192,38 @@ namespace SteamMobile
                 message = "Account created. You can now login.";
             } while (false);
 
-            Send(new Packets.SysMessage
-            {
-                Date = Util.GetCurrentUnixTimestamp(),
-                Content = message
-            });
+            SendSysMessage(message);
+        }
+
+        public void SendSysMessage(string message)
+        {
+            Send(new SysMessage { Content = Util.HtmlEncode(message), Date = Util.GetCurrentUnixTimestamp() });
         }
 
         public void Send(Packet packet)
         {
             Send(Packet.WriteToMessage(packet));
+        }
+
+        public bool SwitchRoom(string newRoom)
+        {
+            if (string.IsNullOrEmpty(newRoom))
+                newRoom = Account != null ? Account.DefaultRoom : Program.Settings.DefaultRoom;
+            newRoom = newRoom.ToLower();
+
+            if (Room == newRoom)
+                return true;
+
+            var room = Program.RoomManager.Get(newRoom);
+            if (room == null)
+            {
+                SendSysMessage("Room does not exist.");
+                return false;
+            }
+
+            Room = newRoom;
+            room.SendHistory(this);
+            return true;
         }
     }
 }

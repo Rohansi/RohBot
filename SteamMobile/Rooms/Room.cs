@@ -207,11 +207,7 @@ namespace SteamMobile.Rooms
 
             if (IsBanned(session.Account.Name))
             {
-                session.Send(new SysMessage
-                {
-                    Date = Util.GetCurrentUnixTimestamp(),
-                    Content = "You are banned from this room."
-                });
+                session.SendSysMessage("You are banned from this room.");
                 return;
             }
 

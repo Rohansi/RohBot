@@ -234,7 +234,7 @@ namespace SteamMobile
         public void Send(string message)
         {
             if (IsSession)
-                Session.Send(new SysMessage { Content = message, Date = Util.GetCurrentUnixTimestamp() });
+                Session.SendSysMessage(message);
             else if (IsRoom)
                 Room.Send(message);
             else if (IsPrivateChat)

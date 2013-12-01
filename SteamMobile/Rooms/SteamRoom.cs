@@ -56,13 +56,7 @@ namespace SteamMobile.Rooms
             base.SendHistory(session);
 
             if (Chat == null)
-            {
-                session.Send(new SysMessage
-                {
-                    Date = Util.GetCurrentUnixTimestamp(),
-                    Content = "Not connected to Steam."
-                });
-            }
+                session.SendSysMessage("Not connected to Steam.");
         }
 
         public override void Update()

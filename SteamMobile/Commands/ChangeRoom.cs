@@ -15,11 +15,11 @@ namespace SteamMobile.Commands
 
             if (parameters.Length < 1)
             {
-                target.Send("Currently viewing: " + target.Session.Room);
+                target.Send("Currently in room: " + target.Session.Room);
                 return;
             }
 
-            if (Program.DelayManager.AddAndCheck(target.Session, 5))
+            if (Program.DelayManager.AddAndCheck(target.Session, 2.5))
                 return;
 
             switch (parameters[0])
@@ -27,25 +27,18 @@ namespace SteamMobile.Commands
                 case "default":
                     {
                         var defaultRoom = target.Session.Account.DefaultRoom;
-                        var set = parameters.Length < 2 ? defaultRoom : parameters[1];
+                        var newRoom = parameters.Length < 2 ? defaultRoom : parameters[1];
 
-                        var room = Program.RoomManager.Get(set);
-                        if (room == null)
-                        {
-                            target.Send("Room does not exist.");
-                            return;
-                        }
-
-                        target.Session.Room = set;
+                        if (!target.Session.SwitchRoom(newRoom))
+                            break;
 
                         if (parameters.Length >= 2)
                         {
-                            target.Session.Account.DefaultRoom = set;
+                            target.Session.Account.DefaultRoom = target.Session.Room;
                             target.Session.Account.Save();
                         }
 
-                        room.SendHistory(target.Session);
-                        target.Send("Switched to room: " + set);
+                        target.Send("Switched to room: " + newRoom);
                         break;
                     }
 
@@ -61,15 +54,9 @@ namespace SteamMobile.Commands
 
                 default:
                     {
-                        var room = Program.RoomManager.Get(parameters[0]);
-                        if (room == null)
-                        {
-                            target.Send("Room does not exist.");
-                            return;
-                        }
+                        if (!target.Session.SwitchRoom(parameters[0]))
+                            break;
 
-                        target.Session.Room = parameters[0];
-                        room.SendHistory(target.Session);
                         target.Send("Switched to room: " + parameters[0]);
                         break;
                     }

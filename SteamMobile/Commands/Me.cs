@@ -19,11 +19,7 @@ namespace SteamMobile.Commands
             var room = Program.RoomManager.Get(target.Session.Room);
             if (room == null)
             {
-                target.Session.Send(new SysMessage
-                {
-                    Date = Util.GetCurrentUnixTimestamp(),
-                    Content = "RohBot is not in this room."
-                });
+                target.Send("RohBot is not in this room.");
                 return;
             }
 

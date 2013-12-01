@@ -25,15 +25,6 @@ namespace SteamMobile
             }
         }
 
-        public List<string> Names
-        {
-            get
-            {
-                lock (_rooms)
-                    return _rooms.Keys.ToList();
-            }
-        }
-
         public List<Room> List
         {
             get
