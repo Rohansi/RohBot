@@ -95,6 +95,7 @@ namespace SteamMobile.Rooms
         public bool IsActive { get; private set; }
         public readonly bool IsWhitelisted;
         public readonly bool IsHidden;
+        public readonly bool IsLogging;
 
         /// <summary>
         /// If not empty, commands used in this room will potentially resolve to commands that use the prefix.
@@ -135,6 +136,7 @@ namespace SteamMobile.Rooms
             _showLinkTitles = (roomInfo["LinkTitles"] ?? "").ToLower() == "true";
             IsWhitelisted = (roomInfo["Whitelist"] ?? "").ToLower() == "true";
             IsHidden = (roomInfo["Hidden"] ?? "").ToLower() == "true";
+            IsLogging = (roomInfo["Logging"] ?? "true").ToLower() == "true";
         }
 
         /// <summary>
@@ -305,7 +307,8 @@ namespace SteamMobile.Rooms
                 _history.RemoveFirst();
             _history.AddLast(line);
 
-            line.Insert();
+            if (IsLogging)
+                line.Insert();
         }
     }
 }
