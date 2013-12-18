@@ -24,6 +24,12 @@ namespace SteamMobile.Commands
                 return;
             }
 
+            if (Util.IsAdmin(target.Room, parameters[0]))
+            {
+                target.Send("Administrators can not be banned.");
+                return;
+            }
+
             if (!target.Room.IsWhitelisted)
                 target.Room.Unban(parameters[0]);
             else

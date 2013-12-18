@@ -23,6 +23,12 @@ namespace SteamMobile.Commands
                 target.Send("Account does not exist.");
                 return;
             }
+
+            if (Util.IsAdmin(target.Room, parameters[0]))
+            {
+                target.Send("Administrators can not be banned.");
+                return;
+            }
             
             if (!target.Room.IsWhitelisted)
                 target.Room.Ban(parameters[0]);
