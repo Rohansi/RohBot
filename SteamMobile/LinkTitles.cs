@@ -43,7 +43,7 @@ namespace SteamMobile
             foreach (Match match in matches)
             {
                 var offset = match.Index;
-                var response = "Spotify: Error";
+                string response;
 
                 try
                 {
@@ -77,7 +77,11 @@ namespace SteamMobile
 
                     response = string.Format("Spotify: {0}{1}{2}", chatResponse, youtubeUrl != null ? " -> http://youtu.be/" : "", youtubeUrl);
                 }
-                catch { }
+                catch (Exception e)
+                {
+                    Program.Logger.Warn("LinkTitles Error", e);
+                    continue;
+                }
 
                 yield return Tuple.Create(offset, response);
             }
@@ -93,7 +97,7 @@ namespace SteamMobile
             foreach (Match match in matches)
             {
                 var offset = match.Index;
-                var response = "YouTube: Error";
+                string response;
 
                 try
                 {
@@ -122,7 +126,11 @@ namespace SteamMobile
 
                     response = string.Format("YouTube: {0} ({1}){2}", name, formattedlength, stars);
                 }
-                catch { }
+                catch (Exception e)
+                {
+                    Program.Logger.Warn("LinkTitles Error", e);
+                    continue;
+                }
 
                 yield return Tuple.Create(offset, response);
             }
@@ -137,7 +145,7 @@ namespace SteamMobile
             foreach (Match match in matches)
             {
                 var offset = match.Index;
-                var response = "Facepunch: Error";
+                string response;
 
                 try
                 {
@@ -150,7 +158,11 @@ namespace SteamMobile
 
                     response = string.Format("Facepunch: {0}", title);
                 }
-                catch { }
+                catch (Exception e)
+                {
+                    Program.Logger.Warn("LinkTitles Error", e);
+                    continue;
+                }
 
                 yield return Tuple.Create(offset, response);
             }
