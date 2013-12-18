@@ -8,7 +8,7 @@
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<link rel="apple-touch-icon" href="rohbot.png"/>
 		<link rel="stylesheet" href="style.css" />
-		<script src="jquery-1.9.1.min.js"></script>
+		<script src="jquery-2.0.3.min.js"></script>
 		<script src="urlize.min.js"></script>
 		<script src="rohbot.api.js"></script>
 		
@@ -34,15 +34,16 @@
 				
 				rohbot = new RohBot(serverUri); 
 				rohbot.onConnected = function() {
-					oldestMessage = 0xFFFFFFFFFFFF;
+					oldestMessage = 0xFFFFFFFF;
 					requestedHistory = false;
 					
+					var room = window.location.hash.substring(1);
 					if (storage && storage.getItem("password") !== null) {
-						rohbot.login(storage.getItem("name"), storage.getItem("password"), null);
+						rohbot.login(storage.getItem("name"), storage.getItem("password"), null, room);
 					} else if (storage && storage.getItem("tokens") !== null) {
-						rohbot.login(storage.getItem("name"), null, storage.getItem("tokens"));
+						rohbot.login(storage.getItem("name"), null, storage.getItem("tokens"), room);
 					} else {
-						rohbot.login("guest", null, null);
+						rohbot.login("guest", null, null, room);
 					}
 				};
 				
@@ -80,8 +81,11 @@
 							addRohBotMessage(data.Lines[i], data.Requested);
 						}
 						
-						$("#chat").scrollTop(firstMsg.offset().top - $("#header").height() - 16);
 						requestedHistory = false;
+						
+						var header = $("#header");
+						var headerHeight = header.is(":visible") ? header.height() + 10 : 0;
+						$("#chat").scrollTop(firstMsg.offset().top - headerHeight - 20);
 					}
 					
 					roomName = data.Name;

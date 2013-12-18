@@ -211,9 +211,6 @@ namespace SteamMobile
                 newRoom = Account != null ? Account.DefaultRoom : Program.Settings.DefaultRoom;
             newRoom = newRoom.ToLower();
 
-            if (Room == newRoom)
-                return true;
-
             var room = Program.RoomManager.Get(newRoom);
             if (room == null)
             {

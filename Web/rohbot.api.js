@@ -115,11 +115,11 @@ RohBot = function(server) {
 	var send = function(obj) {
 		try {
 			socket.send(JSON.stringify(obj));
-		} catch (err) { }
+		} catch (err) { console.log(err); }
 	};
 	
-	_this.login = function(user, pass, tokens) {
-		send({Type: "auth", Method: "login", Username: user, Password: pass, Tokens: tokens});
+	_this.login = function(user, pass, tokens, room) {
+		send({Type: "auth", Method: "login", Username: user, Password: pass, Tokens: tokens, Room: room});
 	};
 	
 	_this.register = function(user, pass) {
