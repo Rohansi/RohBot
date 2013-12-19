@@ -42,7 +42,7 @@ class window.RohBot
 		# @socket.onopen = () -> console.info "onopen"
 
 	disconnect: ->
-		@socket.close if @socket?
+		@socket.close() if @socket?
 		@socket = null
 
 	isConnected: -> @socket?.readyState == WebSocket.OPEN

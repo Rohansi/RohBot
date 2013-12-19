@@ -68,7 +68,7 @@
 
     RohBot.prototype.disconnect = function() {
       if (this.socket != null) {
-        this.socket.close;
+        this.socket.close();
       }
       return this.socket = null;
     };
