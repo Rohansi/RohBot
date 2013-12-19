@@ -21,7 +21,7 @@ class window.RohBot
 			manualSysMessage "Lost connection to RohBot. Reconnecting..." if connected
 			connected = false
 		window.setInterval =>
-			if @socket?
+			if @isConnected()
 				@_send "ping", {}
 			else
 				@connect()

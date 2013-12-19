@@ -35,7 +35,7 @@
         return connected = false;
       });
       window.setInterval(function() {
-        if (_this.socket != null) {
+        if (_this.isConnected()) {
           return _this._send("ping", {});
         } else {
           return _this.connect();
