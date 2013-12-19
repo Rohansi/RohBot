@@ -32,7 +32,8 @@
         if (connected) {
           manualSysMessage("Lost connection to RohBot. Reconnecting...");
         }
-        return connected = false;
+        connected = false;
+        return this.disconnect();
       });
       window.setInterval(function() {
         if (_this.isConnected()) {
@@ -52,10 +53,12 @@
           return _this.trigger("connected");
         }
       });
-      this.socket.addEventListener('close', function() {
+      this.socket.addEventListener('close', function(e) {
+        console.info("socket closed", e);
         return _this.trigger("disconnected");
       });
-      this.socket.addEventListener('error', function() {
+      this.socket.addEventListener('error', function(e) {
+        console.error("websocket error", e);
         return _this.trigger("disconnected");
       });
       return this.socket.addEventListener('message', function(event) {
@@ -65,8 +68,9 @@
 
     RohBot.prototype.disconnect = function() {
       if (this.socket != null) {
-        return this.socket.close;
+        this.socket.close;
       }
+      return this.socket = null;
     };
 
     RohBot.prototype.isConnected = function() {

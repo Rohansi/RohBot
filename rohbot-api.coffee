@@ -20,6 +20,7 @@ class window.RohBot
 		@on "disconnected", ->
 			manualSysMessage "Lost connection to RohBot. Reconnecting..." if connected
 			connected = false
+			@disconnect() # IDK it's in the js api
 		window.setInterval =>
 			if @isConnected()
 				@_send "ping", {}
@@ -31,12 +32,18 @@ class window.RohBot
 		@disconnect();
 		@socket = new WebSocket(@url);
 		@socket.addEventListener 'open', => @trigger "connected" if @isConnected()
-		@socket.addEventListener 'close', => @trigger "disconnected"
-		@socket.addEventListener 'error', => @trigger "disconnected"
+		@socket.addEventListener 'close', (e) =>
+			console.info "socket closed", e;
+			@trigger "disconnected"
+		@socket.addEventListener 'error', (e) =>
+			console.error "websocket error", e;
+			@trigger "disconnected"
 		@socket.addEventListener 'message', (event) => @_onMessage JSON.parse event.data
 		# @socket.onopen = () -> console.info "onopen"
 
-	disconnect: -> @socket.close if @socket?
+	disconnect: ->
+		@socket.close if @socket?
+		@socket = null
 
 	isConnected: -> @socket?.readyState == WebSocket.OPEN
 
