@@ -14,10 +14,10 @@ class window.RohBot
 
 		# polite connection management
 		connected = false
-		@on "connected", ->
+		@on "connected", =>
 			manualSysMessage "Connected to RohBot!" unless connected
 			connected = true
-		@on "disconnected", ->
+		@on "disconnected", =>
 			manualSysMessage "Lost connection to RohBot. Reconnecting..." if connected
 			connected = false
 			@disconnect() # IDK it's in the js api

@@ -33,7 +33,7 @@
           manualSysMessage("Lost connection to RohBot. Reconnecting...");
         }
         connected = false;
-        return this.disconnect();
+        return _this.disconnect();
       });
       window.setInterval(function() {
         if (_this.isConnected()) {
