@@ -30,159 +30,7 @@ body, h1 {
 	@include noSpacing;
 }
 
-div.container {
-	@include display( flex );
-	@include flex-direction( column );
-	@include flex-wrap( nowrap );
-	@include justify-content( flex-start );
-	@include align-content( flex-start );
-	@include align-items( stretch );
-	height: 100%;
-	
-	background-color: $colBack;
-}
-
-a,
-input,
-textarea {
-	height: 16px;
-}
-
-div.container > #header {
-	@include order( 0 );
-	@include flex( 0 0 auto );
-	@include align-self( auto );
-	@include display( flex );
-	@include flex-direction( row );
-	@include flex-wrap( nowrap );
-	@include justify-content( flex-start );
-	@include align-content( flex-start );
-	@include align-items( flex-start );
-	
-	color: darken(white, 10);
-	background-color: $uiColor;
-	padding: 6px;
-	
-	h1 {
-		font-size: 17pt;
-	}
-}
-
-div.container > #header,
-div.container > #footer {
-	a,
-	input,
-	textarea {
-		padding: 6px;
-		font-size: 10pt;
-		outline: none;
-
-		@include transition(all 0.2s ease-in-out);
-	}
-	
-	& > a,
-	& > input,
-	& > textarea,
-	& > h1 {
-		display: block;
-	}
-	
-	& > a {
-		@include order( 3 );
-		@include flex( 0 0 auto );
-		@include align-self( auto );
-		text-align: center;
-	}
-	
-	& > input,
-	& > textarea {
-		@include order( 1 );
-		@include flex( 1 0 auto );
-		@include align-self( auto );
-	}
-	
-	& > h1 {
-		@include order( 0 );
-		@include flex( 20 0 auto );
-		@include align-self( auto );
-	}
-	
-	input,
-	textarea {
-		color: lighten(black, 1);
-		background-color: darken(white, 10);
-		border: none;
-		margin: 0px;
-		margin-right: 6px;
-		
-		&:focus {
-			color: lighten(black, 20);
-			background-color: darken(white, 2);
-
-			@include transition(all 0.2s ease-in-out);
-		}
-	}
-	
-	a {
-		background-color: $buttonColor;
-		color: white;
-		font-weight: bold;
-		text-decoration: none;
-		cursor: pointer;
-
-		&:hover {
-			background-color: lighten($buttonColor, 10);
-			@include transition(all 0.2s ease-in-out);
-		}
-	}
-}
-
-div.container > #chat {
-	@include order( 1 );
-	@include flex( 20 0 auto );
-	@include align-self( auto );
-	padding: 4px;
-	overflow-y: scroll;
-	word-wrap: break-word;
-	min-height: 0px;
-	height: 0%;
-	white-space: pre-wrap;
-}
-
-div.container > #footer {
-	@include order( 2 );
-	@include flex( 0 0 auto );
-	@include align-self( auto );
-	@include display( flex );
-	@include flex-direction( row );
-	@include flex-wrap( nowrap );
-	@include justify-content( flex-start );
-	@include align-content( flex-start );
-	@include align-items( flex-start );
-	
-	& > a,
-	& > textarea {
-		display: block;
-	}
-	
-	& > a {
-		@include order( 1 );
-		@include flex( 0 0 auto );
-		@include align-self( auto );
-	}
-	
-	& > textarea {
-		@include order( 0 );
-		@include flex( 20 0 auto );
-		@include align-self( auto );
-		resize: none;
-		font-family: inherit;
-	}
-	
-	color: darken(white, 10);
-	background-color: $uiColor;
-	padding: 6px;
-}
+@import "flexes";
 
 @media all and (max-width: 600px) {
 	div.container > #header {
@@ -218,9 +66,9 @@ div.container > #footer {
 }
 
 @-moz-document url-prefix() {
-.flex-container {
-	width: 100%;
-	-moz-box-sizing: border-box;
+	.flex-container {
+		width: 100%;
+		-moz-box-sizing: border-box;
 	}
 }
 
