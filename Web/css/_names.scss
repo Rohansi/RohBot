@@ -12,7 +12,7 @@
 
 	// Heart (Dajoh)
 	.heart:after {
-		content: ' ❤';
+		content: '\00a0\2764';
 		color: #FF69B4;
 		animation: heartGlow 2.5s linear infinite alternate;
 		-webkit-animation: heartGlow 2.5s linear infinite alternate;
@@ -38,9 +38,9 @@
 	// Swastikas (Krix)
 	.hitler:before,
 	.hitler:after {
-	    content: "卐";
 	    -webkit-transform: rotate(45deg);
 	    transform: rotate(45deg);
+	    content: "\5350";
 	    display: inline-block;
 	    font-size: small;
 	}
