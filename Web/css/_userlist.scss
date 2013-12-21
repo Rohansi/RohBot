@@ -1,0 +1,63 @@
+$ulWidth: 256px;
+$ulHeight: 32px;
+$ulPadding: 4px;
+
+.userList {
+	background-color: darken($colBack, 3);
+	
+	& > div {
+		display: inline-block;
+		width: $ulWidth;
+		height: $ulHeight;
+		padding: $ulPadding;
+		white-space: nowrap;
+		
+		& > div {
+			display: inline-block;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			width: $ulWidth - $ulHeight;
+			padding-left: $ulPadding;
+			color: #80B4DC;
+			
+			&[data-color=ingame] {
+				color: $colInGame;
+			}
+			
+			&[data-color=web] {
+				color: $colWeb;
+			}
+			
+			&[data-rank=Owner]:before {
+				content: '★ ';
+				color: #FECB00;
+			}
+			
+			&[data-rank=Officer]:before {
+				content: '★ ';
+				color: #FECB00;
+			}
+			
+			&[data-rank=Moderator]:before {
+				content: '★ ';
+				color: #CFCFCF;
+			}
+		}
+	}
+	
+	img {
+		width: $ulHeight;
+		height: $ulHeight;
+		vertical-align: text-top;
+		float: left;
+	}
+	
+	a {
+		color: inherit !important;
+		text-decoration: none;
+		
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+}
