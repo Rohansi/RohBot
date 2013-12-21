@@ -1,21 +1,16 @@
 /* Name Styles */
-@keyframes heartGlow {
+@include keyframes(heartGlow) {
 	0% { text-shadow: 0 0 0.1em #FF69B4; }
 	100% { text-shadow: 0 0 0.5em #FF69B4; }
 }
 
-@-webkit-keyframes heartGlow {
-	0% { text-shadow: 0 0 0.1em #FF69B4; }
-	100% { text-shadow: 0 0 0.5em #FF69B4; }
-}
 .rohBot {
 
 	// Heart (Dajoh)
 	.heart:after {
 		content: '\00a0\2764';
 		color: #FF69B4;
-		animation: heartGlow 2.5s linear infinite alternate;
-		-webkit-animation: heartGlow 2.5s linear infinite alternate;
+		@include animation( heartGlow 2.5s linear infinite alternate );
 	}
 
 	// Glow (Rohan)
@@ -38,9 +33,8 @@
 	// Swastikas (Krix)
 	.hitler:before,
 	.hitler:after {
-	    -webkit-transform: rotate(45deg);
-	    transform: rotate(45deg);
 	    content: "\5350";
+	    @include transform( rotate(45deg) );
 	    display: inline-block;
 	    font-size: small;
 	}
@@ -53,8 +47,7 @@
 
 	// Australian
 	.upsidedown {
-		-webkit-transform: rotate(-180deg);
-	    transform: rotate(-180deg);
+	    @include transform( rotate(-180deg) );
 		display: inline-block;
 	}
 
