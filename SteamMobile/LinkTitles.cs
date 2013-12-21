@@ -13,8 +13,6 @@ namespace SteamMobile
 {
     class LinkTitles
     {
-        const string ApiKey = "AIzaSyB2tZ7wquAcn3W78aqaaYKGVfIQWuuVNgg";
-
         public static string Lookup(string message)
         {
             var sb = new StringBuilder();
@@ -64,10 +62,14 @@ namespace SteamMobile
                     var ytName = HttpUtility.UrlEncode(name);
                     var ytArtist = HttpUtility.UrlEncode(artist);
 
+                    /*
+                     * Spotify2YT included with permission of glorious god-king Naarkie
+                     */
                     string youtubeUrl = null;
                     try
                     {
-                        var apiQuery = string.Format("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&order=relevance&q={0}%20%2B%20{1}&key={2}", ytName, ytArtist, ApiKey);
+                        const string apiKey = "AIzaSyB2tZ7wquAcn3W78aqaaYKGVfIQWuuVNgg";
+                        var apiQuery = string.Format("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&order=relevance&q={0}%20%2B%20{1}&key={2}", ytName, ytArtist, apiKey);
                         var ytResponse = DownloadPage(apiQuery, "UTF-8");
 
                         var ytToken = JObject.Parse(ytResponse);
