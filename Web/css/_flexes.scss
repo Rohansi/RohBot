@@ -111,3 +111,15 @@ div.container {
 		
 	}
 }
+
+@media all and (max-width: 600px) {
+	div.container > #header {
+		h1 { display: none; }
+	}
+}
+@-moz-document url-prefix() {
+	.flex-container {
+		width: 100%;
+		-moz-box-sizing: border-box;
+	}
+}
