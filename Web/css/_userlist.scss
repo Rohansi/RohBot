@@ -29,17 +29,17 @@ $ulPadding: 4px;
 			}
 			
 			&[data-rank=Owner]:before {
-				content: '★ ';
+				content: '\2605\00a0';
 				color: #FECB00;
 			}
 			
 			&[data-rank=Officer]:before {
-				content: '★ ';
+				content: '\2605\00a0';
 				color: #FECB00;
 			}
 			
 			&[data-rank=Moderator]:before {
-				content: '★ ';
+				content: '\2605\00a0';
 				color: #CFCFCF;
 			}
 		}
