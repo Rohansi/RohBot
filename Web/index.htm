@@ -383,18 +383,18 @@
     </head>
     <body>
 		<div class="container">
-			<div id="header">
+			<header id="header" class="fixed-bar">
 				<h1 id="title">FP Programmers</h1>
 				<input id="username" type="text" placeholder="username" spellcheck="false"/>
 				<input id="password" type="password" placeholder="password"/>
 				<a id="loginButton">Login</a>
 				<a id="registerButton" style="margin-left:6px">Register</a>
-			</div>
-			<div id="chat"></div>
-			<div id="footer">
-				<textarea id="messageBox" type="text" placeholder="enter message ..." spellcheck="false"></textarea>
+			</header>
+			<section id="chat"></section>
+			<footer id="footer" class="fixed-bar">
+				<textarea id="messageBox" placeholder="enter message ..." spellcheck="false"></textarea>
 				<a id="send">Send</a>
-			</div>
+			</footer>
 		</div>
     </body>
 </html>
