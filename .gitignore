@@ -110,3 +110,4 @@ UpgradeLog*.XML
 # Web Stuff
 .sass-cache
 node_modules
+Web/dist

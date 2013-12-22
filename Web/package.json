@@ -1,0 +1,10 @@
+{
+  "name": "rohbot-frontend",
+  "version": "2.0.0-alpha",
+  "private": true,
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-contrib-copy": "~0.4.1",
+    "grunt-contrib-sass": "~0.6.0"
+  }
+}
