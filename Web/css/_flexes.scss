@@ -9,146 +9,105 @@ div.container {
 	height: 100%;
 	
 	background-color: $colBack;
-}
 
-a,
-input,
-textarea {
-	height: 16px;
-}
 
-div.container > #header {
-	@include order( 0 );
-	@include flex( 0 0 auto );
-	@include align-self( auto );
-	@include display( flex );
-	@include flex-direction( row );
-	@include flex-wrap( nowrap );
-	@include justify-content( flex-start );
-	@include align-content( flex-start );
-	@include align-items( flex-start );
-	
-	color: darken(white, 10);
-	background-color: $uiColor;
-	padding: 6px;
-	
-	h1 {
-		font-size: 17pt;
-	}
-}
+	.fixed-bar {
+		@include flex( 0 0 auto );
+		@include align-self( auto );
+		@include display( flex );
+		@include flex-direction( row );
+		@include flex-wrap( nowrap );
+		@include justify-content( flex-start );
+		@include align-content( flex-start );
+		@include align-items( flex-start );
 
-div.container > #header,
-div.container > #footer {
-	a,
-	input,
-	textarea {
+		color: darken(white, 10);
+		background-color: $uiColor;
 		padding: 6px;
-		font-size: 10pt;
-		outline: none;
+		> a,
+		> input,
+		> textarea {
+			display: block;
+			height: 16px;
+			padding: 6px;
+			font-size: 10pt;
+			outline: none;
 
-		@include transition(all 0.2s ease-in-out);
-	}
-	
-	& > a,
-	& > input,
-	& > textarea,
-	& > h1 {
-		display: block;
-	}
-	
-	& > a {
-		@include order( 3 );
-		@include flex( 0 0 auto );
-		@include align-self( auto );
-		text-align: center;
-	}
-	
-	& > input,
-	& > textarea {
-		@include order( 1 );
-		@include flex( 1 0 auto );
-		@include align-self( auto );
-	}
-	
-	& > h1 {
-		@include order( 0 );
-		@include flex( 20 0 auto );
-		@include align-self( auto );
-	}
-	
-	input,
-	textarea {
-		color: lighten(black, 1);
-		background-color: darken(white, 10);
-		border: none;
-		margin: 0px;
-		margin-right: 6px;
+			@include transition(all 0.2s ease-in-out);
+		}
 		
-		&:focus {
-			color: lighten(black, 20);
-			background-color: darken(white, 2);
+		> a {
+			@include order( 3 );
+			@include flex( 0 0 auto );
+			text-align: center;
+			background-color: $buttonColor;
+			color: white;
+			font-weight: bold;
+			text-decoration: none;
+			cursor: pointer;
 
-			@include transition(all 0.2s ease-in-out);
+			&:hover {
+				background-color: lighten($buttonColor, 10);
+				@include transition(all 0.2s ease-in-out);
+			}
+		}
+		
+		> input,
+		> textarea {
+			@include order( 1 );
+			@include flex( 1 0 auto );
+			color: lighten(black, 1);
+			background-color: darken(white, 10);
+			border: none;
+			margin: 0px;
+			margin-right: 6px;
+			
+			&:focus {
+				color: lighten(black, 20);
+				background-color: darken(white, 2);
+
+				@include transition(all 0.2s ease-in-out);
+			}
+		}
+		
+		> h1 {
+			@include order( 0 );
+			@include flex( 20 0 auto );
 		}
 	}
-	
-	a {
-		background-color: $buttonColor;
-		color: white;
-		font-weight: bold;
-		text-decoration: none;
-		cursor: pointer;
 
-		&:hover {
-			background-color: lighten($buttonColor, 10);
-			@include transition(all 0.2s ease-in-out);
-		}
-	}
-}
-
-div.container > #chat {
-	@include order( 1 );
-	@include flex( 20 0 auto );
-	@include align-self( auto );
-	padding: 4px;
-	overflow-y: scroll;
-	word-wrap: break-word;
-	min-height: 0px;
-	height: 0%;
-	white-space: pre-wrap;
-}
-
-div.container > #footer {
-	@include order( 2 );
-	@include flex( 0 0 auto );
-	@include align-self( auto );
-	@include display( flex );
-	@include flex-direction( row );
-	@include flex-wrap( nowrap );
-	@include justify-content( flex-start );
-	@include align-content( flex-start );
-	@include align-items( flex-start );
-	
-	& > a,
-	& > textarea {
-		display: block;
-	}
-	
-	& > a {
-		@include order( 1 );
-		@include flex( 0 0 auto );
-		@include align-self( auto );
-	}
-	
-	& > textarea {
+	#header {
 		@include order( 0 );
+		h1 {
+			font-size: 17pt;
+		}
+	}
+
+	#chat {
+		@include order( 1 );
 		@include flex( 20 0 auto );
 		@include align-self( auto );
-		resize: none;
-		font-family: inherit;
+		padding: 4px;
+		overflow-y: scroll;
+		word-wrap: break-word;
+		min-height: 0px;
+		height: 0%;
+		white-space: pre-wrap;
 	}
-	
-	color: darken(white, 10);
-	background-color: $uiColor;
-	padding: 6px;
+
+	#footer {
+		@include order( 2 );
+			
+		> a {
+			@include order( 1 );
+		}
+		
+		> textarea {
+			@include order( 0 );
+			@include flex( 20 0 auto );
+			resize: none;
+			font-family: inherit;
+		}
+		
+	}
 }
