@@ -19,17 +19,12 @@ module.exports = (grunt) ->
 			libs:
 				src: ['jslib/*.min.js']
 				dest: 'dist/jslibs.min.js'
+		clean:
+			dist: 'dist'
+			build: 'build'
+
 	grunt.loadNpmTasks 'grunt-contrib-sass'
 	grunt.loadNpmTasks 'grunt-contrib-copy'
 	grunt.loadNpmTasks 'grunt-contrib-concat'
 	grunt.registerTask 'default', () ->
 		grunt.task.run ['copy', 'sass']
-	grunt.registerTask 'clean', () ->
-		rmdir = (path) ->
-			return unless fs.existsSync path
-			fs.readdirSync( path ).forEach (file) ->
-				fs.unlinkSync( path + '/' + file )
-			fs.rmdirSync path
-
-		rmdir 'dist'
-		rmdir 'build'
