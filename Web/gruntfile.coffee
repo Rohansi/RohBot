@@ -30,10 +30,17 @@ module.exports = (grunt) ->
 			dist: 'dist'
 			build: 'build'
 
+		myth:
+			css:
+				src:  'build/rohpod.css'
+				dest: 'dist/style.css'
+
+
 	grunt.loadNpmTasks 'grunt-contrib-sass'
 	grunt.loadNpmTasks 'grunt-contrib-copy'
 	grunt.loadNpmTasks 'grunt-contrib-concat'
 	grunt.loadNpmTasks 'grunt-contrib-clean'
+	grunt.loadNpmTasks 'grunt-myth'
 	grunt.registerTask 'default', () ->
 		fs.mkdirSync 'build' unless fs.existsSync 'build'
 		grunt.task.run 'concat:libs' unless fs.existsSync 'build/jslibs.min.js'
