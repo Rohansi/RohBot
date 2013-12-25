@@ -16,14 +16,14 @@ module.exports = (grunt) ->
 				dest: 'dist/'
 				expand:  true
 				flatten: true
-			lib:
+			jslib:
 				src:  'build/jslibs.min.js'
 				dest: 'dist/jslibs.min.js'
 			index:
 				src:  'index.htm'
 				dest: 'dist/'
 		concat:
-			libs:
+			jslib:
 				src:  'jslib/*.min.js'
 				dest: 'build/jslibs.min.js'
 		clean:
@@ -43,7 +43,7 @@ module.exports = (grunt) ->
 	grunt.loadNpmTasks 'grunt-myth'
 	grunt.registerTask 'default', () ->
 		fs.mkdirSync 'build' unless fs.existsSync 'build'
-		grunt.task.run 'concat:libs' unless fs.existsSync 'build/jslibs.min.js'
+		grunt.task.run 'concat:jslib' unless fs.existsSync 'build/jslibs.min.js'
 		grunt.task.run [
 			'clean:dist'
 			'copy'
