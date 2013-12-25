@@ -5,12 +5,16 @@ module.exports = (grunt) ->
 		sass: main:
 			files:
 				'dist/style.css': 'css/rohpod.scss'
-		copy: main:
-			files: [
-				{ dest: 'dist/', src: ['index.htm'] }
-				{ expand: true, flatten: true, dest: 'dist/', src: ['js/*.js'] }
-				{ expand: true, flatten: true, dest: 'dist/', src: ['img/*'] }
-			]
+		copy:
+			js:
+				src: 'js/*.js'
+				dest: 'dist/'
+			img:
+				src: 'img/*'
+				dest: 'dist/'
+			index:
+				src: 'index.html'
+				dest: 'dist/'
 		concat:
 			libs:
 				src: ['jslib/*.min.js']
@@ -18,7 +22,8 @@ module.exports = (grunt) ->
 	grunt.loadNpmTasks 'grunt-contrib-sass'
 	grunt.loadNpmTasks 'grunt-contrib-copy'
 	grunt.loadNpmTasks 'grunt-contrib-concat'
-	grunt.registerTask 'default', ['copy', 'sass']
+	grunt.registerTask 'default', () ->
+		grunt.task.run ['copy', 'sass']
 	grunt.registerTask 'clean', () ->
 		rmdir = (path) ->
 			return unless fs.existsSync path
