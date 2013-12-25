@@ -35,4 +35,10 @@ module.exports = (grunt) ->
 	grunt.loadNpmTasks 'grunt-contrib-concat'
 	grunt.loadNpmTasks 'grunt-contrib-clean'
 	grunt.registerTask 'default', () ->
-		grunt.task.run ['copy', 'sass']
+		fs.mkdirSync 'build' unless fs.existsSync 'build'
+		grunt.task.run 'concat:libs' unless fs.existsSync 'build/jslibs.min.js'
+		grunt.task.run [
+			'clean:dist'
+			'copy'
+			# 'sass'
+		]
