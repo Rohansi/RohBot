@@ -9,16 +9,23 @@ module.exports = (grunt) ->
 			js:
 				src: 'js/*.js'
 				dest: 'dist/'
+				flatten: true
+				expand: true
 			img:
 				src: 'img/*'
 				dest: 'dist/'
+				flatten: true
+				expand: true
+			lib:
+				src: 'build/jslibs.min.js'
+				dest: 'dist/jslibs.min.js'
 			index:
-				src: 'index.html'
+				src: 'index.htm'
 				dest: 'dist/'
 		concat:
 			libs:
 				src: ['jslib/*.min.js']
-				dest: 'dist/jslibs.min.js'
+				dest: 'build/jslibs.min.js'
 		clean:
 			dist: 'dist'
 			build: 'build'
