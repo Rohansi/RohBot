@@ -6,11 +6,15 @@ module.exports = (grunt) ->
 				'dist/style.css': 'css/rohpod.scss'
 		copy: main:
 			files: [
-				{ expand: true, flatten: true, dest: 'dist/', src: ['jslib/*.min.js'], filter: 'isFile' }
-				{ expand: true,                dest: 'dist/', src: ['index.htm'] }
+				{ dest: 'dist/', src: ['index.htm'] }
 				{ expand: true, flatten: true, dest: 'dist/', src: ['js/*.js'] }
 				{ expand: true, flatten: true, dest: 'dist/', src: ['img/*'] }
 			]
+		concat:
+			libs:
+				src: ['jslib/*.min.js']
+				dest: 'dist/jslibs.min.js'
 	grunt.loadNpmTasks 'grunt-contrib-sass'
 	grunt.loadNpmTasks 'grunt-contrib-copy'
+	grunt.loadNpmTasks 'grunt-contrib-concat'
 	grunt.registerTask 'default', ['copy', 'sass']
