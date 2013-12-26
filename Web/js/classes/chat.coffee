@@ -1,13 +1,49 @@
 class window.ChatManager
 	constructor: (@rohbot)->
-		#beep boop
+		@chat  = $ '#chat'
+		@input = $ '#messageBox'
+		@send  = $ '#send'
+
+		@input.on 'keydown', @processEnter
+		@send.on  'click',   @processSend
+
+	processSend: =>
+		message = @input.val()
+		return unless message.length
+
+		unless @processCommand message
+			@rohbot.sendMessage message
+
+		@input.val ''
+
+	processEnter: (event) =>
+		# Converted from http://stackoverflow.com/a/3533099/1056845
+		return unless event.keyCode == 13
+		unless event.ctrlKey
+			@input.blur().focus()
+			@send.click()
+			return
+		dom = @input[0]
+		if typeof dom.selectionStart == "number" and typeof dom.selectionEnd == "number"
+			start = dom.selectionStart
+			val = dom.value
+			dom.value = val.slice( 0, start ) + "\n" + val.slice( dom.selectionEnd )
+			dom.selectionStart = dom.selectionEnd = start + 1
+		else if document.selection && document.selection.createRange
+			dom.focus()
+			range = document.selection.createRange()
+			range.text = "\r\n"
+			range.collapse(false)
+			range.select()
+
+	clearChat: -> @chat.empty();
 
 	processCommand: (text) ->
 		return false unless ! text.indexOf('~') || ! text.indexOf('/')
 		command = text.substr( 1 ).toLowerCase();
 
 		if ! command.indexOf 'clear'
-			window.$('chat').empty();
+			@clearChat()
 		else if ! command.indexOf 'logout'
 			@rohbot.login("guest", null, null);
 		else if ! command.indexOf 'password'
