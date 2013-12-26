@@ -17,12 +17,15 @@ module.exports = (grunt) ->
 				dest: 'build/style.css'
 		# JS
 		coffee:
+			classes:
+				src: 'js/classes/*.coffee'
+				dest: 'build/js/rohbot-classes.js'
 			js:
 				src:  'js/*.coffee'
 				dest: 'build/js/rohbot-coffee.js'
 		concat:
 			js:
-				src:  'build/js/*.js'
+				src:  ['build/js/rohbot-classes.js','build/js/rohbot-coffee.js', 'build/js/rohbot.js']
 				dest: 'build/rohbot.js'
 			jslib:
 				src:  'jslib/*.min.js'
@@ -79,6 +82,7 @@ module.exports = (grunt) ->
 	]
 
 	grunt.registerTask 'js', [
+		'coffee:classes'
 		'coffee:js'
 		'copy:js'
 		'concat:js'
