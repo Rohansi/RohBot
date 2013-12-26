@@ -47,12 +47,15 @@ class window.NotificationCenter
 			noti = new Notification title,
 				icon: 'rohpod.png'
 				body: body
+			denoti = ->
+				noti?.close()
+				noti = null 
 		else
 			noti = webkitNotifications.createNotification 'rohpod.png', title, body
+			denoti = ->
+				noti?.cancel()
+				noti = null 
 
-		denoti = () ->
-			noti?.close()
-			noti = null 
 		setTimeout denoti, 3000
 		noti.addEventListener 'click', denoti
 		noti.show?()
