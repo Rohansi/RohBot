@@ -16,7 +16,14 @@ module.exports = (grunt) ->
 				src:  'build/css/rohpod.css'
 				dest: 'build/style.css'
 		# JS
+		coffee:
+			js:
+				src:  'js/*.coffee'
+				dest: 'build/js/rohbot-coffee.js'
 		concat:
+			js:
+				src:  'build/js/*.js'
+				dest: 'build/rohbot.js'
 			jslib:
 				src:  'jslib/*.min.js'
 				dest: 'build/jslibs.min.js'
@@ -24,7 +31,7 @@ module.exports = (grunt) ->
 		copy:
 			js:
 				src:  'js/*.js'
-				dest: 'build/'
+				dest: 'build/js/'
 				expand:  true
 				flatten: true
 			img:
@@ -49,6 +56,7 @@ module.exports = (grunt) ->
 	grunt.loadNpmTasks 'grunt-contrib-copy'
 	grunt.loadNpmTasks 'grunt-contrib-concat'
 	grunt.loadNpmTasks 'grunt-contrib-clean'
+	grunt.loadNpmTasks 'grunt-contrib-coffee'
 	grunt.loadNpmTasks 'grunt-myth'
 
 	grunt.registerTask 'default', [
@@ -71,7 +79,9 @@ module.exports = (grunt) ->
 	]
 
 	grunt.registerTask 'js', [
+		'coffee:js'
 		'copy:js'
+		'concat:js'
 	]
 
 	grunt.registerTask 'templates', [
