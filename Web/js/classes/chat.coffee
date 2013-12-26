@@ -25,3 +25,13 @@ class window.ChatManager
 		else
 			return false
 		return true
+
+	statusMessage: (text) ->
+		@addLine
+			Type: 'state'
+			Date: Date.now() / 1000
+			Content: text
+
+	addLine: (data) ->
+		console.error("Not implemented!", data)
+		# TODO
