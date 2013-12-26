@@ -9,11 +9,11 @@ module.exports = (grunt) ->
 				strictUnits: true
 				sourceMap: false # We're going to be post-processing the compiled output
 			css:
-				src:  'css/rohpod.less'
-				dest: 'build/css/rohpod.css'
+				src:  'css/rohbot.less'
+				dest: 'build/css/rohbot.css'
 		myth:
 			css:
-				src:  'build/css/rohpod.css'
+				src:  'build/css/rohbot.css'
 				dest: 'build/style.css'
 		# JS
 		coffee:
