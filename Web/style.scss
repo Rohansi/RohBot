@@ -494,6 +494,14 @@ $ulPadding: 4px;
 	color: #DD4814;
 }
 
+.rohBot.ghostmatyr {
+	color: transparent;
+	text-shadow: #add8e6 0 0 1px;
+	-webkit-transform: rotate(3deg);
+	transform: rotate(3deg);
+	display: inline-block;
+}
+
 .rohBot.rainbow { /* webkit only :( */
 	background-image: -webkit-gradient(linear, left top, right top, color-stop(0, #f22), color-stop(0.16, #f2f), color-stop(0.32, #2ff), color-stop(0.48, #2f2), color-stop(0.64, #2f2), color-stop(0.8, #ff2), color-stop(1, #f22));
 	-webkit-background-clip: text;

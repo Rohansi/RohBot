@@ -409,6 +409,13 @@ div.container > #footer {
   font-weight: bold;
   color: #DD4814; }
 
+.rohBot.ghostmatyr {
+  color: transparent;
+  text-shadow: #add8e6 0 0 1px;
+  -webkit-transform: rotate(3deg);
+  transform: rotate(3deg);
+  display: inline-block; }
+
 .rohBot.rainbow {
   /* webkit only :( */
   background-image: -webkit-gradient(linear, left top, right top, color-stop(0, #ff2222), color-stop(0.16, #ff22ff), color-stop(0.32, #22ffff), color-stop(0.48, #22ff22), color-stop(0.64, #22ff22), color-stop(0.8, #ffff22), color-stop(1, #ff2222));
