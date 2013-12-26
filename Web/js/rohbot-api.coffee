@@ -10,7 +10,7 @@ class window.RohBot
                 Content: message
 
         manualSysMessage "Connecting to RohBot..."
-        @connect url
+        # @connect url
 
         # polite connection management
         connected = false
