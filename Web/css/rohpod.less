@@ -1,0 +1,33 @@
+﻿@colBack: #2B2929;
+@colText: #D1CFCD;
+@colName: #80B4DC;
+@colInGame: #A0CC67;
+@colWeb: #B67FFF;
+
+@uiColor: darken( @colBack, 8% );
+@buttonColor: #693D99;
+
+.noSpacing() {
+	margin:  0;
+	padding: 0;
+}
+
+* {
+	border-radius: 0;
+	-webkit-appearance: none;
+}
+
+html,
+body {
+	height: 100%;
+	font-family: sans-serif;
+}
+
+body, h1 {
+	.noSpacing;
+}
+
+@import "_flexes";
+@import "_chat";
+@import "_userlist";
+@import "_names";

@@ -1,28 +1,28 @@
 
 div.container {
-	@include display( flex );
-	@include flex-direction( column );
-	@include flex-wrap( nowrap );
-	@include justify-content( flex-start );
-	@include align-content( flex-start );
-	@include align-items( stretch );
+	display: flex;
+	flex-direction: column;
+	flex-wrap: nowrap;
+	justify-content: flex-start;
+	align-content: flex-start;
+	align-items: stretch;
 	height: 100%;
 	
-	background-color: $colBack;
+	background-color: @colBack;
 
 
 	.fixed-bar {
-		@include flex( 0 0 auto );
-		@include align-self( auto );
-		@include display( flex );
-		@include flex-direction( row );
-		@include flex-wrap( nowrap );
-		@include justify-content( flex-start );
-		@include align-content( flex-start );
-		@include align-items( flex-start );
+		flex: 0 0 auto;
+		align-self: auto;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: nowrap;
+		justify-content: flex-start;
+		align-content: flex-start;
+		align-items: flex-start;
 
 		color: darken(white, 10);
-		background-color: $uiColor;
+		background-color: @uiColor;
 		padding: 6px;
 		> a,
 		> input,
@@ -37,25 +37,25 @@ div.container {
 		}
 		
 		> a {
-			@include order( 3 );
-			@include flex( 0 0 auto );
+			order: 3;
+			flex: 0 0 auto;
 			text-align: center;
-			background-color: $buttonColor;
+			background-color: @buttonColor;
 			color: white;
 			font-weight: bold;
 			text-decoration: none;
 			cursor: pointer;
 
 			&:hover {
-				background-color: lighten($buttonColor, 10);
+				background-color: lighten(@buttonColor, 10);
 				@include transition(all 0.2s ease-in-out);
 			}
 		}
 		
 		> input,
 		> textarea {
-			@include order( 1 );
-			@include flex( 1 0 auto );
+			order: 1;
+			flex: 1 0 auto;
 			color: lighten(black, 1);
 			background-color: darken(white, 10);
 			border: none;
@@ -71,22 +71,22 @@ div.container {
 		}
 		
 		> h1 {
-			@include order( 0 );
-			@include flex( 20 0 auto );
+			order: 0;
+			flex: 20 0 auto;
 		}
 	}
 
 	#header {
-		@include order( 0 );
+		order: 0;
 		h1 {
 			font-size: 17pt;
 		}
 	}
 
 	#chat {
-		@include order( 1 );
-		@include flex( 20 0 auto );
-		@include align-self( auto );
+		order: 1;
+		flex: 20 0 auto;
+		align-self: auto;
 		padding: 4px;
 		overflow-y: scroll;
 		word-wrap: break-word;
@@ -96,15 +96,15 @@ div.container {
 	}
 
 	#footer {
-		@include order( 2 );
+		order: 2;
 			
 		> a {
-			@include order( 1 );
+			order: 1;
 		}
 		
 		> textarea {
-			@include order( 0 );
-			@include flex( 20 0 auto );
+			order: 0;
+			flex: 20 0 auto;
 			resize: none;
 			font-family: inherit;
 		}

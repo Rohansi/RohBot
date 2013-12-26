@@ -1,6 +1,6 @@
 /* Name Styles */
-@include keyframes(heartGlow) {
-	0% { text-shadow: 0 0 0.1em #FF69B4; }
+@keyframes heartGlow {
+	0%   { text-shadow: 0 0 0.1em #FF69B4; }
 	100% { text-shadow: 0 0 0.5em #FF69B4; }
 }
 
@@ -10,7 +10,7 @@
 	.heart:after {
 		content: '\00a0\2764';
 		color: #FF69B4;
-		@include animation( heartGlow 2.5s linear infinite alternate );
+		animation: heartGlow 2.5s linear infinite alternate;
 	}
 
 	// Glow (Rohan)
@@ -34,7 +34,7 @@
 	.hitler:before,
 	.hitler:after {
 	    content: "\5350";
-	    @include transform( rotate(45deg) );
+	    transform: rotate(45deg);
 	    display: inline-block;
 	    font-size: small;
 	}
@@ -47,14 +47,14 @@
 
 	// Australian
 	.upsidedown {
-	    @include transform( rotate(-180deg) );
+	    transform: rotate(-180deg);
 		display: inline-block;
 	}
 
 	// Blurry
 	.blur {
 		color: transparent;
-		text-shadow: 0 0 0.5em $colWeb, 0 0 0.25em $colWeb, 0 0 0.1em darken($colWeb, 15);
+		text-shadow: 0 0 0.5em @colWeb, 0 0 0.25em @colWeb, 0 0 0.1em darken( @colWeb, 15% );
 	}
 
 	// Red (Krix)

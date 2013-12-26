@@ -1,31 +1,31 @@
-$ulWidth: 256px;
-$ulHeight: 32px;
-$ulPadding: 4px;
+@ulWidth: 256px;
+@ulHeight: 32px;
+@ulPadding: 4px;
 
 .userList {
-	background-color: darken($colBack, 3);
+	background-color: darken( @colBack, 3% );
 	
-	& > div {
+	> div {
 		display: inline-block;
-		width: $ulWidth;
-		height: $ulHeight;
-		padding: $ulPadding;
+		width: @ulWidth;
+		height: @ulHeight;
+		padding: @ulPadding;
 		white-space: nowrap;
 		
-		& > div {
+		> div {
 			display: inline-block;
 			overflow: hidden;
 			text-overflow: ellipsis;
-			width: $ulWidth - $ulHeight;
-			padding-left: $ulPadding;
+			width: ( @ulWidth - @ulHeight );
+			padding-left: @ulPadding;
 			color: #80B4DC;
 			
 			&[data-color=ingame] {
-				color: $colInGame;
+				color: @colInGame;
 			}
 			
 			&[data-color=web] {
-				color: $colWeb;
+				color: @colWeb;
 			}
 			
 			&[data-rank=Owner]:before {
@@ -46,8 +46,8 @@ $ulPadding: 4px;
 	}
 	
 	img {
-		width: $ulHeight;
-		height: $ulHeight;
+		width: @ulHeight;
+		height: @ulHeight;
 		vertical-align: text-top;
 		float: left;
 	}

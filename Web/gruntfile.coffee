@@ -2,9 +2,13 @@ fs = require 'fs'
 module.exports = (grunt) ->
 	grunt.initConfig
 		pkg: grunt.file.readJSON('package.json')
-		sass:
+		less:
+			options:
+				strictMath: true
+				strictUnits: true
+				sourceMap: false # We're going to be post-processing the compiled output
 			css:
-				src:  'css/rohpod.scss'
+				src:  'css/rohpod.less'
 				dest: 'build/css/rohpod.css'
 		copy:
 			js:
@@ -42,7 +46,7 @@ module.exports = (grunt) ->
 				src:  'build/css/rohpod.css'
 				dest: 'build/style.css'
 
-	grunt.loadNpmTasks 'grunt-contrib-sass'
+	grunt.loadNpmTasks 'grunt-contrib-less'
 	grunt.loadNpmTasks 'grunt-contrib-copy'
 	grunt.loadNpmTasks 'grunt-contrib-concat'
 	grunt.loadNpmTasks 'grunt-contrib-clean'
@@ -63,7 +67,7 @@ module.exports = (grunt) ->
 		grunt.task.run 'concat:jslib' unless fs.existsSync 'build/jslibs.min.js'
 
 	grunt.registerTask 'css', [
-		'sass:css'
+		'less:css'
 		'myth:css'
 	]
 
