@@ -11,7 +11,7 @@ class window.NotificationCenter
 	constructor: () ->
 		@denied = false;
 		@hasPermission = false;
-		if window.localStorage.get( 'notifications-enabled' )
+		if window.localStorage.getItem 'notifications-enabled'
 			@getPermission()
 			# Just in case we're using an older ver of the speck, ask on the first click as well.
 			clickus = () =>
@@ -62,5 +62,5 @@ class window.NotificationCenter
 
 	enableNotifications: () ->
 		@getPermission();
-		window.localStorage.set( 'notifications-enabled', true )
+		window.localStorage.setItem 'notifications-enabled', true
 
