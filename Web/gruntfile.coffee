@@ -69,7 +69,7 @@ module.exports = (grunt) ->
 		'js'
 		'templates'
 		'misc'
-		'copy:deploy'
+		'deploy'
 	]
 
 	grunt.registerTask 'setup', () ->
@@ -94,5 +94,9 @@ module.exports = (grunt) ->
 
 	grunt.registerTask 'misc', [
 		'copy:img'
+	]
+
+	grunt.registerTask 'deploy', [
+		'copy:deploy'
 	]
 
