@@ -2,6 +2,7 @@ fs = require 'fs'
 module.exports = (grunt) ->
 	grunt.initConfig
 		pkg: grunt.file.readJSON('package.json')
+		# CSS
 		less:
 			options:
 				strictMath: true
@@ -10,6 +11,16 @@ module.exports = (grunt) ->
 			css:
 				src:  'css/rohpod.less'
 				dest: 'build/css/rohpod.css'
+		myth:
+			css:
+				src:  'build/css/rohpod.css'
+				dest: 'build/style.css'
+		# JS
+		concat:
+			jslib:
+				src:  'jslib/*.min.js'
+				dest: 'build/jslibs.min.js'
+		# Other
 		copy:
 			js:
 				src:  'js/*.js'
@@ -30,18 +41,9 @@ module.exports = (grunt) ->
 				expand: true
 				flatten: true
 				filter: 'isFile'
-		concat:
-			jslib:
-				src:  'jslib/*.min.js'
-				dest: 'build/jslibs.min.js'
 		clean:
 			dist:  'dist'
 			build: 'build'
-
-		myth:
-			css:
-				src:  'build/css/rohpod.css'
-				dest: 'build/style.css'
 
 	grunt.loadNpmTasks 'grunt-contrib-less'
 	grunt.loadNpmTasks 'grunt-contrib-copy'
