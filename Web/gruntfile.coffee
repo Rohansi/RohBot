@@ -21,9 +21,6 @@ module.exports = (grunt) ->
 				dest: 'dist/'
 				expand:  true
 				flatten: true
-			# jslib:
-			# 	src:  'build/jslibs.min.js'
-			# 	dest: 'dist/jslibs.min.js'
 			index:
 				src:  'index.htm'
 				dest: 'build/'
