@@ -45,13 +45,13 @@ class window.NotificationCenter
 		return unless @hasPermission
 		if isSane
 			noti = new Notification title,
-				icon: 'rohpod.png'
+				icon: 'rohbot.png'
 				body: body
 			denoti = ->
 				noti?.close()
 				noti = null 
 		else
-			noti = webkitNotifications.createNotification 'rohpod.png', title, body
+			noti = webkitNotifications.createNotification 'rohbot.png', title, body
 			denoti = ->
 				noti?.cancel()
 				noti = null 
