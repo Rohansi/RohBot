@@ -30,6 +30,19 @@ module.exports = (grunt) ->
 			jslib:
 				src:  'jslib/*.min.js'
 				dest: 'build/jslibs.min.js'
+		# templates
+		htmlmin:
+			options:
+				collapseWhitespace: true
+			templates:
+				src: 'templates/*'
+				dest: 'build/'
+				expand: true
+		hogan:
+			templates:
+				templates: 'build/templates/*.mustache'
+				output: 'build/templates.js'
+				binderName: 'hulk'
 		# Other
 		copy:
 			js:
@@ -60,7 +73,9 @@ module.exports = (grunt) ->
 	grunt.loadNpmTasks 'grunt-contrib-concat'
 	grunt.loadNpmTasks 'grunt-contrib-clean'
 	grunt.loadNpmTasks 'grunt-contrib-coffee'
+	grunt.loadNpmTasks 'grunt-contrib-htmlmin'
 	grunt.loadNpmTasks 'grunt-myth'
+	grunt.loadNpmTasks 'grunt-hogan'
 
 	grunt.registerTask 'default', [
 		'setup'
@@ -90,6 +105,8 @@ module.exports = (grunt) ->
 
 	grunt.registerTask 'templates', [
 		'copy:index'
+		'htmlmin:templates'
+		'hogan:templates'
 	]
 
 	grunt.registerTask 'misc', [
