@@ -9,20 +9,26 @@ Notification = window.Notification or {}
 webkitNotifications = window.webkitNotifications or {}
 class window.NotificationCenter
 	constructor: () ->
-		@denied = false;
-		@hasPermission = false;
+		@denied = false
+		@hasPermission = false
+		@regex = null
+		@enabled = false
 		if window.localStorage.getItem 'notifications-enabled'
+			@enabled = true
 			@getPermission()
 			# Just in case we're using an older ver of the speck, ask on the first click as well.
 			clickus = () =>
 				document.removeEventListener 'click', clickus
 				@getPermission()
 			document.addEventListener 'click', clickus
+			# Load the stored notification regex
+			if regex = window.localStorage.getItem 'notifications-regex'
+				try @regex = new RegExp regex, 'gim'
 
-	getPermission: (cback = null) ->
+
+	getPermission: () ->
 		if @hasPermission or Notification.permission == 'granted' or webkitNotifications.checkPermission?() == 0
 			@hasPermission = true
-			cback?()
 		else if @denied or Notification.permission == 'denied' or webkitNotifications.checkPermission?() == 2
 			@denied = true
 		else
@@ -30,14 +36,12 @@ class window.NotificationCenter
 				Notification.requestPermission (permission) =>
 					if permission == 'granted'
 						@hasPermission = true
-						cback?()
 					else
 						@denied = true
 			else
 				webkitNotifications.requestPermission () =>
 					if webkitNotifications.checkPermission() == 0
 						@hasPermission = true
-						cback?()
 					else
 						@denied = true
 
@@ -63,4 +67,20 @@ class window.NotificationCenter
 	enableNotifications: () ->
 		@getPermission();
 		window.localStorage.setItem 'notifications-enabled', true
+		@enabled = true
 
+	disableNotifications: () ->
+		window.localStorage.deleteItem 'notifications-enabled'
+		@enabled = false
+
+	setNotificationRegex: ( str ) ->
+		try
+			regex = new RegExp str, 'gim'
+		catch e
+			return e.message
+		@enableNotifications()
+		@regex = regex
+		window.localStorage.setItem 'notifications-regex', regex.source
+		return false
+
+	checkMessage: (message) -> @enabled and @regex? and @regex.test message
