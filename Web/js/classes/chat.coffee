@@ -39,6 +39,7 @@ class window.ChatManager
 	clearChat: -> @chat.empty();
 
 	processCommand: (text) ->
+		text = text.trim()
 		return false unless ! text.indexOf('~') || ! text.indexOf('/')
 		command = text.substr( 1 ).toLowerCase();
 
