@@ -58,7 +58,7 @@ module.exports = (grunt) ->
 			index:
 				src:  'index.htm'
 				dest: 'build/'
-			deploy:
+			dist:
 				src:  'build/*'
 				dest: 'dist/'
 				expand: true
@@ -84,7 +84,7 @@ module.exports = (grunt) ->
 		'js'
 		'templates'
 		'misc'
-		'deploy'
+		'dist'
 	]
 
 	grunt.registerTask 'setup', () ->
@@ -113,7 +113,7 @@ module.exports = (grunt) ->
 		'copy:img'
 	]
 
-	grunt.registerTask 'deploy', [
-		'copy:deploy'
+	grunt.registerTask 'dist', [
+		'copy:dist'
 	]
 
