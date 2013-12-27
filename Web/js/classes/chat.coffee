@@ -58,7 +58,15 @@ class window.ChatManager
 				window.localStorage.setItem 'password', pass
 				@statusMessage 'Password saved.'
 		else if ! command.indexOf 'notify'
-			console.log "ye notificus"
+			if command.length <= 7
+				# notifications.disableNotifications
+			else
+				res = false
+				# res = notifications.setNotificationRegex message.substr 8
+				if res
+					@statusMessage 'Invalid Regex: ' + res
+				else
+					@statusMessage 'Notification regex saved!'
 		else
 			return false
 		return true
