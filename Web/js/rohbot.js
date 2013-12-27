@@ -151,21 +151,37 @@ function initializeRohBot() {
 }
 
 function addRohBotMessage(line, oldLine) {
+	var html;
 	switch (line.Type) {
 		case "chat": {
-			var sender = line.Sender;
-			if (line.UserType == "RohBot")
-				sender = '<span class="rohBot ' + line.SenderStyle + '">' + sender + '</span>';
-			else if (line.InGame)
-				sender = '<span class="inGame">' + sender + '</span>';
+			var senderClasses = '';
+			if ( line.UserType === 'RohBot' ) {
+				senderClasses = 'rohBot';
+				if ( line.SenderStyle )
+					senderClasses += ' ' + line.SenderStyle;
+			} else if ( line.InGame ) {
+				senderClasses = 'inGame';
+			}
+			html = templates.message.render({
+				Sender: line.Sender,
+				SenderClasses: senderClasses,
+				Time: formatTime( line.Date ),
+				// DateTime: ?? ISO the date pls
+				Message: linkify(line.Content)
+			});
 			
-			var html = '<div><span class="sender">' + formatTime(line.Date) + ' - ' + sender + ': </span>' + linkify(line.Content) + '</div>';
+			// var html = '<div><span class="sender">' + formatTime(line.Date) + ' - ' + sender + ': </span>' + linkify(line.Content) + '</div>';
 			addHtml(html, oldLine);
 			break;
 		}
 		
 		case "state": {
-			var html = '<div><span class="sender">' + formatTime(line.Date) + ' - </span>' + line.Content + '</div>';
+
+			html = templates.message.render({
+				Time: formatTime( line.Date ),
+				// DateTime: ?? ISO the date pls
+				Message: line.Content
+			});
 			addHtml(html, oldLine);
 			break;
 		}
@@ -249,7 +265,7 @@ $(document).ready(function() {
 	initializeRohBot();
 
 	window.chat = new ChatManager( rohbot );
-	
+
 	$("#password").keydown(function(e) {
 		if (e.keyCode == 13) {
 			$("#password").blur().focus();
