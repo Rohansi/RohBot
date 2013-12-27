@@ -247,7 +247,9 @@ function getCurrentTime() {
 
 $(document).ready(function() {
 	initializeRohBot();
-	
+
+	window.chat = new ChatManager( rohbot );
+	/*
 	$("#send").click(function() {
 		var msg = $("#messageBox").val();
 		var msgL = msg.toLowerCase();
@@ -337,6 +339,8 @@ $(document).ready(function() {
 			return false;
 		}
 	});
+
+	*/
 	
 	$("#password").keydown(function(e) {
 		if (e.keyCode == 13) {
