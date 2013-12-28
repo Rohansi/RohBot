@@ -50,14 +50,14 @@ function initializeRohBot() {
 		if (!data.Requested) {
 			$("#chat").html("");
 			for (var i = 0; i < data.Lines.length; i++) {
-				window.chat.addLine(data.Lines[i], data.Requested);
+				window.chatMgr.addLine(data.Lines[i], data.Requested);
 			}
 			$("#chat").scrollTop($("#chat")[0].scrollHeight);
 		} else {
 			var firstMsg = $("#chat :first");
 			
 			for (var i = data.Lines.length - 1; i >= 0; i--) {
-				window.chat.addLine(data.Lines[i], data.Requested);
+				window.chatMgr.addLine(data.Lines[i], data.Requested);
 			}
 			
 			requestedHistory = false;
@@ -74,7 +74,6 @@ function initializeRohBot() {
 	};
 	
 	rohbot.onMessage = function(line) {
-		console.log("line", line);
 		if (line.Type == "chat" && line.Sender != rohbot.name) {
 			if (notifications.checkMessage( line.Content )) {
 				notifications.doNotification(
@@ -84,16 +83,16 @@ function initializeRohBot() {
 			}
 		}
 		
-		window.chat.addLine(line, false);
+		window.chatMgr.addLine(line, false);
 	};
 	
 	rohbot.onSysMessage = function(line) {
 		line.Type = "state";
-		window.chat.addLine(line, false);
+		window.chatMgr.addLine(line, false);
 	};
 	// To add: AvatarFolder and Color
 	rohbot.onUserList = function(users) {
-		window.chat.statusMessage('In this room:');
+		window.chatMgr.statusMessage('In this room:');
 
 		var html = templates.users.render({
 			Users: users
@@ -113,7 +112,7 @@ function initializeRohBot() {
 					return user;
 				})
 		});
-		window.chat.addHtml(html, false);
+		window.chatMgr.addHtml(html, false);
 	};
 	
 	rohbot.connect();
@@ -146,7 +145,7 @@ function htmlDecode(html) {
 $(document).ready(function() {
 	initializeRohBot();
 
-	window.chat = new ChatManager( rohbot );
+	window.chatMgr = new ChatManager( rohbot );
 	window.notifications = new NotificationCenter();
 
 	$("#password").keydown(function(e) {
