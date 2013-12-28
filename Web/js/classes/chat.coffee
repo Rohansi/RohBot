@@ -72,6 +72,25 @@ class window.ChatManager
 			return false
 		return true
 
+	addChatHistory: (history, requested) ->
+		if requested
+			history.reverse()
+			first = @chat.children(':first')
+		else
+			@clearChat()
+
+		history.forEach (line) => @addLine line, requested
+
+		if requested
+			# Attempt to scroll to the first new line
+			if first[0]
+				# Compensate for the header
+				header = $ '#header'
+				offset = header.is(':visible') ? header.height() + 10 : 0
+				@chat.scrollTop first.offset().top - offset - 20
+		else
+			@scrollToBottom()
+
 	statusMessage: (text) ->
 		@addLine
 			Type: 'state'

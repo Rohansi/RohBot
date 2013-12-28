@@ -47,26 +47,11 @@ function initializeRohBot() {
 	};
 	
 	rohbot.onChatHistory = function(data) {
-		if (!data.Requested) {
-			$("#chat").html("");
-			for (var i = 0; i < data.Lines.length; i++) {
-				window.chatMgr.addLine(data.Lines[i], data.Requested);
-			}
-			$("#chat").scrollTop($("#chat")[0].scrollHeight);
-		} else {
-			var firstMsg = $("#chat :first");
-			
-			for (var i = data.Lines.length - 1; i >= 0; i--) {
-				window.chatMgr.addLine(data.Lines[i], data.Requested);
-			}
-			
+		window.chatMgr.addChatHistory( data.Lines, data.Requested );
+
+		if (data.Requested)
 			requestedHistory = false;
-			
-			var header = $("#header");
-			var headerHeight = header.is(":visible") ? header.height() + 10 : 0;
-			$("#chat").scrollTop(firstMsg.offset().top - headerHeight - 20);
-		}
-		
+
 		roomName = data.Name;
 		document.title = roomName;
 		$("#title").text(roomName);
