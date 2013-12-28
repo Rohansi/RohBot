@@ -13,14 +13,16 @@
 				{{ Name }}
 			{{/ Web }}
 			{{^ Web }}
-				<a href="https://steamcommunity.com/profiles/{{ UserID }}" target="_blank">
+				<a href="https://steamcommunity.com/profiles/{{ UserId }}" target="_blank">
 					{{ Name }}
 				</a>
 			{{/ Web }}
+			<br>
 			{{# Playing }}
-				<br>
-				In-Game:&nbsp;
-				{{ Playing }}&nbsp;
+				In-Game: {{ Playing }}
+			{{/ Playing }}
+			{{^ Playing }}
+				&nbsp;
 			{{/ Playing }}
 		</div>
 	</div>
