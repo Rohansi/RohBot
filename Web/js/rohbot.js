@@ -112,31 +112,28 @@ function initializeRohBot() {
 		line.Type = "state";
 		window.chat.addLine(line, false);
 	};
-	
+	// To add: AvatarFolder and Color
 	rohbot.onUserList = function(users) {
 		window.chat.statusMessage('In this room:');
-		var html = '<div class="userList">';
-		for (var i = 0; i < users.length; i++) {
-			var user = users[i];
-			
-			if (user.Name == "Guest")
-				continue;
-				
-			if (user.Avatar == "0000000000000000000000000000000000000000")
-				user.Avatar = "fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb";
-			
-			html += '<div>';
-			var inGame = user.Playing != "";
-			var game = user.Playing != "" ? "In-Game: " + user.Playing : "&nbsp;";
-			var avatarUrl = "/steamcommunity/public/images/avatars/" + user.Avatar.substring(0, 2) + "/" + user.Avatar + "_full.jpg";
-			if (user.Avatar == "") avatarUrl = "rohbot.png";
-			if (!user.Web) user.Name = '<a href="http://steamcommunity.com/profiles/' + user.UserId + '" target="_blank">' + user.Name + '</a>';
-			html += '<img src="' + avatarUrl + '"/>';
-			html += '<div data-color="' + (inGame ? "ingame" : (user.Web ? "web" : "")) + '" data-rank="' + user.Rank + '">' + user.Name + '<br/>' + game + '</div>';
-			html += '</div>';
-		}
-		
-		html += '</div/>';
+
+		var html = templates.users.render({
+			Users: users
+				.filter(function(user) { return user.Name !== 'Guest'; })
+				.map(function(user)
+				{
+					// People w/o avatars, use the ? avatar
+					if (user.Avatar == "0000000000000000000000000000000000000000")
+						user.Avatar = "fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb";
+					if (user.Web)
+						user.Avatar = false;
+					else
+						user.AvatarFolder = user.Avatar.substring(0, 2);
+					if ( ! user.Playing ) // Explicit falsy = false
+						user.Playing = false;
+					user.Color = user.Playing ? "ingame" : ( user.Web ? "web" : "" );
+					return user;
+				})
+		});
 		window.chat.addHtml(html, false);
 	};
 	
