@@ -78,6 +78,63 @@ class window.ChatManager
 			Date: Date.now() / 1000
 			Content: text
 
-	addLine: (data) ->
-		console.error("Not implemented!", data)
-		# TODO
+	formatTime: ( date ) ->
+		hours = date.getHours()
+		suffix = 'AM'
+		if hours >= 12
+			suffix = 'PM'
+			hours -= 12
+		if hours == 0
+			hours = 12
+		minutes = date.getMinutes()
+		if minutes < 10
+			minutes = '0' + minutes
+
+		return "#{hours}:#{minutes} #{suffix}"
+
+
+	addLine: (data, prepend) ->
+		date = new Date( data.Date * 1000 )
+		line =
+			Time: @formatTime date
+			DateTime: date.toISOString()
+			Message: data.Content
+		switch data.Type
+			when 'chat'
+				senderClasses = ''
+				if data.UserType == 'RohBot'
+					senderClasses = 'rohBot'
+					if data.SenderStyle
+						senderClasses += ' ' + data.SenderStyle
+				line.Sender = data.Sender
+				line.SenderClasses = senderClasses
+				# FIXME linkify global function
+				line.Message = linkify line.Message
+			when 'state' then
+				# Seems fine
+			when 'whisper'
+				data.Type = 'chat'
+				if data.Sender == @rohbot.name
+					data.Sender = 'To ' + data.Receiver
+				else
+					data.Sender = 'From ' + data.Sender
+				return @addLine data
+			else
+				console.error "Unknown line type!", data
+				return
+
+		@addHtml templates.message.render( line ), prepend
+
+	addHtml: (html, prepend) ->
+		$chat = @chat
+		chat = $chat[0]
+
+		atBottom = $chat.outerHeight() >= ( chat.scrollHeight - $chat.scrollTop() - 32 )
+
+		if prepend
+			@chat.prepend html
+		else
+			@chat.append html
+
+		if ! prepend && atBottom
+			$chat.scrollTop chat.scrollHeight

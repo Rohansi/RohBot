@@ -57,14 +57,14 @@ function initializeRohBot() {
 		if (!data.Requested) {
 			$("#chat").html("");
 			for (var i = 0; i < data.Lines.length; i++) {
-				addRohBotMessage(data.Lines[i], data.Requested);
+				window.chat.addLine(data.Lines[i], data.Requested);
 			}
 			$("#chat").scrollTop($("#chat")[0].scrollHeight);
 		} else {
 			var firstMsg = $("#chat :first");
 			
 			for (var i = data.Lines.length - 1; i >= 0; i--) {
-				addRohBotMessage(data.Lines[i], data.Requested);
+				window.chat.addLine(data.Lines[i], data.Requested);
 			}
 			
 			requestedHistory = false;
@@ -112,16 +112,16 @@ function initializeRohBot() {
 			}
 		}
 		
-		addRohBotMessage(line, false);
+		window.chat.addLine(line, false);
 	};
 	
 	rohbot.onSysMessage = function(line) {
 		line.Type = "state";
-		addRohBotMessage(line, false);
+		window.chat.addLine(line, false);
 	};
 	
 	rohbot.onUserList = function(users) {
-		addRohBotMessage({ Type: "state", Date: getCurrentTime(), Content: "In this room:" });
+		window.chat.addLine({ Type: "state", Date: getCurrentTime(), Content: "In this room:" });
 		var html = '<div class="userList">';
 		for (var i = 0; i < users.length; i++) {
 			var user = users[i];
@@ -144,93 +144,10 @@ function initializeRohBot() {
 		}
 		
 		html += '</div/>';
-		addHtml(html, false);
+		window.chat.addHtml(html, false);
 	};
 	
 	rohbot.connect();
-}
-
-function addRohBotMessage(line, oldLine) {
-	var html;
-	switch (line.Type) {
-		case "chat": {
-			var senderClasses = '';
-			if ( line.UserType === 'RohBot' ) {
-				senderClasses = 'rohBot';
-				if ( line.SenderStyle )
-					senderClasses += ' ' + line.SenderStyle;
-			} else if ( line.InGame ) {
-				senderClasses = 'inGame';
-			}
-			html = templates.message.render({
-				Sender: line.Sender,
-				SenderClasses: senderClasses,
-				Time: formatTime( line.Date ),
-				// DateTime: ?? ISO the date pls
-				Message: linkify(line.Content)
-			});
-			
-			// var html = '<div><span class="sender">' + formatTime(line.Date) + ' - ' + sender + ': </span>' + linkify(line.Content) + '</div>';
-			addHtml(html, oldLine);
-			break;
-		}
-		
-		case "state": {
-
-			html = templates.message.render({
-				Time: formatTime( line.Date ),
-				// DateTime: ?? ISO the date pls
-				Message: line.Content
-			});
-			addHtml(html, oldLine);
-			break;
-		}
-		
-		case "whisper": {
-			line.Type = "chat";
-			if (line.Sender === rohbot.name)
-				line.Sender = "To " + line.Receiver;
-			else
-				line.Sender = "From " + line.Sender;
-			addRohBotMessage(line, oldLine);
-			break;
-		}
-	}
-};
-
-function addHtml(html, old) {
-	var elem = $("#chat");
-	var atBottom = (elem.outerHeight() >= (elem[0].scrollHeight - elem.scrollTop() - 32));
-	
-	if (!old)
-		$("#chat").append(html);
-	else
-		$("#chat").prepend(html);
-		
-	if (!old && atBottom)
-		elem.scrollTop(elem[0].scrollHeight);
-}
-
-function formatTime(date) {
-	date = new Date(date * 1000);
-	var suffix = "";
-	var hour = date.getHours();
-	
-	if (hour < 12)
-		suffix = "AM";
-	else
-		suffix = "PM";
-	
-	if (hour == 0)
-		hour = 12;
-	if (hour > 12)
-		hour = hour - 12;
-		
-	var min = date.getMinutes();
-	if (min.toString().length == 1)
-		min = "0" + min;
-		
-	return hour + ":" + min + " " + suffix;
 }
 
 function linkify(str) {
