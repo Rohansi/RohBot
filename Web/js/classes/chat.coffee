@@ -126,10 +126,9 @@ class window.ChatManager
 		@addHtml templates.message.render( line ), prepend
 
 	addHtml: (html, prepend) ->
-		$chat = @chat
-		chat = $chat[0]
+		chat = @chat[0]
 
-		atBottom = $chat.outerHeight() >= ( chat.scrollHeight - $chat.scrollTop() - 32 )
+		atBottom = @chat.outerHeight() >= ( chat.scrollHeight - chat.scrollTop - 32 )
 
 		if prepend
 			@chat.prepend html
@@ -137,4 +136,8 @@ class window.ChatManager
 			@chat.append html
 
 		if ! prepend && atBottom
-			$chat.scrollTop chat.scrollHeight
+			@scrollToBottom()
+
+	scrollToBottom: ->
+		chat = @chat[0]
+		chat.scrollTop = chat.scrollHeight
