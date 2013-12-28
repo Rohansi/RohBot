@@ -394,10 +394,6 @@ div.container > #footer {
   transform: rotate(-180deg);
   display: inline-block; }
 
-.rohBot.blur {
-  color: transparent;
-  text-shadow: 0 0 0.5em #b67fff, 0 0 0.25em #b67fff, 0 0 0.1em #8a33ff; }
-
 .rohBot.red {
   color: #dc2832; }
 
@@ -410,8 +406,8 @@ div.container > #footer {
   color: #DD4814; }
 
 .rohBot.ghostmatyr {
-  color: transparent;
-  text-shadow: #add8e6 0 0 1px;
+  color: #81a2ac;
+  text-shadow: #81a2ac 0 0 2px;
   -webkit-transform: rotate(3deg);
   transform: rotate(3deg);
   display: inline-block; }
