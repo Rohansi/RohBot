@@ -2,7 +2,10 @@
 if ! ( window.Notification? or window.webkitNotifications? )
 	class window.NotificationCenter
 		doNotification: ->
-		enableNotifications: ->
+		enableNotifications:  ->
+		disableNotifications: ->
+		setNotificationRegex: ->
+		checkMessage: ->
 	return
 isSane = window.Notification?
 Notification = window.Notification or {}
