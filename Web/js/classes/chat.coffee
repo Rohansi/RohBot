@@ -59,11 +59,11 @@ class window.ChatManager
 				@statusMessage 'Password saved.'
 		else if ! command.indexOf 'notify'
 			if command.length <= 7
-				# notifications.disableNotifications()
+				notifications.disableNotifications()
 				@statusMessage 'Notifications disabled!'
 			else
 				res = false
-				# res = notifications.setNotificationRegex message.substr 8
+				res = notifications.setNotificationRegex text.substr 8
 				if res
 					@statusMessage 'Invalid Regex: ' + res
 				else

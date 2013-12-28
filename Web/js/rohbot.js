@@ -74,34 +74,13 @@ function initializeRohBot() {
 	};
 	
 	rohbot.onMessage = function(line) {
-		if (storage && window.webkitNotifications &&
-			window.webkitNotifications.checkPermission() === 0 &&
-			line.Type == "chat" && line.Sender != rohbot.name)
-		{
-			var regexStr = storage.getItem("notify");
-			if (regexStr !== null && regexStr.length > 0) {
-				try {
-					var regex = new RegExp(regexStr, "gim");
-					if (regex.test(line.Content)) {
-						var notification = window.webkitNotifications.createNotification(
-							'rohbot.png',
-							roomName,
-							htmlDecode(line.Sender) + ": " + htmlDecode(line.Content)
-						);
-						
-						setTimeout(function() {
-							notification.close();
-						}, 3000);
-						
-						notification.onclick = function() {
-							notification.close();
-						}
-						
-						notification.show();
-					}
-				} catch (e) {
-					console.log(e.message);
-				}
+		console.log("line", line);
+		if (line.Type == "chat" && line.Sender != rohbot.name) {
+			if (notifications.checkMessage( line.Content )) {
+				notifications.doNotification(
+					roomName,
+					htmlDecode(line.Sender) + ": " + htmlDecode(line.Content)
+				);
 			}
 		}
 		
@@ -168,6 +147,7 @@ $(document).ready(function() {
 	initializeRohBot();
 
 	window.chat = new ChatManager( rohbot );
+	window.notifications = new NotificationCenter();
 
 	$("#password").keydown(function(e) {
 		if (e.keyCode == 13) {
