@@ -8,7 +8,7 @@
     },
     "no_tabs": {
         "name": "no_tabs",
-        "level": "error"
+        "level": "ignore"
     },
     "no_trailing_whitespace": {
         "name": "no_trailing_whitespace",
@@ -33,7 +33,7 @@
     },
     "indentation": {
         "name": "indentation",
-        "value": 4,
+        "value": 1,
         "level": "error"
     },
     "camel_case_classes": {
