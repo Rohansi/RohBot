@@ -2,10 +2,10 @@
 
 store = window.localStorage
 if store?
-	datum = Date.now()
+	datum = Date.now() + "a"
 	store.setItem 'localStorage test', datum
 	store = null unless datum == store.getItem 'localStorage test'
-	store?.deleteItem 'localStorage test'
+	store?.removeItem 'localStorage test'
 
 unless store?
 	s = {}
