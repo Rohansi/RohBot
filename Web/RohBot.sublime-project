@@ -1,0 +1,23 @@
+{
+	"folders":
+	[
+		{
+			"follow_symlinks": true,
+			"path": ".",
+			"name": "RohBot",
+			"folder_exclude_patterns": [
+				"build",
+				"dist",
+				"node_modules"
+			],
+			"file_exclude_patterns": [
+				"*.log"
+			]
+		}
+	],
+	"settings": {
+		"tab_size": 4,
+		"translate_tabs_to_spaces": false,
+		"detect_indentation": false
+	}
+}
