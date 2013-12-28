@@ -16,6 +16,10 @@ module.exports = (grunt) ->
 				src:  'build/css/rohbot.css'
 				dest: 'build/style.css'
 		# JS
+		coffeelint:
+			options:
+				configFile: 'coffeelint.json'
+			js: ['js/**/*.coffee']
 		coffee:
 			classes:
 				src: 'js/classes/*.coffee'
@@ -75,6 +79,7 @@ module.exports = (grunt) ->
 	grunt.loadNpmTasks 'grunt-contrib-coffee'
 	grunt.loadNpmTasks 'grunt-contrib-htmlmin'
 	grunt.loadNpmTasks 'grunt-myth'
+	grunt.loadNpmTasks 'grunt-coffeelint'
 	grunt.loadNpmTasks 'grunt-hogan'
 
 	grunt.registerTask 'default', [
@@ -97,6 +102,7 @@ module.exports = (grunt) ->
 	]
 
 	grunt.registerTask 'js', [
+		'coffeelint:js'
 		'coffee:classes'
 		'coffee:js'
 		'copy:js'
