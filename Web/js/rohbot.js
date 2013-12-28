@@ -121,7 +121,7 @@ function initializeRohBot() {
 	};
 	
 	rohbot.onUserList = function(users) {
-		window.chat.addLine({ Type: "state", Date: getCurrentTime(), Content: "In this room:" });
+		window.chat.statusMessage('In this room:');
 		var html = '<div class="userList">';
 		for (var i = 0; i < users.length; i++) {
 			var user = users[i];
@@ -172,10 +172,6 @@ function htmlDecode(html) {
 	var a = document.createElement('a');
 	a.innerHTML = html;
 	return a.textContent;
-}
-
-function getCurrentTime() {
-	return new Date().getTime() / 1000;
 }
 
 $(document).ready(function() {
