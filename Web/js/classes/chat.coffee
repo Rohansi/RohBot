@@ -59,8 +59,8 @@ class window.ChatManager
 				@statusMessage 'Password saved.'
 		else if ! command.indexOf 'notify'
 			if command.length <= 7
-				res = false # Hi Coffeelint
-				# notifications.disableNotifications
+				# notifications.disableNotifications()
+				@statusMessage 'Notifications disabled!'
 			else
 				res = false
 				# res = notifications.setNotificationRegex message.substr 8
