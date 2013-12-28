@@ -97,7 +97,7 @@ class window.ChatManager
 			Date: Date.now() / 1000
 			Content: text
 
-	formatTime: ( date ) ->
+	formatTime = ( date ) ->
 		hours = date.getHours()
 		suffix = 'AM'
 		if hours >= 12
@@ -111,11 +111,18 @@ class window.ChatManager
 
 		return "#{hours}:#{minutes} #{suffix}"
 
+	linkify = (text) ->
+		# Put spaces infront of <s to stop urlize seizing them as urls
+		text = text.replace '\n', ' <br>' # whitespace infront of a <br> isn't noticable
+		text = text.replace /ː(.+?)ː/g, ' ː<img src="/economy/emoticon/$1' # It is on an <img> though
+		text = urlize text, target: '_blank'
+		text = text.replace ' ː', '' # Get rid of the sentinel chars. (triangle colons are guaranteed to never appear in normal text)
+
 
 	addLine: (data, prepend) ->
 		date = new Date( data.Date * 1000 )
 		line =
-			Time: @formatTime date
+			Time: formatTime date
 			DateTime: date.toISOString()
 			Message: data.Content
 		switch data.Type

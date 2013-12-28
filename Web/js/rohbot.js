@@ -57,6 +57,13 @@ function initializeRohBot() {
 		$("#title").text(roomName);
 		oldestMessage = data.OldestLine;
 	};
+
+	var p = document.createElement('p');
+	function htmlDecode( str )
+	{
+		p.innerHTML = str;
+		return p.textContent;
+	}
 	
 	rohbot.onMessage = function(line) {
 		if (line.Type == "chat" && line.Sender != rohbot.name) {
@@ -75,56 +82,34 @@ function initializeRohBot() {
 		line.Type = "state";
 		window.chatMgr.addLine(line, false);
 	};
-	// To add: AvatarFolder and Color
+	function userListFilter(user)
+	{
+		return user.Name !== 'Guest';
+	}
+	function userListMap(user)
+	{
+		// People w/o avatars, use the ? avatar
+		if (user.Avatar == "0000000000000000000000000000000000000000")
+			user.Avatar = "fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb";
+		if (user.Web)
+			user.Avatar = false;
+		else
+			user.AvatarFolder = user.Avatar.substring(0, 2);
+		if ( ! user.Playing ) // Explicit falsy = false
+			user.Playing = false;
+		user.Color = user.Playing ? "ingame" : ( user.Web ? "web" : "" );
+		return user;
+	}
 	rohbot.onUserList = function(users) {
 		window.chatMgr.statusMessage('In this room:');
 
 		var html = templates.users.render({
-			Users: users
-				.filter(function(user) { return user.Name !== 'Guest'; })
-				.map(function(user)
-				{
-					// People w/o avatars, use the ? avatar
-					if (user.Avatar == "0000000000000000000000000000000000000000")
-						user.Avatar = "fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb";
-					if (user.Web)
-						user.Avatar = false;
-					else
-						user.AvatarFolder = user.Avatar.substring(0, 2);
-					if ( ! user.Playing ) // Explicit falsy = false
-						user.Playing = false;
-					user.Color = user.Playing ? "ingame" : ( user.Web ? "web" : "" );
-					return user;
-				})
+			Users: users.filter(userListFilter).map(userListMap)
 		});
 		window.chatMgr.addHtml(html, false);
 	};
 	
 	rohbot.connect();
-}
-
-function linkify(str) {
-	str = urlize(str, { target: '_blank' }).replace(/\n/g, '<br/>');
-	var res = $("<div/>");
-	var e = $("<div/>");
-	e.html(str).contents().each(function (i, elem) {
-		if (elem.nodeType == 3) {
-			res.append(htmlEncode(elem.textContent).replace(/ː(.+?)ː/img, '<img src="/economy/emoticon/$1"/>'));
-		} else {
-			res.append(elem);
-		}
-	});
-	return res.html();
-}
-
-function htmlEncode(html) {
-	return document.createElement('a').appendChild(document.createTextNode(html)).parentNode.innerHTML;
-}
-
-function htmlDecode(html) {
-	var a = document.createElement('a');
-	a.innerHTML = html;
-	return a.textContent;
 }
 
 $(document).ready(function() {
