@@ -15,16 +15,16 @@ class window.RohBot
 		# polite connection management
 		connected = false
 		@on "connected", =>
-			@isConnecting = false;
+			@isConnecting = false
 			manualSysMessage "Connected to RohBot!" unless connected
 			connected = true
 		@on "disconnected", =>
-			@isConnecting = false;
+			@isConnecting = false
 			manualSysMessage "Lost connection to RohBot. Reconnecting..." if connected
 			connected = false
 			@disconnect() # IDK it's in the js api
 		window.setInterval =>
-			return if @isConnecting;
+			return if @isConnecting
 			if @isConnected()
 				@_send "ping", {}
 			else
@@ -33,7 +33,7 @@ class window.RohBot
 
 	connect: ->
 		@disconnect()
-		@isConnecting = true;
+		@isConnecting = true
 		@socket = new WebSocket(@url)
 		@socket.addEventListener 'open', => @trigger "connected" if @isConnected()
 		@socket.addEventListener 'close', (e) =>

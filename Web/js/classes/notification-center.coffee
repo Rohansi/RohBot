@@ -53,19 +53,19 @@ class window.NotificationCenter
 				body: body
 			denoti = ->
 				noti?.close()
-				noti = null 
+				noti = null
 		else
 			noti = webkitNotifications.createNotification 'rohbot.png', title, body
 			denoti = ->
 				noti?.cancel()
-				noti = null 
+				noti = null
 
 		setTimeout denoti, 3000
 		noti.addEventListener 'click', denoti
 		noti.show?()
 
 	enableNotifications: () ->
-		@getPermission();
+		@getPermission()
 		window.localStorage.setItem 'notifications-enabled', true
 		@enabled = true
 

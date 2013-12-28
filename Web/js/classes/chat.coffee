@@ -1,5 +1,5 @@
 class window.ChatManager
-	constructor: (@rohbot)->
+	constructor: (@rohbot) ->
 		@chat  = $ '#chat'
 		@input = $ '#messageBox'
 		@send  = $ '#send'
@@ -36,19 +36,19 @@ class window.ChatManager
 			range.collapse(false)
 			range.select()
 
-	clearChat: -> @chat.empty();
+	clearChat: -> @chat.empty()
 
 	processCommand: (text) ->
 		text = text.trim()
 		return false unless ! text.indexOf('~') || ! text.indexOf('/')
-		command = text.substr( 1 ).toLowerCase();
+		command = text.substr( 1 ).toLowerCase()
 
 		if ! command.indexOf 'clear'
 			@clearChat()
 		else if ! command.indexOf 'logout'
-			@rohbot.login("guest", null, null);
+			@rohbot.login("guest", null, null)
 		else if ! command.indexOf 'password'
-			pass = text.substr( 10 );
+			pass = text.substr( 10 )
 			if ! pass.length
 				window.localStorage.removeItem 'password'
 				@statusMessage 'Password removed.'
@@ -59,6 +59,7 @@ class window.ChatManager
 				@statusMessage 'Password saved.'
 		else if ! command.indexOf 'notify'
 			if command.length <= 7
+				res = false # Hi Coffeelint
 				# notifications.disableNotifications
 			else
 				res = false
