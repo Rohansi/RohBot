@@ -13,7 +13,7 @@ class window.NotificationCenter
 		@hasPermission = false
 		@regex = null
 		@enabled = false
-		if window.localStorage.getItem 'notifications-enabled'
+		if window.rohStore.getItem 'notifications-enabled'
 			@enabled = true
 			@getPermission()
 			# Just in case we're using an older ver of the speck, ask on the first click as well.
@@ -22,7 +22,7 @@ class window.NotificationCenter
 				@getPermission()
 			document.addEventListener 'click', clickus
 			# Load the stored notification regex
-			if regex = window.localStorage.getItem 'notifications-regex'
+			if regex = window.rohStore.getItem 'notifications-regex'
 				try @regex = new RegExp regex, 'gim'
 
 
@@ -66,11 +66,11 @@ class window.NotificationCenter
 
 	enableNotifications: () ->
 		@getPermission()
-		window.localStorage.setItem 'notifications-enabled', true
+		window.rohStore.setItem 'notifications-enabled', true
 		@enabled = true
 
 	disableNotifications: () ->
-		window.localStorage.deleteItem 'notifications-enabled'
+		window.rohStore.deleteItem 'notifications-enabled'
 		@enabled = false
 
 	setNotificationRegex: ( str ) ->
@@ -80,7 +80,7 @@ class window.NotificationCenter
 			return e.message
 		@enableNotifications()
 		@regex = regex
-		window.localStorage.setItem 'notifications-regex', regex.source
+		window.rohStore.setItem 'notifications-regex', regex.source
 		return false
 
 	checkMessage: (message) -> @enabled and @regex? and @regex.test message

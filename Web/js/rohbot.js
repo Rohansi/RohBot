@@ -1,12 +1,5 @@
 
-var storage;
-try {
-	var uid = new Date;
-	(storage = window.localStorage).setItem(uid, uid);
-	var fail = storage.getItem(uid) != uid;
-	storage.removeItem(uid);
-	fail && (storage = false);
-} catch(e) { storage = false; }
+var storage = window.rohStore;
 
 var roomName;
 var requestedHistory;
