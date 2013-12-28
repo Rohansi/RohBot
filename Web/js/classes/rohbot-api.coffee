@@ -74,7 +74,7 @@ class window.RohBot
 	_onMessage: (data) ->
 		switch data.Type
 			when "authResponse"
-				@name = data.name
+				@name = data.Name
 				@trigger "login", data
 			when "chatHistory"
 				@trigger "chathistory", data
