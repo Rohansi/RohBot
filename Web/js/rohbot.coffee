@@ -32,7 +32,7 @@ window.initializeRohBot = ->
 
 		chatMgr.scrollToBottom()
 
-	rohbot.on 'chatHistory', (data) ->
+	rohbot.on 'chathistory', (data) ->
 		chatMgr.addChatHistory data.Lines, data.Requested
 
 		requestedHistory = false if data.Requested
@@ -54,7 +54,7 @@ window.initializeRohBot = ->
 				notifications.doNotification roomName,
 					htmlDecode line.Sender + ': ' + line.Content
 
-	rohbot.on 'sysMessage', (line) ->
+	rohbot.on 'sysmessage', (line) ->
 		line.Type = 'state'
 		chatMgr.addLine line
 
@@ -72,7 +72,7 @@ window.initializeRohBot = ->
 		user.Color = user.Playing ? "ingame" : ( user.Web ? "web" : "" )
 		return user
 
-	rohbot.on 'userList', (users) ->
+	rohbot.on 'userlist', (users) ->
 		chatMgr.statusMessage 'In this room: '
 		chatMgr.addHtml templates.users.render
 			Users: users.filter(userListFilter).map(userListMap)
