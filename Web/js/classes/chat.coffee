@@ -50,12 +50,12 @@ class window.ChatManager
 		else if ! command.indexOf 'password'
 			pass = text.substr( 10 )
 			if ! pass.length
-				window.rohStore.removeItem 'password'
+				window.rohStore.delete 'password'
 				@statusMessage 'Password removed.'
 			else if pass.length < 6
 				@statusMessage 'Password too short!'
 			else
-				window.rohStore.setItem 'password', pass
+				window.rohStore.set 'password', pass
 				@statusMessage 'Password saved.'
 		else if ! command.indexOf 'notify'
 			if command.length <= 7

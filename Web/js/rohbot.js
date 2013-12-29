@@ -1,5 +1,5 @@
 
-var storage = window.rohStore;
+var storage = localStorage;//window.rohStore;
 
 var roomName;
 var requestedHistory;
