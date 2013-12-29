@@ -15,17 +15,6 @@ $(document).ready(function() {
 		}
 	});
 	
-	$("#loginButton").click(function() {
-		rohbot.login({
-			Username: $("#username").val(),
-			Password: $("#password").val()
-		});
-	});
-	
-	$("#registerButton").click(function() {
-		rohbot.register($("#username").val(), $("#password").val());
-	});
-	
 	$("#chat").scroll(function() {
 		if ($("#chat").scrollTop() == 0 && !requestedHistory) {
 			rohbot.requestHistory(oldestMessage);

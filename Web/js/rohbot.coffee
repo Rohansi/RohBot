@@ -12,6 +12,7 @@ rohBotPls = ->
 
 window.rohbot = rohbot = rohBotPls()
 window.chatMgr = chatMgr = new ChatManager rohbot
+window.loginMgr = loginMgr = new LoginManager
 window.notifications = notifications = new NotificationCenter
 
 store = window.rohStore
@@ -20,28 +21,12 @@ rohbot.on 'connected', ->
 	oldestMessage = 0xFFFFFFFF
 
 	room = window.location.hash.substr 1
-	name = store.get 'name'
-	password = store.get 'password'
-	tokens = store.get 'tokens'
-	if name and (password or tokens)
-		rohbot.login
-			Username: name
-			Password: password
-			Tokens: tokens
-			Room: room
-	else
-		rohbot.login
-			Username: 'guest'
-			Room: room
+	loginMgr.autoLogin room
 
 rohbot.on 'login', (info) ->
-	storage.set 'name', info.Name
-	storage.set 'tokens', info.Tokens
-
 	if info.Success
 		$('#header').hide()
 		$('#messageBox').attr('disabled', false).val('')
-		$('#password').val('')
 	else
 		$('#header').show()
 		$('#messageBox').attr('disabled', true).val('Guests cannot speak!')

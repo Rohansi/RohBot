@@ -46,16 +46,16 @@ class window.ChatManager
 		if ! command.indexOf 'clear'
 			@clearChat()
 		else if ! command.indexOf 'logout'
-			@rohbot.login("guest", null, null)
+			loginMgr.logout()
 		else if ! command.indexOf 'password'
 			pass = text.substr( 10 )
 			if ! pass.length
-				window.rohStore.delete 'password'
+				loginMgr.forgetPassword()
 				@statusMessage 'Password removed.'
 			else if pass.length < 6
 				@statusMessage 'Password too short!'
 			else
-				window.rohStore.set 'password', pass
+				loginMgr.savePassword pass
 				@statusMessage 'Password saved.'
 		else if ! command.indexOf 'notify'
 			if command.length <= 7
