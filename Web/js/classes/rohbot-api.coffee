@@ -51,13 +51,25 @@ class window.RohBot
 
 	isConnected: -> @socket?.readyState == WebSocket.OPEN
 
-	login: (Username, Password, Tokens, Room) -> @_send "auth", { Method: "login", Username, Password, Tokens, Room }
+	login: (options) ->
+		# Username, Password, Tokens, Room
+		options['Method'] = 'login'
+		@_send "auth", options
 
-	register: (Username, Password) -> @_send "auth", { Method: "register", Username, Password }
+	register: (Username, Password) ->
+		@_send "auth", {
+			Method: "register"
+			Username
+			Password
+		}
 
-	requestHistory: (AfterDate) -> @_send "chatHistoryRequest", { AfterDate }
+	requestHistory: (AfterDate) ->
+		@_send "chatHistoryRequest", {
+			AfterDate
+		}
 
-	sendMessage: (Content) -> @_send "sendMessage", { Content }
+	sendMessage: (Content) ->
+		@_send "sendMessage", { Content }
 
 
 	_send: (type, data) ->
