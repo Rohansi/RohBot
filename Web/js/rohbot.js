@@ -16,7 +16,10 @@ $(document).ready(function() {
 	});
 	
 	$("#loginButton").click(function() {
-		rohbot.login($("#username").val(), $("#password").val(), null);
+		rohbot.login({
+			Username: $("#username").val(),
+			Password: $("#password").val()
+		});
 	});
 	
 	$("#registerButton").click(function() {
