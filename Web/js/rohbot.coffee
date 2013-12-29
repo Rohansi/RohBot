@@ -78,3 +78,10 @@ window.initializeRohBot = ->
 			Users: users.filter(userListFilter).map(userListMap)
 
 	rohbot.connect()
+
+	$("#chat").on 'scroll', ->
+		if this.scrollTop == 0 and not requestedHistory
+			rohbot.requestHistory oldestMessage
+			requestHistory = true
+
+	$(window).on 'resize', -> chatMgr.scrollToBottom()
