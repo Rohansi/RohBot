@@ -1,11 +1,9 @@
 
-var storage = localStorage;//window.rohStore;
-
-var roomName;
 var requestedHistory;
 var oldestMessage;
 
 $(document).ready(function() {
+	initializeRohBot();
 
 	$("#password").keydown(function(e) {
 		if (e.keyCode == 13) {
