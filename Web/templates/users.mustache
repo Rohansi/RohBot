@@ -2,7 +2,7 @@
 	{{# Users }}
 	<div>
 		{{# Avatar }}
-			<img alt="{{ Name }}'s Steam Avatar"
+			<img alt="{{{ Name }}}'s Steam Avatar"
 				src="https://fpp.literallybrian.com/steamcommunity/public/images/avatars/{{ AvatarFolder }}/{{ Avatar }}_full.jpg">
 		{{/ Avatar }}
 		{{^ Avatar }}
@@ -10,16 +10,16 @@
 		{{/ Avatar }}
 		<div data-color="{{ Color }}" data-rank="{{ Rank }}">
 			{{# Web }}
-				{{ Name }}
+				{{{ Name }}}
 			{{/ Web }}
 			{{^ Web }}
 				<a href="https://steamcommunity.com/profiles/{{ UserId }}" target="_blank">
-					{{ Name }}
+					{{{ Name }}}
 				</a>
 			{{/ Web }}
 			<br>
 			{{# Playing }}
-				In-Game: {{ Playing }}
+				In-Game: {{{ Playing }}}
 			{{/ Playing }}
 			{{^ Playing }}
 				&nbsp;
