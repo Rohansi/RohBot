@@ -14,7 +14,7 @@ div.container {
 		color: darken(white, 10);
 		background-color: @uiColor;
 		padding: 6px;
-		> a,
+		> .btn,
 		> input,
 		> textarea {
 			display: block;
@@ -31,9 +31,10 @@ div.container {
 			transition: all 0.2s ease-in-out;
 		}
 		
-		> a {
+		> .btn {
 			flex: 0 0 auto;
 
+			box-sizing: content-box;
 			text-align: center;
 			background-color: @buttonColor;
 			color: white;
