@@ -1,13 +1,14 @@
 class window.ChatManager
 	constructor: (@rohbot) ->
 		@chat  = $ '#chat'
+		@form  = $ '#chat-form'
 		@input = $ '#messageBox'
-		@send  = $ '#send'
 
 		@input.on 'keydown', @processEnter
-		@send.on  'click',   @processSend
+		@form.on  'submit',   @processSend
 
-	processSend: =>
+	processSend: (e) =>
+		e.preventDefault()
 		message = @input.val()
 		return unless message.length
 
@@ -20,8 +21,7 @@ class window.ChatManager
 		# Converted from http://stackoverflow.com/a/3533099/1056845
 		return unless event.keyCode == 13
 		unless event.ctrlKey
-			@input.blur().focus()
-			@send.click()
+			@form.submit()
 			return
 		dom = @input[0]
 		if typeof dom.selectionStart == "number" and typeof dom.selectionEnd == "number"
