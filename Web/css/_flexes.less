@@ -2,10 +2,6 @@
 div.container {
 	display: flex;
 	flex-direction: column;
-	flex-wrap: nowrap;
-	justify-content: flex-start;
-	align-content: flex-start;
-	align-items: stretch;
 	height: 100%;
 	
 	background-color: @colBack;
@@ -13,13 +9,7 @@ div.container {
 
 	.fixed-bar {
 		flex: 0 0 auto;
-		align-self: auto;
 		display: flex;
-		flex-direction: row;
-		flex-wrap: nowrap;
-		justify-content: flex-start;
-		align-content: flex-start;
-		align-items: flex-start;
 
 		color: darken(white, 10);
 		background-color: @uiColor;
@@ -37,8 +27,8 @@ div.container {
 		}
 		
 		> a {
-			order: 3;
 			flex: 0 0 auto;
+
 			text-align: center;
 			background-color: @buttonColor;
 			color: white;
@@ -54,8 +44,8 @@ div.container {
 		
 		> input,
 		> textarea {
-			order: 1;
 			flex: 1 0 auto;
+
 			color: lighten(black, 1);
 			background-color: darken(white, 10);
 			border: none;
@@ -69,42 +59,28 @@ div.container {
 				@include transition(all 0.2s ease-in-out);
 			}
 		}
-		
-		> h1 {
-			order: 0;
-			flex: 20 0 auto;
-		}
 	}
 
 	#header {
-		order: 0;
 		h1 {
+			flex: 20 0 auto;
 			font-size: 17pt;
 		}
 	}
 
 	#chat {
-		order: 1;
 		flex: 20 0 auto;
 		align-self: auto;
+		
 		padding: 4px;
 		overflow-y: scroll;
 		word-wrap: break-word;
 		min-height: 0px;
-		height: 0%;
 		white-space: pre-wrap;
 	}
 
 	#footer {
-		order: 2;
-			
-		> a {
-			order: 1;
-		}
-		
 		> textarea {
-			order: 0;
-			flex: 20 0 auto;
 			resize: none;
 			font-family: inherit;
 		}
