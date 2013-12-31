@@ -22,6 +22,11 @@ div.container {
 			padding: 6px;
 			font-size: 10pt;
 			outline: none;
+			margin: 0px;
+			margin-right: 6px;
+			&:last-child {
+				margin-right: 0;
+			}
 
 			transition: all 0.2s ease-in-out;
 		}
@@ -49,8 +54,6 @@ div.container {
 			color: lighten(black, 1);
 			background-color: darken(white, 10);
 			border: none;
-			margin: 0px;
-			margin-right: 6px;
 			
 			&:focus {
 				color: lighten(black, 20);
