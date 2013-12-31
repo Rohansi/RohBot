@@ -9,7 +9,8 @@ class window.LoginManager
 
 			@password.val '' if info.Success
 
-		$('#loginButton').on 'click', =>
+		$('#login-form').on 'submit', (e) =>
+			e.preventDefault()
 			@login @username.val(), @password.val()
 
 		$('#registerButton').on 'click', =>
