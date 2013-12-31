@@ -21,6 +21,7 @@ class window.ChatManager
 		# Converted from http://stackoverflow.com/a/3533099/1056845
 		return unless event.keyCode == 13
 		unless event.ctrlKey
+			event.preventDefault()
 			@form.submit()
 			return
 		dom = @input[0]
