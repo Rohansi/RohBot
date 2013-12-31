@@ -1,0 +1,11 @@
+<div>
+	<span class="sender">
+		<time datetime="{{ DateTime }}">{{ Time }}</time>
+		&nbsp;&#8209;&nbsp;
+		{{# Sender }}
+			<span class="{{ SenderClasses }}">{{ Sender }}</span>
+			:&nbsp;
+		{{/ Sender}}
+	</span>
+	{{{ Message }}}
+</div>
