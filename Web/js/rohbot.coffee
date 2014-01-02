@@ -69,7 +69,7 @@ window.initializeRohBot = ->
 			user.AvatarFolder = user.Avatar.substring(0, 2)
 		# Explicit falsy to false
 		user.Playing = false unless user.Playing
-		user.Color = user.Playing ? "ingame" : ( user.Web ? "web" : "" )
+		user.Color = if user.Playing then "ingame" else if user.Web then "web" else ""
 		return user
 
 	rohbot.on 'userlist', (users) ->
