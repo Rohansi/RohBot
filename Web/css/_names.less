@@ -1,0 +1,86 @@
+/* Name Styles */
+@keyframes heartGlow {
+	0%   { text-shadow: 0 0 0.1em #FF69B4; }
+	100% { text-shadow: 0 0 0.5em #FF69B4; }
+}
+
+#chat .sender {
+
+	// Heart (Dajoh)
+	.heart:after {
+		content: '\00a0\2764';
+		color: #FF69B4;
+		animation: heartGlow 2.5s linear infinite alternate;
+	}
+
+	// Glow (Rohan)
+	.glow {
+		color: white;
+		text-shadow: 0 0 0.5em white;
+	}
+
+	// Green + Monospace (Sweb)
+	.hacker {
+		font-size: 1.15em;
+		line-height: 0.95em;
+		color: #0B0;
+		font-family: monospace;
+	}
+	.hacker:after {
+		content: '.c';
+	}
+
+	// Swastikas (Krix)
+	.hitler:before,
+	.hitler:after {
+		content: "\5350";
+		transform: rotate(45deg);
+		display: inline-block;
+		font-size: small;
+	}
+	.hitler:before {
+		margin-right: 3px;
+	}
+	.hitler:after {
+		margin-left: 3px;
+	}
+
+	// Australian
+	.upsidedown {
+		transform: rotate(-180deg);
+		display: inline-block;
+	}
+
+	// Red (Krix)
+	.red {
+		color: #dc2832;
+	}
+
+	// Pink
+	.hot {
+		font-weight: bold;
+		color: #FF69B4;
+	}
+
+	// Orange
+	.orangepeel {
+		font-weight: bold;
+		color: #DD4814;
+	}
+
+	// All spooky n shit. (Farmatyr)
+	.ghostmatyr {
+		color: rgb(129, 162, 172);
+		text-shadow: rgb(129, 162, 172) 0 0 2px;
+		transform: rotate(3deg);
+		display: inline-block;
+	}
+
+	// Rainbows
+	.rainbow { /* webkit only :( */
+		background-image: -webkit-gradient(linear, left top, right top, color-stop(0, #f22), color-stop(0.16, #f2f), color-stop(0.32, #2ff), color-stop(0.48, #2f2), color-stop(0.64, #2f2), color-stop(0.8, #ff2), color-stop(1, #f22));
+		-webkit-background-clip: text;
+		color: transparent;
+	}
+
+}

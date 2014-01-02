@@ -1,0 +1,107 @@
+
+.container {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	
+	background-color: @colBack;
+}
+
+.fixed-bar {
+	flex: 0 0 auto;
+	display: flex;
+
+	color: darken(white, 10);
+	background-color: @uiColor;
+	padding: 6px;
+
+	form {
+		display: flex;
+		flex: 1 0 auto;
+	}
+
+	.btn,
+	input,
+	textarea {
+		display: block;
+		height: 16px;
+		padding: 6px;
+		font-size: 10pt;
+		outline: none;
+		transition: all 0.2s ease-in-out;
+		margin: 0px;
+		margin-right: 6px;
+		&:last-child {
+			margin-right: 0;
+		}
+	}
+	
+	.btn {
+		flex: 0 0 auto;
+
+		box-sizing: content-box;
+		text-align: center;
+		background-color: @buttonColor;
+		color: white;
+		font-weight: bold;
+		text-decoration: none;
+		cursor: pointer;
+
+		&:hover {
+			background-color: lighten(@buttonColor, 10);
+		}
+	}
+	
+	input,
+	textarea {
+		flex: 1 0 auto;
+
+		color: lighten(black, 1);
+		background-color: darken(white, 10);
+		border: none;
+		
+		&:focus {
+			color: lighten(black, 20);
+			background-color: darken(white, 2);
+		}
+	}
+}
+
+#header {
+	h1 {
+		flex: 20 0 auto;
+		font-size: 17pt;
+	}
+}
+
+#chat {
+	flex: 20 0 auto;
+	align-self: auto;
+	
+	padding: 4px;
+	overflow-y: scroll;
+	word-wrap: break-word;
+	min-height: 0px;
+	height: 0%;
+	white-space: pre-wrap;
+}
+
+#footer {
+	textarea {
+		resize: none;
+		font-family: inherit;
+	}
+	
+}
+
+@media all and (max-width: 600px) {
+	div.container > #header {
+		h1 { display: none; }
+	}
+}
+@-moz-document url-prefix() {
+	.flex-container {
+		width: 100%;
+		-moz-box-sizing: border-box;
+	}
+}
