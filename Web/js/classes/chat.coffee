@@ -133,6 +133,8 @@ class window.ChatManager
 					senderClasses = 'rohBot'
 					if data.SenderStyle
 						senderClasses += ' ' + data.SenderStyle
+				else if data.InGame
+					senderClasses = 'inGame'
 				line.Sender = data.Sender
 				line.SenderClasses = senderClasses
 				# FIXME linkify global function
