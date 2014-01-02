@@ -95,6 +95,7 @@ namespace SteamMobile.Rooms
         public bool IsActive { get; private set; }
         public readonly bool IsWhitelisted;
         public readonly bool IsHidden;
+        public readonly bool IsPrivate;
         public readonly bool IsLogging;
 
         /// <summary>
@@ -136,6 +137,7 @@ namespace SteamMobile.Rooms
             _showLinkTitles = (roomInfo["LinkTitles"] ?? "").ToLower() == "true";
             IsWhitelisted = (roomInfo["Whitelist"] ?? "").ToLower() == "true";
             IsHidden = (roomInfo["Hidden"] ?? "").ToLower() == "true";
+            IsPrivate = (roomInfo["Private"] ?? "").ToLower() == "true";
             IsLogging = (roomInfo["Logging"] ?? "true").ToLower() == "true";
         }
 
@@ -157,7 +159,19 @@ namespace SteamMobile.Rooms
 
             var message = new Message();
             message.Line = line;
-            Program.SessionManager.Broadcast(message, s => s.Room == RoomInfo.ShortName);
+
+            Func<Session, bool> filter = session =>
+            {
+                if (IsPrivate)
+                {
+                    if (session.Account == null || IsBanned(session.Account.Name))
+                        return false;
+                }
+
+                return session.Room == RoomInfo.ShortName;
+            };
+
+            Program.SessionManager.Broadcast(message, filter);
 
             AddHistory(line);
         }
@@ -184,6 +198,23 @@ namespace SteamMobile.Rooms
         /// </summary>
         public virtual void SendHistory(Session session)
         {
+            if (IsPrivate)
+            {
+                if (session.Account == null)
+                {
+                    ClearScrollbackFor(session);
+                    session.SendSysMessage("You must login to view this room.");
+                    return;
+                }
+
+                if (IsBanned(session.Account.Name))
+                {
+                    ClearScrollbackFor(session);
+                    session.SendSysMessage("You are banned from this room. To view it you must be unbanned (or whitelisted).");
+                    return;
+                }
+            }
+
             lock (_history)
             {
                 var chatHistory = new ChatHistory { Name = RoomInfo.Name, ShortName = RoomInfo.ShortName, Requested = false, Lines = _history.ToList() };
@@ -305,6 +336,12 @@ namespace SteamMobile.Rooms
 
             if (IsLogging)
                 line.Insert();
+        }
+
+        private void ClearScrollbackFor(Session session)
+        {
+            var chatHistory = new ChatHistory { Name = RoomInfo.Name, ShortName = RoomInfo.ShortName, Requested = false, Lines = new List<HistoryLine>() };
+            session.Send(chatHistory);
         }
     }
 }
