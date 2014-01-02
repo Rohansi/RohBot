@@ -115,7 +115,7 @@ class window.ChatManager
 	linkify = (text) ->
 		# Put spaces infront of <s to stop urlize seizing them as urls
 		text = text.replace '\n', ' <br>' # whitespace infront of a <br> isn't noticable
-		text = text.replace /ː(.+?)ː/g, ' ː<img src="/economy/emoticon/$1' # It is on an <img> though
+		text = text.replace /ː(.+?)ː/g, ' ː<img src="/economy/emoticon/$1" alt="$1" class="emote">' # It is on an <img> though
 		text = urlize text, target: '_blank'
 		text = text.replace ' ː', '' # Get rid of the sentinel chars. (triangle colons are guaranteed to never appear in normal text)
 
