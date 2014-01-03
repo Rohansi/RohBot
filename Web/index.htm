@@ -97,7 +97,7 @@
 				rohbot.onMessage = function(line) {
 					if (storage && window.webkitNotifications &&
 						window.webkitNotifications.checkPermission() === 0 &&
-						line.Type == "chat" && line.Sender != rohbot.name)
+						line.Type == "chat" && line.SenderId != "0" && line.Sender != rohbot.name)
 					{
 						var regexStr = storage.getItem("notify");
 						if (regexStr !== null && regexStr.length > 0) {
