@@ -112,3 +112,4 @@ UpgradeLog*.XML
 node_modules
 Web/dist
 Web/build
+*.sublime-workspace
