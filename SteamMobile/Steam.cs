@@ -85,5 +85,10 @@ namespace SteamMobile
             _bot.Connect();
             Status = ConnectionStatus.Connecting;
         }
+
+        public void Disconnect()
+        {
+            _bot.Disconnect();
+        }
     }
 }

@@ -25,6 +25,12 @@ namespace SteamMobile.Packets
                 return;
             }
 
+            if (room.IsPrivate)
+            {
+                if (session.Account == null || room.IsBanned(session.Account.Name))
+                    return;
+            }
+
             List<HistoryLine> lines;
 
             if (Util.DateTimeFromUnixTimestamp(AfterDate) > DateTime.UtcNow.AddDays(-7))
