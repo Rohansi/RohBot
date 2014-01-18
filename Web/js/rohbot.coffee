@@ -49,7 +49,7 @@ window.initializeRohBot = ->
 
 	rohbot.on 'message', (line) ->
 		chatMgr.addLine line
-		if line.Type == 'chat' and line.Sender != rohbot.name
+		if line.Type == 'chat' and line.Sender != rohbot.name and line.SenderId != "0"
 			if notifications.checkMessage line.Content
 				notifications.doNotification roomName,
 					htmlDecode line.Sender + ': ' + line.Content
