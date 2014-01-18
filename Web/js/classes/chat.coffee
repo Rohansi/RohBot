@@ -107,6 +107,8 @@ class window.ChatManager
 		if hours == 0
 			hours = 12
 		minutes = date.getMinutes()
+		if hours < 10
+			hours = ' ' + hours
 		if minutes < 10
 			minutes = '0' + minutes
 
