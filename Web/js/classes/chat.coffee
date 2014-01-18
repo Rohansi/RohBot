@@ -2,7 +2,7 @@ class window.ChatManager
 	constructor: (@rohbot) ->
 		@chat  = $ '#chat'
 		@form  = $ '#chat-form'
-		@input = $ '#messageBox'
+		@input = $ '#message-box'
 
 		@input.on 'keydown', @processEnter
 		@form.on  'submit',   @processSend
