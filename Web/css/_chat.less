@@ -5,12 +5,12 @@
 	> li {
 		line-height: 1.2em;
 		font-size: 0.9em;
-		color: @colText;
+		color: @rohpod-text;
 		margin-left: @timestampWidth;
 		position: relative;
 		&:before {
 			content: " -";
-			color: @colName;
+			color: @rohpod-user-steam;
 		}
 	}
 
@@ -21,13 +21,13 @@
 		font-family: Consolas, "Lucida Sans Typewriter", Monaco, "Bitstream Vera Sans Mono", monospace;
 		width: @timestampWidth;
 		top: 0;
-		color: @colName;
+		color: @rohpod-user-steam;
 	}
 
 	a {
-		color: lighten( @colText, 10% );
+		color: lighten( @rohpod-text, 10% );
 		&:hover {
-			color: @colText;
+			color: @rohpod-text;
 		}
 	}
 
@@ -38,7 +38,7 @@
 	}
 
 	.sender {
-		color: @colName;
+		color: @rohpod-user-steam;
 		&:after {
 			content: ":";
 			display: inline;
