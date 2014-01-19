@@ -8,7 +8,10 @@
 			"folder_exclude_patterns": [
 				"build",
 				"dist",
-				"node_modules"
+				"node_modules",
+				"img",
+				"fonts",
+				"jslib"
 			],
 			"file_exclude_patterns": [
 				"*.log"
