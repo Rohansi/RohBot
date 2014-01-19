@@ -1,9 +1,11 @@
 <li class="message">
 	<time datetime="{{ DateTime }}">{{ Time }}</time>
+	&nbsp;
 	{{# Sender }}
 	<span class="sender">
 		<span class="{{ SenderClasses }}">{{{ Sender }}}</span>
 	</span>
+	&nbsp;
 	{{/ Sender}}
 	<span class="content">
 		{{{ Message }}}
