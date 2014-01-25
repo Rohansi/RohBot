@@ -13,7 +13,7 @@
 		<div class="container">
 			<header id="header" class="fixed-bar">
 				<h1 id="title" role="heading">RohBot</h1>
-				<form id="login-form">
+				<form id="login-form" method="POST">
 					<label for="username">Username</label>
 					<input id="username" name="username" placeholder="username" spellcheck="false" required>
 					<label for="password">Password</label>
@@ -24,7 +24,7 @@
 			</header>
 			<ol id="chat" role="log" aria-live="polite"></ol>
 			<footer id="footer" class="fixed-bar">
-				<form id="chat-form">
+				<form id="chat-form" method="POST">
 					<label for="message-box">Send a message</label>
 					<textarea aria-controls="chat" id="message-box" name="message-box" placeholder="enter message ..." spellcheck="false"></textarea>
 					<input type="submit" class="btn" value="Send" id="send">
