@@ -1,27 +1,20 @@
 
 #chat {
 	list-style: none;
-	@timestampWidth: 4.5em;
 	> li {
 		line-height: 1.2em;
 		font-size: 0.9em;
 		color: @rohpod-text;
-		margin-left: @timestampWidth;
-		position: relative;
-		&:before {
-			content: " -";
-			color: @rohpod-user-steam;
-		}
+		margin-left: 0;
 	}
 
 	time {
-		position: absolute;
-		left: -@timestampWidth;
-		display: block;
 		font-family: Consolas, "Lucida Sans Typewriter", Monaco, "Bitstream Vera Sans Mono", monospace;
-		width: @timestampWidth;
-		top: 0;
 		color: @rohpod-user-steam;
+		&:after {
+			content: "\00a0\2011";
+			// font-family: inherit;
+		}
 	}
 
 	a {
