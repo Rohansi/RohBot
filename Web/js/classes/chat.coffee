@@ -112,7 +112,7 @@ class window.ChatManager
 		if minutes < 10
 			minutes = '0' + minutes
 
-		return "#{hours}:#{minutes}&nbsp;#{suffix}"
+		return "#{hours}:#{minutes} #{suffix}"
 
 	linkify = (text) ->
 		# Put spaces infront of <s to stop urlize seizing them as urls
@@ -137,7 +137,7 @@ class window.ChatManager
 						senderClasses += ' ' + data.SenderStyle
 				else if data.InGame
 					senderClasses = 'inGame'
-				line.Sender = data.Sender.replace(/\ /g, '&nbsp;')
+				line.Sender = data.Sender
 				line.SenderClasses = senderClasses
 				# FIXME linkify global function
 				line.Message = linkify line.Message
