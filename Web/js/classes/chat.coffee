@@ -98,7 +98,7 @@ class window.ChatManager
 			Date: Date.now() / 1000
 			Content: text
 
-	formatTime = ( date ) ->
+	formatTime: ( date ) ->
 		hours = date.getHours()
 		suffix = 'AM'
 		if hours >= 12
@@ -114,7 +114,7 @@ class window.ChatManager
 
 		return "#{hours}:#{minutes} #{suffix}"
 
-	linkify = (text) ->
+	linkify: (text) ->
 		# Put spaces infront of <s to stop urlize seizing them as urls
 		text = text.replace '\n', ' <br>' # whitespace infront of a <br> isn't noticable
 		text = text.replace /ː(.+?)ː/g, ' ː<img src="/economy/emoticon/$1" alt="$1" class="emote">' # It is on an <img> though
@@ -125,7 +125,7 @@ class window.ChatManager
 	addLine: (data, prepend) ->
 		date = new Date( data.Date * 1000 )
 		line =
-			Time: formatTime date
+			Time: @formatTime date
 			DateTime: date.toISOString()
 			Message: data.Content
 		switch data.Type
@@ -139,8 +139,7 @@ class window.ChatManager
 					senderClasses = 'inGame'
 				line.Sender = data.Sender
 				line.SenderClasses = senderClasses
-				# FIXME linkify global function
-				line.Message = linkify line.Message
+				line.Message = @linkify line.Message
 			when 'state' then
 				# Seems fine
 			when 'whisper'
