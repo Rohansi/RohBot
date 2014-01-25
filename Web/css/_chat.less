@@ -1,16 +1,28 @@
 
 #chat {
-	> * {
+	list-style: none;
+	> li {
 		line-height: 1.2em;
 		font-size: 0.9em;
-		color: @colText;
+		color: @rohpod-text;
+		margin-left: 0;
+	}
+
+	time {
+		font-family: Consolas, "Lucida Sans Typewriter", Monaco, "Bitstream Vera Sans Mono", monospace;
+		color: @rohpod-user-steam;
+		white-space: nowrap;
+		&:after {
+			content: "\00a0\2011";
+			// font-family: inherit;
+		}
 	}
 
 	a {
-		color: lighten( @colText, 10% );
-	}
-	a:hover {
-		color: @colText;
+		color: lighten( @rohpod-text, 10% );
+		&:hover {
+			color: @rohpod-text;
+		}
 	}
 
 	img {
@@ -20,14 +32,11 @@
 	}
 
 	.sender {
-		color: @colName;
-	}
-
-	.inGame {
-		color: @colInGame;
-	}
-
-	.rohBot {
-		color: @colWeb;
+		color: @rohpod-user-steam;
+		white-space: nowrap;
+		&:after {
+			content: ":";
+			display: inline;
+		}
 	}
 }

@@ -2,7 +2,7 @@ class window.ChatManager
 	constructor: (@rohbot) ->
 		@chat  = $ '#chat'
 		@form  = $ '#chat-form'
-		@input = $ '#messageBox'
+		@input = $ '#message-box'
 
 		@input.on 'keydown', @processEnter
 		@form.on  'submit',   @processSend
@@ -107,6 +107,8 @@ class window.ChatManager
 		if hours == 0
 			hours = 12
 		minutes = date.getMinutes()
+		if hours < 10
+			hours = ' ' + hours
 		if minutes < 10
 			minutes = '0' + minutes
 
