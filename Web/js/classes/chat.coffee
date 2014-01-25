@@ -49,7 +49,7 @@ class window.ChatManager
 		else if ! command.indexOf 'logout'
 			loginMgr.logout()
 		else if ! command.indexOf 'password'
-			pass = text.substr( 10 )
+			pass = text.substr 10
 			if ! pass.length
 				loginMgr.forgetPassword()
 				@statusMessage 'Password removed.'
@@ -69,6 +69,21 @@ class window.ChatManager
 					@statusMessage 'Invalid Regex: ' + res
 				else
 					@statusMessage 'Notification regex saved!'
+		else if ! command.indexOf 'timeformat'
+			fmt = text.substr 12
+			if fmt == '24hr'
+				window.rohStore.set 'clock format', '24hr'
+				@statusMessage 'Clock set to 24hr'
+			else if fmt == '12hr'
+				window.rohStore.set 'clock format', '12hr'
+				@statusMessage 'Clock set to 12hr'
+			else
+				@statusMessage 'Unknown clock format ' + fmt + '! Try 12hr or 24hr.'
+				return
+			@chat.find('time').each( (a,b) =>
+				me = $ b
+				me.text @formatTime new Date me.attr 'datetime'
+			)
 		else
 			return false
 		return true
@@ -100,19 +115,23 @@ class window.ChatManager
 
 	formatTime: ( date ) ->
 		hours = date.getHours()
-		suffix = 'AM'
-		if hours >= 12
-			suffix = 'PM'
-			hours -= 12
-		if hours == 0
-			hours = 12
+		military = '24hr' == window.rohStore.get 'clock format'
+		unless military
+			suffix = 'AM'
+			if hours >= 12
+				suffix = 'PM'
+				hours -= 12
+			if hours == 0
+				hours = 12
 		minutes = date.getMinutes()
 		if hours < 10
 			hours = ' ' + hours
 		if minutes < 10
 			minutes = '0' + minutes
-
-		return "#{hours}:#{minutes} #{suffix}"
+		if military
+			return "#{hours}:#{minutes}"
+		else
+			return "#{hours}:#{minutes} #{suffix}"
 
 	linkify: (text) ->
 		# Put spaces infront of <s to stop urlize seizing them as urls
