@@ -55,10 +55,8 @@ module.exports = (grunt) ->
 				expand:  true
 				flatten: true
 			img:
-				src:  'img/*'
-				dest: 'dist/'
-				expand:  true
-				flatten: true
+				src:  'img/rohbot.png'
+				dest: 'dist/rohbot.png'
 			index:
 				src:  'index.htm'
 				dest: 'build/'

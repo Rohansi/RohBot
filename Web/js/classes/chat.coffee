@@ -2,7 +2,7 @@ class window.ChatManager
 	constructor: (@rohbot) ->
 		@chat  = $ '#chat'
 		@form  = $ '#chat-form'
-		@input = $ '#messageBox'
+		@input = $ '#message-box'
 
 		@input.on 'keydown', @processEnter
 		@form.on  'submit',   @processSend
@@ -49,7 +49,7 @@ class window.ChatManager
 		else if ! command.indexOf 'logout'
 			loginMgr.logout()
 		else if ! command.indexOf 'password'
-			pass = text.substr( 10 )
+			pass = text.substr 10
 			if ! pass.length
 				loginMgr.forgetPassword()
 				@statusMessage 'Password removed.'
@@ -69,6 +69,21 @@ class window.ChatManager
 					@statusMessage 'Invalid Regex: ' + res
 				else
 					@statusMessage 'Notification regex saved!'
+		else if ! command.indexOf 'timeformat'
+			fmt = text.substr 12
+			if fmt == '24hr'
+				window.rohStore.set 'clock format', '24hr'
+				@statusMessage 'Clock set to 24hr'
+			else if fmt == '12hr'
+				window.rohStore.set 'clock format', '12hr'
+				@statusMessage 'Clock set to 12hr'
+			else
+				@statusMessage 'Unknown clock format ' + fmt + '! Try 12hr or 24hr.'
+				return
+			@chat.find('time').each( (a,b) =>
+				me = $ b
+				me.text @formatTime new Date me.attr 'datetime'
+			)
 		else
 			return false
 		return true
@@ -98,21 +113,30 @@ class window.ChatManager
 			Date: Date.now() / 1000
 			Content: text
 
-	formatTime = ( date ) ->
+	formatTime: ( date ) ->
 		hours = date.getHours()
-		suffix = 'AM'
-		if hours >= 12
-			suffix = 'PM'
-			hours -= 12
-		if hours == 0
-			hours = 12
+		military = '24hr' == window.rohStore.get 'clock format'
+		if military
+			if hours < 10
+				hours = '0' + hours
+		else
+			suffix = 'AM'
+			if hours >= 12
+				suffix = 'PM'
+				hours -= 12
+			if hours == 0
+				hours = 12
+			if hours < 10
+				hours = ' ' + hours
 		minutes = date.getMinutes()
 		if minutes < 10
 			minutes = '0' + minutes
+		if military
+			return "#{hours}:#{minutes}"
+		else
+			return "#{hours}:#{minutes} #{suffix}"
 
-		return "#{hours}:#{minutes}&nbsp;#{suffix}"
-
-	linkify = (text) ->
+	linkify: (text) ->
 		# Put spaces infront of <s to stop urlize seizing them as urls
 		text = text.replace '\n', ' <br>' # whitespace infront of a <br> isn't noticable
 		text = text.replace /ː(.+?)ː/g, ' ː<img src="/economy/emoticon/$1" alt="$1" class="emote">' # It is on an <img> though
@@ -123,7 +147,7 @@ class window.ChatManager
 	addLine: (data, prepend) ->
 		date = new Date( data.Date * 1000 )
 		line =
-			Time: formatTime date
+			Time: @formatTime date
 			DateTime: date.toISOString()
 			Message: data.Content
 		switch data.Type
@@ -135,10 +159,9 @@ class window.ChatManager
 						senderClasses += ' ' + data.SenderStyle
 				else if data.InGame
 					senderClasses = 'inGame'
-				line.Sender = data.Sender.replace(/\ /g, '&nbsp;')
+				line.Sender = data.Sender
 				line.SenderClasses = senderClasses
-				# FIXME linkify global function
-				line.Message = linkify line.Message
+				line.Message = @linkify line.Message
 			when 'state' then
 				# Seems fine
 			when 'whisper'

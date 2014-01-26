@@ -4,7 +4,7 @@
 	flex-direction: column;
 	height: 100%;
 	
-	background-color: @colBack;
+	background-color: @rohpod-background;
 }
 
 .fixed-bar {
@@ -12,12 +12,15 @@
 	display: flex;
 
 	color: darken(white, 10);
-	background-color: @uiColor;
+	background-color: @rohpod-ui-background;
 	padding: 6px;
 
 	form {
 		display: flex;
 		flex: 1 0 auto;
+		label {
+			display: none;
+		}
 	}
 
 	.btn,
@@ -41,14 +44,14 @@
 
 		box-sizing: content-box;
 		text-align: center;
-		background-color: @buttonColor;
+		background-color: @rohpod-buttons;
 		color: white;
 		font-weight: bold;
 		text-decoration: none;
 		cursor: pointer;
 
 		&:hover {
-			background-color: lighten(@buttonColor, 10);
+			background-color: lighten(@rohpod-buttons, 10);
 		}
 	}
 	
@@ -78,6 +81,7 @@
 	flex: 20 0 auto;
 	align-self: auto;
 	
+	margin: 0;
 	padding: 4px;
 	overflow-y: scroll;
 	word-wrap: break-word;

@@ -25,10 +25,10 @@ window.initializeRohBot = ->
 	rohbot.on 'login', (info) ->
 		if info.Success
 			$('#header').hide()
-			$('#messageBox').attr('disabled', false).val('')
+			$('#message-box').attr('disabled', false).val('')
 		else
 			$('#header').show()
-			$('#messageBox').attr('disabled', true).val('Guests cannot speak!')
+			$('#message-box').attr('disabled', true).val('Guests cannot speak!')
 
 		chatMgr.scrollToBottom()
 
