@@ -116,16 +116,19 @@ class window.ChatManager
 	formatTime: ( date ) ->
 		hours = date.getHours()
 		military = '24hr' == window.rohStore.get 'clock format'
-		unless military
+		if military
+			if hours < 10
+				hours = '0' + hours
+		else
 			suffix = 'AM'
 			if hours >= 12
 				suffix = 'PM'
 				hours -= 12
 			if hours == 0
 				hours = 12
+			if hours < 10
+				hours = ' ' + hours
 		minutes = date.getMinutes()
-		if hours < 10
-			hours = ' ' + hours
 		if minutes < 10
 			minutes = '0' + minutes
 		if military
