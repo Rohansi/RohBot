@@ -168,7 +168,7 @@ var urlize = (function () {
   var word_split_re_django = /(\s+)/;
   var word_split_re_improved = /([\s<>"]+)/;
   var simple_url_re = /^(https?|ftp):\/\/\w/i;
-  var simple_url_2_re = /^www\.|^(?!http)\w[^@]+\.(com|edu|gov|int|mil|net|org)$/i;
+  var simple_url_2_re = /^www\.|^(?!http)\w[^@]+\.(com|edu|gov|int|mil|org)$/i;
   var simple_email_re = /^\S+@\S+\.\S+$/;
 
   function htmlescape(html, options) {
