@@ -101,6 +101,7 @@
     <Compile Include="Commands\Reboot.cs" />
     <Compile Include="Commands\Reload.cs" />
     <Compile Include="Commands\Sessions.cs" />
+    <Compile Include="Commands\Status.cs" />
     <Compile Include="Commands\Unban.cs" />
     <Compile Include="Commands\Users.cs" />
     <Compile Include="Database.cs" />

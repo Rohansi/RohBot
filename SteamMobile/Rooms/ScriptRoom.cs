@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using CSScriptLibrary;
@@ -35,7 +36,8 @@ namespace SteamMobile.Rooms
         private Stopwatch _timer;
         private IScript _script;
         private bool _compiling;
-
+        private List<string> _references;
+         
         public ScriptRoom(RoomInfo roomInfo)
             : base(roomInfo)
         {
@@ -44,6 +46,15 @@ namespace SteamMobile.Rooms
             _sourceFile = roomInfo["Script"];
             _host = new ScriptHost(this);
             _timer = Stopwatch.StartNew();
+
+            _references = new List<string>();
+            _references.AddRange((roomInfo["References"] ?? "").Split(','));
+            _references.AddRange(new List<string>
+            {
+                "System", "System.Collections.Generic", "System.Linq", "System.Text",
+                "log4net", "Newtonsoft.Json", "Npgsql", "SteamKit2", "EzSteam"
+            });
+            _references = _references.Distinct().ToList();
 
             Recompile();
         }
@@ -141,16 +152,10 @@ namespace SteamMobile.Rooms
                 evaluator.Reset(false);
                 evaluator.ReferenceAssemblyOf<Program>();
 
-                // TODO: make a list of these
-                evaluator.ReferenceAssemblyByNamespace("System");
-                evaluator.ReferenceAssemblyByNamespace("System.Collections.Generic");
-                evaluator.ReferenceAssemblyByNamespace("System.Linq");
-                evaluator.ReferenceAssemblyByNamespace("System.Text");
-                evaluator.ReferenceAssemblyByNamespace("log4net");
-                evaluator.ReferenceAssemblyByNamespace("Newtonsoft.Json");
-                evaluator.ReferenceAssemblyByNamespace("Npgsql");
-                evaluator.ReferenceAssemblyByNamespace("SteamKit2");
-                evaluator.ReferenceAssemblyByNamespace("EzSteam");
+                foreach (var reference in _references)
+                {
+                    evaluator.ReferenceAssemblyByNamespace(reference);
+                }
 
                 evaluator.CompileCode(File.ReadAllText(_sourceFile));
                 return evaluator.GetCompiledType("Script");

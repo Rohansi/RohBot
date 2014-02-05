@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Net;
 using EzSteam;
-using SteamMobile.Packets;
 
 namespace SteamMobile.Rooms
 {
@@ -87,26 +86,16 @@ namespace SteamMobile.Rooms
             {
                 _hasConnected = true;
                 Program.Logger.Info("Entered " + RoomInfo.ShortName);
-
-                Program.SessionManager.Broadcast(new SysMessage
-                {
-                    Date = Util.GetCurrentUnixTimestamp(),
-                    Content = "Connected to Steam."
-                }, s => s.Room == RoomInfo.ShortName);
+                SendPersistentSysMessage("Connected to Steam.");
             };
 
             Chat.OnLeave += (sender, reason) =>
             {
                 if (_hasConnected)
                 {
-                    Program.Logger.Info("Left " + RoomInfo.ShortName + ": " + reason);
                     _hasConnected = false;
-
-                    Program.SessionManager.Broadcast(new SysMessage
-                    {
-                        Date = Util.GetCurrentUnixTimestamp(),
-                        Content = "Lost connection to Steam."
-                    }, s => s.Room == RoomInfo.ShortName);
+                    Program.Logger.Info("Left " + RoomInfo.ShortName + ": " + reason);
+                    SendPersistentSysMessage("Lost connection to Steam.");
                 }
 
                 Chat = null;
@@ -115,6 +104,12 @@ namespace SteamMobile.Rooms
             Chat.OnMessage += HandleMessage;
             Chat.OnUserEnter += HandleEnter;
             Chat.OnUserLeave += HandleLeave;
+        }
+
+        private void SendPersistentSysMessage(string str)
+        {
+            var line = new ChatLine(Util.GetCurrentUnixTimestamp(), RoomInfo.ShortName, "Steam", Program.Settings.PersonaName, "0", "", str, false);
+            base.SendLine(line);
         }
 
         private void HandleMessage(Chat sender, Persona messageSender, string message)
