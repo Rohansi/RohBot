@@ -31,19 +31,13 @@ namespace SteamMobile.Packets
                     return;
             }
 
-            List<HistoryLine> lines;
+            var cmd = new SqlCommand("SELECT * FROM rohbot.chathistory WHERE chat=lower(:chat) AND date<:afterdate ORDER BY date DESC LIMIT 100;");
+            cmd["chat"] = session.Room;
+            cmd["afterdate"] = AfterDate;
+            var lines = cmd.Execute().Select(r => (HistoryLine)HistoryLine.Read(r)).Reverse().ToList();
 
-            if (Util.DateTimeFromUnixTimestamp(AfterDate) > DateTime.UtcNow.AddDays(-7))
-            {
-                var cmd = new SqlCommand("SELECT * FROM rohbot.chathistory WHERE chat=lower(:chat) AND date<:afterdate ORDER BY date DESC LIMIT 100;");
-                cmd["chat"] = session.Room;
-                cmd["afterdate"] = AfterDate;
-                lines = cmd.Execute().Select(r => (HistoryLine)HistoryLine.Read(r)).Reverse().ToList();
-            }
-            else
-            {
-                lines = new List<HistoryLine>();
-            }
+            if (lines.Count == 0)
+                lines.Add(new ChatLine(0, session.Room, "Steam", "~", "0", "", "No additional history is available.", false));
             
             var history = new ChatHistory
             {
