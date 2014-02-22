@@ -210,7 +210,7 @@ namespace SteamMobile.Rooms
                 if (IsBanned(session.Account.Name))
                 {
                     ClearScrollbackFor(session);
-                    session.SendSysMessage("You are banned from this room. To view it you must be unbanned (or whitelisted).");
+                    session.SendSysMessage("You are banned from this room.");
                     return;
                 }
             }
@@ -286,6 +286,9 @@ namespace SteamMobile.Rooms
         {
             lock (_settings)
             {
+                if (Util.IsAdmin(this, name))
+                    return false;
+
                 return IsWhitelisted ^ _settings.Bans.Contains(name.ToLower());
             }
         }

@@ -140,6 +140,8 @@ namespace SteamMobile
         {
             string message;
 
+            username = username.Trim();
+
             do
             {
                 if (Account != null)
