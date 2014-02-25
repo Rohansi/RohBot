@@ -125,11 +125,11 @@ namespace SteamMobile
             return h.GetBytes(128);
         }
 
-        private static Random _random = new Random();
+        private static RNGCryptoServiceProvider _random = new RNGCryptoServiceProvider();
         public static byte[] GenerateSalt()
         {
             var salt = new byte[16];
-            _random.NextBytes(salt);
+            _random.GetBytes(salt);
             return salt;
         }
 
