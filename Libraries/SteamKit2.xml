@@ -1368,11 +1368,16 @@
             <summary>
             Downloads the specified depot chunk, and optionally processes the chunk and verifies the checksum if the depot decryption key has been provided.
             </summary>
+            <remarks>
+            This function will also validate the length of the downloaded chunk with the value of <see cref="P:SteamKit2.DepotManifest.ChunkData.CompressedLength"/>,
+            if it has been assigned a value.
+            </remarks>
             <param name="chunk">
             A <see cref="T:SteamKit2.DepotManifest.ChunkData"/> instance that represents the chunk to download.
             This value should come from a manifest downloaded with <see cref="M:SteamKit2.CDNClient.DownloadManifest(System.UInt64)"/>.
             </param>
             <returns>A <see cref="T:SteamKit2.CDNClient.DepotChunk"/> instance that contains the data for the given chunk.</returns>
+            <exception cref="T:System.ArgumentNullException">chunk's <see cref="P:SteamKit2.DepotManifest.ChunkData.ChunkID"/> was null.</exception>
         </member>
         <member name="T:SteamKit2.CDNClient.Server">
             <summary>
@@ -1591,6 +1596,13 @@
             Results are returned in a <see cref="T:SteamKit2.SteamUser.LoggedOffCallback"/>.
             </summary>
         </member>
+        <member name="M:SteamKit2.SteamGameServer.SendStatus(SteamKit2.SteamGameServer.StatusDetails)">
+            <summary>
+            Sends the server's status to the Steam network.
+            Results are returned in a <see cref="T:SteamKit2.SteamGameServer.StatusReplyCallback"/> callback.
+            </summary>
+            <param name="details">A <see cref="T:SteamKit2.SteamGameServer.StatusDetails"/> object containing the server's status.</param>
+        </member>
         <member name="M:SteamKit2.SteamGameServer.HandleMsg(SteamKit2.IPacketMsg)">
             <summary>
             Handles a client message. This should not be called directly.
@@ -1650,19 +1662,54 @@
             Represents the details required to log into Steam3 as a game server.
             </summary>
         </member>
-        <member name="P:SteamKit2.SteamGameServer.LogOnDetails.Username">
+        <member name="P:SteamKit2.SteamGameServer.LogOnDetails.Token">
             <summary>
-            Gets or sets the username.
-            </summary>
-        </member>
-        <member name="P:SteamKit2.SteamGameServer.LogOnDetails.Password">
-            <summary>
-            Gets or sets the password.
+            Gets or sets the authentication token used to log in as a game server.
             </summary>
         </member>
         <member name="P:SteamKit2.SteamGameServer.LogOnDetails.AppID">
             <summary>
             Gets or sets the AppID this gameserver will serve.
+            </summary>
+        </member>
+        <member name="T:SteamKit2.SteamGameServer.StatusDetails">
+            <summary>
+            Represents the details of the game server's current status.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamGameServer.StatusDetails.AppID">
+            <summary>
+            Gets or sets the AppID this game server is serving.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamGameServer.StatusDetails.ServerFlags">
+            <summary>
+            Gets or sets the server's basic state as flags.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamGameServer.StatusDetails.GameDirectory">
+            <summary>
+            Gets or sets the directory the game data is in.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamGameServer.StatusDetails.Address">
+            <summary>
+            Gets or sets the IP address the game server listens on.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamGameServer.StatusDetails.Port">
+            <summary>
+            Gets or sets the port the game server listens on.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamGameServer.StatusDetails.QueryPort">
+            <summary>
+            Gets or sets the port the game server responds to queries on.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamGameServer.StatusDetails.Version">
+            <summary>
+            Gets or sets the current version of the game server.
             </summary>
         </member>
         <member name="T:SteamKit2.SteamGameCoordinator">
@@ -1970,6 +2017,26 @@
         <member name="P:SteamKit2.SteamTrading.TradeResultCallback.OtherClient">
             <summary>
             Gets the SteamID of the client that responded to the proposal.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamTrading.TradeResultCallback.NumDaysSteamGuardRequired">
+            <summary>
+            Gets the number of days Steam Guard is required to have been active on this account.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamTrading.TradeResultCallback.NumDaysNewDeviceCooldown">
+            <summary>
+            Gets the number of days a new device cannot trade for.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamTrading.TradeResultCallback.DefaultNumDaysPasswordResetProbation">
+            <summary>
+            Gets the default number of days one cannot trade for after a password reset.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamTrading.TradeResultCallback.NumDaysPasswordResetProbation">
+            <summary>
+            Gets the number of days one cannot trade for after a password reset.
             </summary>
         </member>
         <member name="T:SteamKit2.SteamTrading.SessionStartCallback">
@@ -3244,29 +3311,34 @@
             Represents a single chunk within a file.
             </summary>
         </member>
+        <member name="M:SteamKit2.DepotManifest.ChunkData.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SteamKit2.DepotManifest.ChunkData"/> class.
+            </summary>
+        </member>
         <member name="P:SteamKit2.DepotManifest.ChunkData.ChunkID">
             <summary>
-            Gets the SHA-1 hash chunk id.
+            Gets or sets the SHA-1 hash chunk id.
             </summary>
         </member>
         <member name="P:SteamKit2.DepotManifest.ChunkData.Checksum">
             <summary>
-            Gets the expected Adler32 checksum of this chunk.
+            Gets or sets the expected Adler32 checksum of this chunk.
             </summary>
         </member>
         <member name="P:SteamKit2.DepotManifest.ChunkData.Offset">
             <summary>
-            Gets the chunk offset.
+            Gets or sets the chunk offset.
             </summary>
         </member>
         <member name="P:SteamKit2.DepotManifest.ChunkData.CompressedLength">
             <summary>
-            Gets the compressed length of this chunk.
+            Gets or sets the compressed length of this chunk.
             </summary>
         </member>
         <member name="P:SteamKit2.DepotManifest.ChunkData.UncompressedLength">
             <summary>
-            Gets the decompressed length of this chunk.
+            Gets or sets the decompressed length of this chunk.
             </summary>
         </member>
         <member name="T:SteamKit2.DepotManifest.FileData">
@@ -4054,6 +4126,16 @@
         <member name="P:SteamKit2.SteamApps.PICSProductInfoCallback.PICSProductInfo.OnlyPublic">
             <summary>
             For an app request, returns if only the public information was requested
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamApps.PICSProductInfoCallback.PICSProductInfo.UseHttp">
+            <summary>
+            Whether or not to use HTTP to load the KeyValues data.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamApps.PICSProductInfoCallback.PICSProductInfo.HttpUri">
+            <summary>
+            For an app metadata-only request, returns the Uri for HTTP appinfo requests.
             </summary>
         </member>
         <member name="T:SteamKit2.SteamApps.GuestPassListCallback">
@@ -5067,6 +5149,21 @@
             Gets the IP country code.
             </summary>
         </member>
+        <member name="P:SteamKit2.SteamUser.LoggedOnCallback.VanityURL">
+            <summary>
+            Gets the vanity URL.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamUser.LoggedOnCallback.NumLoginFailuresToMigrate">
+            <summary>
+            Gets the threshold for login failures before Steam wants the client to migrate to a new CM.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamUser.LoggedOnCallback.NumDisconnectsToMigrate">
+            <summary>
+            Gets the threshold for disconnects before Steam wants the client to migrate to a new CM.
+            </summary>
+        </member>
         <member name="T:SteamKit2.SteamUser.LoggedOffCallback">
             <summary>
             This callback is returned in response to a log off attempt, or when the client is told to log off by the server.
@@ -5257,6 +5354,41 @@
         <member name="P:SteamKit2.SteamUser.WebAPIUserNonceCallback.Nonce">
             <summary>
             Gets the authentication nonce.
+            </summary>
+        </member>
+        <member name="T:SteamKit2.SteamUser.MarketingMessageCallback">
+            <summary>
+            This callback is fired when the client receives a marketing message update.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamUser.MarketingMessageCallback.UpdateTime">
+            <summary>
+            Gets the time of this marketing message update.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamUser.MarketingMessageCallback.Messages">
+            <summary>
+            Gets the messages.
+            </summary>
+        </member>
+        <member name="T:SteamKit2.SteamUser.MarketingMessageCallback.Message">
+            <summary>
+            Represents a single marketing message.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamUser.MarketingMessageCallback.Message.ID">
+            <summary>
+            Gets the unique identifier for this marketing message.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamUser.MarketingMessageCallback.Message.URL">
+            <summary>
+            Gets the URL for this marketing message.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamUser.MarketingMessageCallback.Message.Flags">
+            <summary>
+            Gets the marketing message flags.
             </summary>
         </member>
         <member name="T:SteamKit2.SteamUser.LogOnDetails">
