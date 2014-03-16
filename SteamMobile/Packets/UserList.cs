@@ -34,7 +34,7 @@ namespace SteamMobile.Packets
             Users.Add(new User(name, userId, rank, avatar, playing, web));
         }
 
-        public override void Handle(Session session)
+        public override void Handle(Connection connection)
         {
             throw new NotSupportedException();
         }

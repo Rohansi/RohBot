@@ -1,23 +1,25 @@
-﻿using SteamMobile.Rooms;
-
-namespace SteamMobile.Packets
+﻿namespace SteamMobile.Packets
 {
     // C -> S
     public class SendMessage : Packet
     {
         public override string Type { get { return "sendMessage"; } }
 
-        public string Content = null;
+        public string Target;
+        public string Content;
 
-        public override void Handle(Session session)
+        public override void Handle(Connection connection)
         {
-            if (session.Account == null)
+            if (Program.DelayManager.AddAndCheck(connection, 1))
+                return;
+
+            if (connection.Session == null)
             {
-                session.SendSysMessage("Guests can not speak.");
+                connection.SendSysMessage("Guests can not speak.");
                 return;
             }
 
-            Content = Content.Trim();
+            Content = (Content ?? "").Trim();
 
             if (Content.Length == 0)
                 return;
@@ -26,26 +28,23 @@ namespace SteamMobile.Packets
             Content = Content.Replace('ː', ':');
 
             // steam discards long messages
-            if (Content.Length > 2000)
-                Content = Content.Substring(0, 2000) + "...";
+            if (Content.Length > 1000)
+                Content = Content.Substring(0, 1000) + "...";
 
-            Room room = Program.RoomManager.Get(session.Room);
+            var room = Program.RoomManager.Get(Target);
             if (room == null)
             {
-                if (Command.Handle(new CommandTarget(session), Content, "/"))
+                if (Command.Handle(new CommandTarget(connection, Program.Settings.DefaultRoom), Content, "/"))
                     return;
 
-                if (Command.Handle(new CommandTarget(session), Content, "~"))
+                if (Command.Handle(new CommandTarget(connection, Program.Settings.DefaultRoom), Content, "~"))
                     return;
 
-                session.SendSysMessage("RohBot is not in this room.");
+                connection.SendSysMessage("RohBot is not in this room.");
                 return;
             }
 
-            if (Program.DelayManager.AddAndCheck(session, 1))
-                return;
-
-            room.SendMessage(session, Content);
+            room.SendMessage(connection, Content);
         }
     }
 }

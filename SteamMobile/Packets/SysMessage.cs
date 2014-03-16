@@ -10,7 +10,7 @@ namespace SteamMobile.Packets
         public long Date;
         public string Content;
 
-        public override void Handle(Session session)
+        public override void Handle(Connection connection)
         {
             throw new NotSupportedException();
         }

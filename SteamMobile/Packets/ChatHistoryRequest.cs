@@ -9,43 +9,52 @@ namespace SteamMobile.Packets
             get { return "chatHistoryRequest"; }
         }
 
+        public string Target;
         public long AfterDate;
 
-        public override void Handle(Session session)
+        public override void Handle(Connection connection)
         {
-            if (Program.DelayManager.AddAndCheck(session, 2.5))
+            if (Program.DelayManager.AddAndCheck(connection, 2.5))
                 return;
 
-            var room = Program.RoomManager.Get(session.Room);
+            if (connection.Session == null)
+            {
+                connection.SendSysMessage("You need to be logged in to do that.");
+                return;
+            }
+
+            if (!connection.Session.IsInRoom(Target))
+            {
+                connection.SendSysMessage("You are not in that room.");
+                return;
+            }
+
+            var room = Program.RoomManager.Get(Target);
             if (room == null)
             {
-                session.SendSysMessage("Room does not exist.");
+                connection.SendSysMessage("Room does not exist.");
                 return;
             }
 
-            if (room.IsPrivate)
-            {
-                if (session.Account == null || room.IsBanned(session.Account.Name))
-                    return;
-            }
+            if (room.IsPrivate && room.IsBanned(connection.Session.Account.Name))
+                return;
 
             var cmd = new SqlCommand("SELECT * FROM rohbot.chathistory WHERE chat=lower(:chat) AND date<:afterdate ORDER BY date DESC LIMIT 100;");
-            cmd["chat"] = session.Room;
+            cmd["chat"] = Target;
             cmd["afterdate"] = AfterDate;
             var lines = cmd.Execute().Select(r => (HistoryLine)HistoryLine.Read(r)).Reverse().ToList();
 
             if (lines.Count == 0)
-                lines.Add(new ChatLine(0, session.Room, "Steam", "~", "0", "", "No additional history is available.", false));
+                lines.Add(new ChatLine(0, Target, "Steam", "~", "0", "", "No additional history is available.", false));
             
             var history = new ChatHistory
             {
                 Name = room.RoomInfo.Name,
-                ShortName = room.RoomInfo.ShortName,
                 Requested = true,
                 Lines = lines
             };
 
-            session.Send(history);
+            connection.Send(history);
         }
     }
 }

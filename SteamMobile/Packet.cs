@@ -9,7 +9,7 @@ namespace SteamMobile
     public abstract class Packet
     {
         public abstract string Type { get; }
-        public abstract void Handle(Session session);
+        public abstract void Handle(Connection connection);
 
         #region Static
         private static readonly Dictionary<string, Type> PacketTypes;

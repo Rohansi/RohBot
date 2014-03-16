@@ -34,33 +34,33 @@ namespace SteamMobile
             }
         }
 
-        public bool AddAndCheck(Session session, double cost)
+        public bool AddAndCheck(Connection connection, double cost)
         {
             lock (_delays)
             {
                 double delay;
-                if (!_delays.TryGetValue(session.Address, out delay))
+                if (!_delays.TryGetValue(connection.Address, out delay))
                 {
                     if (cost > 0)
-                        _delays.Add(session.Address, cost);
+                        _delays.Add(connection.Address, cost);
                 }
                 else
                 {
-                    _delays[session.Address] += cost;
+                    _delays[connection.Address] += cost;
                 }
 
                 var shouldDelay = (delay + cost) >= DelayThreshold;
 
                 if (shouldDelay)
-                    session.SendSysMessage("Too many requests are coming from your location and your request has been canceled. Please wait and try again in a few minutes.");
+                    connection.SendSysMessage("Too many requests are coming from your location and your request has been canceled. Please wait and try again in a few minutes.");
 
                 return shouldDelay;
             }
         }
 
-        public bool Check(Session session)
+        public bool Check(Connection connection)
         {
-            return AddAndCheck(session, 0);
+            return AddAndCheck(connection, 0);
         }
     }
 }

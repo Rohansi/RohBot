@@ -1,6 +1,4 @@
-﻿using SteamMobile.Packets;
-
-namespace SteamMobile.Commands
+﻿namespace SteamMobile.Commands
 {
     public class Me : Command
     {
@@ -10,26 +8,21 @@ namespace SteamMobile.Commands
 
         public override void Handle(CommandTarget target, string type, string[] parameters)
         {
-            if (!target.IsSession || target.Session.Account == null || parameters.Length == 0)
+            if (!target.IsWeb || parameters.Length == 0)
                 return;
 
-            if (Program.DelayManager.AddAndCheck(target.Session, 1))
+            if (Program.DelayManager.AddAndCheck(target.Connection, 1))
                 return;
 
-            var room = Program.RoomManager.Get(target.Session.Room);
-            if (room == null)
-            {
-                target.Send("RohBot is not in this room.");
-                return;
-            }
-
-            if (room.IsBanned(target.Session.Account.Name))
+            var username = target.Connection.Session.Account.Name;
+            var room = target.Room;
+            if (room.IsBanned(username))
             {
                 target.Send("You are banned from this room.");
                 return;
             }
 
-            room.Send(string.Format("{0} {1}", target.Session.Account.Name, parameters[0]));
+            room.Send(string.Format("{0} {1}", username, parameters[0]));
         }
     }
 }

@@ -9,7 +9,7 @@ namespace SteamMobile.Packets
 
         public HistoryLine Line;
 
-        public override void Handle(Session session)
+        public override void Handle(Connection connection)
         {
             throw new NotSupportedException();
         }

@@ -5,7 +5,7 @@ namespace SteamMobile.Packets
     {
         public override string Type { get { return "ping"; } }
 
-        public override void Handle(Session session)
+        public override void Handle(Connection connection)
         {
             // do nothing
         }

@@ -2,16 +2,13 @@
 
 namespace SteamMobile.Packets
 {
-    public class AuthenticateResponse : Packet
+    public class Chat : Packet
     {
-        public override string Type
-        {
-            get { return "authResponse"; }
-        }
+        public override string Type { get { return "room"; } }
 
+        public string Method; // join/leave
         public string Name;
-        public string Tokens;
-        public bool Success;
+        public string ShortName;
 
         public override void Handle(Connection connection)
         {

@@ -144,26 +144,4 @@ namespace SteamMobile
             Id = (long)cmd.ExecuteScalar();
         }
     }
-
-    public class WhisperLine : HistoryLine
-    {
-        public override string Type { get { return "whisper"; } }
-
-        public string Sender;
-        public string Receiver;
-
-        public WhisperLine() { }
-
-        public WhisperLine(long date, string sender, string receiver, string content)
-            : base(date, "whisper", content)
-        {
-            Sender = Util.HtmlEncode(sender);
-            Receiver = Util.HtmlEncode(receiver);
-        }
-
-        public override void Insert()
-        {
-            throw new NotSupportedException();
-        }
-    }
 }

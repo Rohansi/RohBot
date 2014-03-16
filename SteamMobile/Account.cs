@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web.UI.WebControls;
-using SteamKit2.Internal;
-using SteamMobile.Rooms;
 
 namespace SteamMobile
 {
@@ -14,8 +11,8 @@ namespace SteamMobile
         public string Name;
         public string Password;
         public string Salt;
-        public string DefaultRoom;
         public string EnabledStyle;
+        public string[] Rooms;
 
         public Account()
         {
@@ -29,8 +26,8 @@ namespace SteamMobile
             Name = row.name;
             Password = row.password;
             Salt = row.salt;
-            DefaultRoom = row.defaultroom;
             EnabledStyle = row.enabledstyle;
+            Rooms = row.rooms;
         }
 
         public void Save()
@@ -38,12 +35,12 @@ namespace SteamMobile
             if (Id == 0)
                 throw new InvalidOperationException("Cannot save row that does not exist");
 
-            var cmd = new SqlCommand("UPDATE rohbot.accounts SET password=:pass, salt=:salt, defaultroom=:room, enabledstyle=:style WHERE id=:id;");
+            var cmd = new SqlCommand("UPDATE rohbot.accounts SET password=:pass, salt=:salt, enabledstyle=:style, rooms=:rooms WHERE id=:id;");
             cmd["id"] = Id;
             cmd["pass"] = Password;
             cmd["salt"] = Salt;
-            cmd["room"] = DefaultRoom;
             cmd["style"] = EnabledStyle;
+            cmd["rooms"] = Rooms ?? new string[0];
             cmd.ExecuteNonQuery();
         }
 
@@ -52,16 +49,14 @@ namespace SteamMobile
             if (Id != 0)
                 throw new InvalidOperationException("Cannot insert existing row");
 
-            var cmd = new SqlCommand("INSERT INTO rohbot.accounts (address,name,password,salt,defaultroom,enabledstyle) VALUES (:addr,:name,:pass,:salt,:room,:style);");
+            var cmd = new SqlCommand("INSERT INTO rohbot.accounts (address,name,password,salt,enabledstyle,rooms) VALUES (:addr,:name,:pass,:salt,:style,:rooms) RETURNING id;");
             cmd["addr"] = Address;
             cmd["name"] = Name;
             cmd["pass"] = Password;
             cmd["salt"] = Salt;
-            cmd["room"] = DefaultRoom;
             cmd["style"] = EnabledStyle;
-            cmd.ExecuteNonQuery();
-
-            //Id = (long)cmd.ExecuteScalar();
+            cmd["rooms"] = Rooms ?? new string[0];
+            Id = (long)cmd.ExecuteScalar();
         }
 
         public static Account Get(string username)

@@ -50,12 +50,12 @@ namespace SteamMobile.Rooms
             base.Leave();
         }
 
-        public override void SendHistory(Session session)
+        public override void SendHistory(Connection connection)
         {
-            base.SendHistory(session);
+            base.SendHistory(connection);
 
             if (Chat == null)
-                session.SendSysMessage("Not connected to Steam.");
+                connection.SendSysMessage("Not connected to Steam.");
         }
 
         public override void Update()

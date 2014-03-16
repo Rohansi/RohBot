@@ -1,228 +1,158 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Npgsql;
-using SteamMobile.Packets;
-using SuperWebSocket;
 
 namespace SteamMobile
 {
-    public class Session : WebSocketSession<Session>
+    public class Session
     {
-        public Account Account;
-        public string Room;
+        public Account Account { get; private set; }
+        public float TimeWithoutConnections { get; private set; }
 
-        public string Address { get; private set; }
+        private List<Connection> _connections;
+        private HashSet<string> _rooms;
 
-        protected override void OnSessionStarted()
+        public Session(Account account)
         {
-            Account = null;
+            Account = account;
 
-            try
+            _connections = new List<Connection>();
+            _rooms = new HashSet<string>(Account.Rooms);
+
+            if (_rooms.Count == 0)
+                _rooms.Add(Program.Settings.DefaultRoom);
+        }
+
+        public bool IsInRoom(string roomName)
+        {
+            if (string.IsNullOrWhiteSpace(roomName))
+                roomName = Program.Settings.DefaultRoom;
+
+            roomName = roomName.ToLower();
+
+            lock (_rooms)
             {
-                var isLocal = RemoteEndPoint.Address.ToString() == "127.0.0.1";
-                Address = isLocal ? Items["X-Real-IP"].ToString() : RemoteEndPoint.Address.ToString();
-            }
-            catch
-            {
-                Address = "127.0.0.1";
+                return _rooms.Contains(roomName);
             }
         }
 
-        public void Login(string username, string password, List<string> tokens, string roomOverride)
+        public void Add(Connection connection)
         {
-            if (username.ToLower() == "guest")
+            lock (_connections)
             {
-                Account = null;
-                Room = string.IsNullOrWhiteSpace(roomOverride) ? Program.Settings.DefaultRoom : roomOverride;
-                SwitchRoom(Room);
+                if (!_connections.Contains(connection))
+                    _connections.Add(connection);
 
-                Send(new AuthenticateResponse
+                connection.Session = this;
+
+                lock (_rooms)
                 {
-                    Name = "Guest",
-                    Success = false,
-                    Tokens = ""
-                });
-
-                return;
+                    foreach (var roomName in _rooms)
+                    {
+                        var room = Program.RoomManager.Get(roomName);
+                        connection.SendJoinRoom(room);
+                    }
+                }
             }
-
-            string message;
-
-            do
-            {
-                if (!Util.IsValidUsername(username))
-                {
-                    message = Util.InvalidUsernameMessage;
-                    break;
-                }
-
-                var existingTokens = LoginToken.FindAll(username).ToList();
-
-                if (string.IsNullOrEmpty(password))
-                {
-                    if (tokens.Count == 0)
-                    {
-                        message = "Missing password.";
-                        break;
-                    }
-                    
-                    if (!existingTokens.Any(t => t.Address == Address && tokens.Contains(t.Token)))
-                    {
-                        message = "Automatic login failed. Login with your username and password.";
-                        break;
-                    }
-                    
-                    Account = Account.Get(username);
-                    tokens = existingTokens.Select(t => t.Token).ToList();
-                    message = string.Format("Logged in as {0}.", Account.Name);
-                }
-                else
-                {
-                    if (!Util.IsValidPassword(password))
-                    {
-                        message = Util.InvalidPasswordMessage;
-                        break;
-                    }
-
-                    var account = Account.Get(username);
-                    if (account == null)
-                    {
-                        message = "Invalid username or password.";
-                        break;
-                    }
-
-                    var givenPassword = Convert.ToBase64String(Util.HashPassword(password, Convert.FromBase64String(account.Salt)));
-                    if (givenPassword != account.Password)
-                    {
-                        message = "Invalid username or password.";
-                        break;
-                    }
-
-                    LoginToken newToken = existingTokens.FirstOrDefault(t => t.Address == Address);
-                    if (newToken == null)
-                    {
-                        newToken = new LoginToken
-                        {
-                            Name = account.Name.ToLower(),
-                            Address = Address,
-                            Token = Util.GenerateLoginToken(),
-                            Created = Util.GetCurrentUnixTimestamp()
-                        };
-
-                        newToken.Insert();
-                        existingTokens.Add(newToken);
-                    }
-
-                    Account = account;
-                    tokens = existingTokens.Select(t => t.Token).ToList();
-                    message = string.Format("Logged in as {0}.", Account.Name);
-                }
-            } while (false);
-
-            if (Account != null)
-            {
-                Room = string.IsNullOrWhiteSpace(roomOverride) ? Account.DefaultRoom : roomOverride;
-                SwitchRoom(Room);
-            }
-
-            SendSysMessage(message);
-
-            Send(new AuthenticateResponse
-            {
-                Name = Account == null ? "Guest" : Account.Name,
-                Success = Account != null,
-                Tokens = string.Join(",", tokens)
-            });
         }
 
-        public void Register(string username, string password)
+        public void Update(float delta)
         {
-            string message;
-
-            username = username.Trim();
-
-            do
+            lock (_connections)
             {
-                if (Account != null)
-                {
-                    message = "You can not register while logged in.";
-                    break;
-                }
+                _connections.RemoveAll(conn => !conn.Connected);
+            }
 
-                if (!Util.IsValidUsername(username))
-                {
-                    message = Util.InvalidUsernameMessage;
-                    break;
-                }
-
-                if (!Util.IsValidPassword(password))
-                {
-                    message = Util.InvalidPasswordMessage;
-                    break;
-                }
-
-                var accountsFromAddress = Account.FindWithAddress(Address).Count();
-                if (accountsFromAddress >= 3)
-                {
-                    message = "Too many accounts were created from this location.";
-                    break;
-                }
-
-                var salt = Util.GenerateSalt();
-                var account = new Account
-                {
-                    Address = Address,
-                    Name = username,
-                    Password = Convert.ToBase64String(Util.HashPassword(password, salt)),
-                    Salt = Convert.ToBase64String(salt),
-                    DefaultRoom = Program.Settings.DefaultRoom,
-                    EnabledStyle = ""
-                };
-
-                try
-                {
-                    account.Insert();
-                }
-                catch (NpgsqlException e)
-                {
-                    Console.WriteLine(e);
-                    message = "An account with that name already exists.";
-                    break;
-                }
-
-                message = "Account created. You can now login.";
-            } while (false);
-
-            SendSysMessage(message);
+            TimeWithoutConnections += delta;
+            if (_connections.Count > 0)
+                TimeWithoutConnections = 0;
         }
 
-        public void SendSysMessage(string message)
+        public bool Join(string roomName)
         {
-            Send(new SysMessage { Content = Util.HtmlEncode(message), Date = Util.GetCurrentUnixTimestamp() });
+            if (string.IsNullOrWhiteSpace(roomName))
+                roomName = Program.Settings.DefaultRoom;
+
+            roomName = roomName.ToLower();
+
+            lock (_rooms)
+            {
+                if (_rooms.Contains(roomName))
+                    return true;
+
+                var room = Program.RoomManager.Get(roomName);
+                if (room == null)
+                    return false;
+
+                _rooms.Add(room.RoomInfo.ShortName);
+
+                lock (_connections)
+                {
+                    foreach (var conn in _connections)
+                    {
+                        conn.SendJoinRoom(room);
+                    }
+                }
+
+                Account.Rooms = _rooms.ToArray();
+                Account.Save();
+
+                // TODO: can provide enter message
+
+                return true;
+            }
+        }
+
+        public bool Leave(string roomName)
+        {
+            if (string.IsNullOrWhiteSpace(roomName))
+                roomName = Program.Settings.DefaultRoom;
+
+            roomName = roomName.ToLower();
+
+            bool joinDefault;
+
+            lock (_rooms)
+            {
+                if (!_rooms.Contains(roomName))
+                    return true;
+
+                _rooms.Remove(roomName);
+                joinDefault = _rooms.Count == 0;
+
+                var room = Program.RoomManager.Get(roomName);
+
+                lock (_connections)
+                {
+                    foreach (var conn in _connections)
+                    {
+                        conn.SendLeaveRoom(room);
+                    }
+                }
+
+                Account.Rooms = _rooms.ToArray();
+                Account.Save();
+
+                // TODO: can provide leave message
+            }
+
+            if (joinDefault)
+                Join(Program.Settings.DefaultRoom);
+
+            return true;
         }
 
         public void Send(Packet packet)
         {
-            Send(Packet.WriteToMessage(packet));
+            var packetStr = Packet.WriteToMessage(packet);
+            Send(packetStr);
         }
 
-        public bool SwitchRoom(string newRoom)
+        public void Send(string data)
         {
-            if (string.IsNullOrEmpty(newRoom))
-                newRoom = Account != null ? Account.DefaultRoom : Program.Settings.DefaultRoom;
-            newRoom = newRoom.ToLower();
-
-            var room = Program.RoomManager.Get(newRoom);
-            if (room == null)
+            foreach (var conn in _connections)
             {
-                SendSysMessage("Room does not exist.");
-                return false;
+                conn.Send(data);
             }
-
-            Room = newRoom;
-            room.SendHistory(this);
-            return true;
         }
     }
 }

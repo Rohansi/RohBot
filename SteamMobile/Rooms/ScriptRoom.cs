@@ -72,17 +72,17 @@ namespace SteamMobile.Rooms
             base.SendLine(line);
         }
 
-        public override void SendHistory(Session session)
+        public override void SendHistory(Connection connection)
         {
             if (_script != null)
             {
                 bool cont = true;
-                SafeInvoke(() => cont = _script.OnSendHistory(session));
+                SafeInvoke(() => cont = _script.OnSendHistory(connection));
                 if (!cont)
                     return;
             }
 
-            base.SendHistory(session);
+            base.SendHistory(connection);
         }
 
         public override void Update()

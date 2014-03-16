@@ -27,8 +27,8 @@ namespace SteamMobile
         {
             if (target.IsSteam)
                 return IsSuperAdmin(target.SteamId);
-            if (target.IsSession && target.Session.Account != null)
-                return IsSuperAdmin(target.Session.Account.Name);
+            if (target.IsWeb)
+                return IsSuperAdmin(target.Connection.Session.Account.Name);
             return false;
         }
 
@@ -62,8 +62,8 @@ namespace SteamMobile
 
             if (target.IsSteam)
                 return IsAdmin(target.Room, target.SteamId);
-            if (target.IsSession && target.Session.Account != null)
-                return IsAdmin(target.Room, target.Session.Account.Name);
+            if (target.IsWeb)
+                return IsAdmin(target.Room, target.Connection.Session.Account.Name);
             return false;
         }
 
@@ -98,8 +98,8 @@ namespace SteamMobile
 
             if (target.IsSteam)
                 return IsMod(target.Room, target.SteamId);
-            if (target.IsSession && target.Session.Account != null)
-                return IsMod(target.Room, target.Session.Account.Name);
+            if (target.IsWeb)
+                return IsMod(target.Room, target.Connection.Session.Account.Name);
             return false;
         }
 

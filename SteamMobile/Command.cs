@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using EzSteam;
 using SteamKit2;
-using SteamMobile.Packets;
 using SteamMobile.Rooms;
 
 namespace SteamMobile
@@ -206,12 +205,12 @@ namespace SteamMobile
         public readonly Room Room;
         public readonly Chat PrivateChat;
         public readonly SteamID SteamId;
-        public readonly Session Session;
+        public readonly Connection Connection;
 
-        public bool IsSteam { get { return Session == null; } }
+        public bool IsSteam { get { return Connection == null; } }
         public bool IsRoom { get { return Room != null; } }
         public bool IsPrivateChat { get { return PrivateChat != null; } }
-        public bool IsSession { get { return Session != null; } }
+        public bool IsWeb { get { return Connection != null; } }
 
         public CommandTarget(Room room, SteamID sender)
         {
@@ -225,16 +224,16 @@ namespace SteamMobile
             SteamId = sender;
         }
 
-        public CommandTarget(Session session)
+        public CommandTarget(Connection connection, string room)
         {
-            Room = Program.RoomManager.Get(session.Room);
-            Session = session;
+            Room = Program.RoomManager.Get(room);
+            Connection = connection;
         }
 
         public void Send(string message)
         {
-            if (IsSession)
-                Session.SendSysMessage(message);
+            if (IsWeb)
+                Connection.SendSysMessage(message);
             else if (IsRoom)
                 Room.Send(message);
             else if (IsPrivateChat)

@@ -168,7 +168,7 @@ namespace SteamMobile.Rooms
                         return false;
                 }
 
-                return session.Room == RoomInfo.ShortName;
+                return session.IsInRoom(RoomInfo.ShortName);
             };
 
             Program.SessionManager.Broadcast(message, filter);
@@ -196,56 +196,61 @@ namespace SteamMobile.Rooms
         /// <summary>
         /// Called when somebody joins the room. Should call base.
         /// </summary>
-        public virtual void SendHistory(Session session)
+        public virtual void SendHistory(Connection connection)
         {
             if (IsPrivate)
             {
-                if (session.Account == null)
+                if (connection.Session == null)
                 {
-                    ClearScrollbackFor(session);
-                    session.SendSysMessage("You must login to view this room.");
+                    ClearScrollbackFor(connection);
+                    connection.SendSysMessage("You must login to view this room.");
                     return;
                 }
 
-                if (IsBanned(session.Account.Name))
+                if (IsBanned(connection.Session.Account.Name))
                 {
-                    ClearScrollbackFor(session);
-                    session.SendSysMessage("You are banned from this room.");
+                    ClearScrollbackFor(connection);
+                    connection.SendSysMessage("You are banned from this room.");
                     return;
                 }
             }
 
             lock (_history)
             {
-                var chatHistory = new ChatHistory { Name = RoomInfo.Name, ShortName = RoomInfo.ShortName, Requested = false, Lines = _history.ToList() };
-                session.Send(chatHistory);
+                var chatHistory = new ChatHistory { Name = RoomInfo.Name, Requested = false, Lines = _history.ToList() };
+                connection.Send(chatHistory);
             }
         }
 
         /// <summary>
         /// Called when somebody sends a message.
         /// </summary>
-        public void SendMessage(Session session, string message)
+        public void SendMessage(Connection connection, string message)
         {
-            if (!message.StartsWith("//") && Command.Handle(new CommandTarget(session), message, "/"))
+            if (connection.Session == null) // should never happen
                 return;
 
-            if (!message.StartsWith("~~") && Command.Handle(new CommandTarget(session), message, "~"))
+            var roomName = RoomInfo.ShortName;
+            var account = connection.Session.Account;
+
+            if (!message.StartsWith("//") && Command.Handle(new CommandTarget(connection, roomName), message, "/"))
+                return;
+
+            if (!message.StartsWith("~~") && Command.Handle(new CommandTarget(connection, roomName), message, "~"))
                 return;
 
             if (message.StartsWith("//") || message.StartsWith("~~"))
                 message = message.Substring(1);
 
-            if (IsBanned(session.Account.Name))
+            if (IsBanned(account.Name))
             {
-                session.SendSysMessage("You are banned from this room.");
+                connection.SendSysMessage("You are banned from this room.");
                 return;
             }
 
-            var roomName = RoomInfo.ShortName;
-            var userName = session.Account.Name;
-            var userId = session.Account.Id.ToString();
-            var userStyle = session.Account.EnabledStyle;
+            var userName = account.Name;
+            var userId = account.Id.ToString();
+            var userStyle = account.EnabledStyle;
             var line = new ChatLine(Util.GetCurrentUnixTimestamp(), roomName, "RohBot", userName, userId, userStyle, message, false);
             SendLine(line);
         }
@@ -341,10 +346,10 @@ namespace SteamMobile.Rooms
                 line.Insert();
         }
 
-        private void ClearScrollbackFor(Session session)
+        private void ClearScrollbackFor(Connection connection)
         {
-            var chatHistory = new ChatHistory { Name = RoomInfo.Name, ShortName = RoomInfo.ShortName, Requested = false, Lines = new List<HistoryLine>() };
-            session.Send(chatHistory);
+            var chatHistory = new ChatHistory { Name = RoomInfo.Name, Requested = false, Lines = new List<HistoryLine>() };
+            connection.Send(chatHistory);
         }
     }
 }

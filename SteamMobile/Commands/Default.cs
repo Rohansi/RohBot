@@ -9,7 +9,7 @@ namespace SteamMobile.Commands
 
         public override void Handle(CommandTarget target, string type, string[] parameters)
         {
-            if (target.IsSession || target.IsPrivateChat)
+            if (target.IsWeb || target.IsPrivateChat)
                 target.Send("Unknown command.");
         }
     }

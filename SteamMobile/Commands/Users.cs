@@ -20,16 +20,16 @@ namespace SteamMobile.Commands
                 return;
             }
 
-            if (target.IsSession)
+            if (target.IsWeb)
             {
-                var roomName = target.Session.Room;
+                var roomName = target.Room.RoomInfo.ShortName;
                 var room = target.Room;
 
                 var steamRoom = room as SteamRoom;
                 var userList = new Packets.UserList();
                 var chat = Program.Steam.Status == Steam.ConnectionStatus.Connected && steamRoom != null ? steamRoom.Chat : null;
                 var steamUsers = chat != null ? chat.Members.ToList() : new List<SteamID>();
-                var sessions = Program.SessionManager.List.Where(s => s.Account != null).ToList();
+                var sessions = Program.SessionManager.List;
 
                 foreach (var id in steamUsers.Where(i => i != Program.Steam.Bot.PersonaId))
                 {
@@ -41,7 +41,7 @@ namespace SteamMobile.Commands
                     userList.AddUser(persona.Name, steamId, rank, avatar, persona.PlayingName, false);
                 }
 
-                var accounts = sessions.Where(s => s.Room == roomName).Select(s => s.Account).Distinct(new Account.Comparer());
+                var accounts = sessions.Where(s => s.IsInRoom(roomName)).Select(s => s.Account).Distinct(new Account.Comparer());
 
                 foreach (var account in accounts)
                 {
@@ -51,13 +51,13 @@ namespace SteamMobile.Commands
                 }
 
                 userList.Users = userList.Users.OrderBy(u => u.Name).ToList();
-                target.Session.Send(userList);
+                target.Connection.Send(userList);
             }
             else
             {
                 var roomName = target.Room.RoomInfo.ShortName;
-                var sessions = Program.SessionManager.List.Where(s => s.Account != null).ToList();
-                var accounts = sessions.Where(s => s.Room == roomName).Select(s => s.Account).Distinct(new Account.Comparer());
+                var sessions = Program.SessionManager.List;
+                var accounts = sessions.Where(s => s.IsInRoom(roomName)).Select(s => s.Account).Distinct(new Account.Comparer());
                 target.Send("In this room: " + string.Join(", ", accounts.Select(a => a.Name)));
             }
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using SuperWebSocket;
 
@@ -7,15 +8,20 @@ namespace SteamMobile
 {
     public class SessionManager
     {
-        private class Server : WebSocketServer<Session>
+        private class Server : WebSocketServer<Connection>
         {
             
         }
        
         private Server _server;
-         
+        private Dictionary<string, Session> _sessions;
+        private Stopwatch _timer;
+
         public SessionManager()
         {
+            _sessions = new Dictionary<string, Session>();
+            _timer = Stopwatch.StartNew();
+
             _server = new Server();
             _server.Setup("0.0.0.0", 12000);
             _server.Start();
@@ -27,7 +33,7 @@ namespace SteamMobile
         {
             var packetStr = Packet.WriteToMessage(packet);
 
-            foreach (var session in _server.GetAllSessions())
+            foreach (var session in _sessions.Values)
             {
                 if (filter == null || filter(session))
                 {
@@ -38,32 +44,65 @@ namespace SteamMobile
 
         public void Update()
         {
-            
+            lock (_sessions)
+            {
+                // TODO: can replace this to provide disconnect messages
+                _sessions.RemoveAll(kv => kv.Value.TimeWithoutConnections >= 20);
+
+                foreach (var session in _sessions.Values)
+                {
+                    session.Update((float)_timer.Elapsed.TotalSeconds);
+                }
+
+                _timer.Restart();
+            }
         }
 
         public List<Session> List
         {
             get
             {
-                return _server.GetAllSessions().ToList();
+                lock (_sessions)
+                    return _sessions.Values.ToList();
+            }
+        }
+
+        public Session GetOrCreate(Account account)
+        {
+            lock (_sessions)
+            {
+                Session result;
+                if (!_sessions.TryGetValue(account.Name, out result))
+                {
+                    result = new Session(account);
+                    _sessions.Add(account.Name, result);
+                }
+
+                return result;
             }
         }
 
         public Session Get(string name)
         {
-            name = name.ToLower();
-            return _server.GetAllSessions().FirstOrDefault(s => s.Account != null && s.Account.Name.ToLower() == name);
+            name = (name ?? "").ToLower();
+
+            lock (_sessions)
+            {
+                Session result;
+                _sessions.TryGetValue(name, out result);
+                return result;
+            }
         }
 
-        private void OnReceive(Session session, string message)
+        private void OnReceive(Connection connection, string message)
         {
             try
             {
-                Packet.ReadFromMessage(message).Handle(session);
+                Packet.ReadFromMessage(message).Handle(connection);
             }
             catch (Exception e)
             {
-                Program.Logger.Error(string.Format("Bad packet from {0}: {1}", session.Address, message), e);
+                Program.Logger.Error(string.Format("Bad packet from {0}: {1}", connection.Address, message), e);
             }
         }
     }

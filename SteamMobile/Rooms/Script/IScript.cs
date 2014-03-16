@@ -6,7 +6,7 @@ namespace SteamMobile.Rooms.Script
         void Initialize(ScriptHost host);
         void Update(float deltaTime);
 
-        bool OnSendHistory(Session session);
+        bool OnSendHistory(Connection connection);
         bool OnSendLine(HistoryLine line);
     }
 }

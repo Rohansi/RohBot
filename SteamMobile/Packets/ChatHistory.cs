@@ -8,8 +8,7 @@ namespace SteamMobile.Packets
     {
         public override string Type { get { return "chatHistory"; } }
 
-        public string Name;
-        public string ShortName;
+        public string Name; // short name
         public bool Requested;
         public List<HistoryLine> Lines;
         public long OldestLine
@@ -18,7 +17,7 @@ namespace SteamMobile.Packets
             set { /* do nothing */ }
         }
 
-        public override void Handle(Session session)
+        public override void Handle(Connection connection)
         {
             throw new NotSupportedException();
         }
