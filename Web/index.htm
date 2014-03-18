@@ -1,15 +1,15 @@
 ﻿<!doctype html>
 <html>
-    <head>
-		<meta charset="utf-8">
+	<head>
+		<meta charset="utf-8"/>
 		<title>RohBot</title>
 		<link rel="shortcut icon" href="rohbot.png"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-capable" content="yes"/>
 		<link rel="apple-touch-icon" href="rohbot.png"/>
-		<link rel="stylesheet" href="style.css" />
-    </head>
-    <body>
+		<link rel="stylesheet" href="style.css"/>
+	</head>
+	<body>
 		<div class="container">
 			<header id="header" class="fixed-bar">
 				<h1 id="title" role="heading">RohBot</h1>
@@ -22,11 +22,12 @@
 					<input type="button" class="btn" value="Register" id="registerButton">
 				</form>
 			</header>
-			<ol id="chat" role="log" aria-live="polite"></ol>
+			<ol id="tabs"></ol>
+            <div id="history"></div>
 			<footer id="footer" class="fixed-bar">
 				<form id="chat-form" method="POST">
 					<label for="message-box">Send a message</label>
-					<textarea aria-controls="chat" id="message-box" name="message-box" placeholder="enter message ..." spellcheck="false"></textarea>
+					<textarea aria-controls="chat" id="message-box" name="message-box" placeholder="enter message ..."></textarea>
 					<input type="submit" class="btn" value="Send" id="send">
 				</form>
 			</footer>
@@ -34,5 +35,5 @@
 		<script src="jslibs.min.js"></script>
 		<script src="templates.js"></script>
 		<script src="rohbot.js"></script>
-    </body>
+	</body>
 </html>

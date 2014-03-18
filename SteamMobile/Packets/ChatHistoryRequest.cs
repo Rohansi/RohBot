@@ -49,7 +49,7 @@ namespace SteamMobile.Packets
             
             var history = new ChatHistory
             {
-                Name = room.RoomInfo.Name,
+                ShortName = room.RoomInfo.ShortName,
                 Requested = true,
                 Lines = lines
             };

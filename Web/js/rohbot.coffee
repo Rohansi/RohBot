@@ -4,7 +4,7 @@ window.initializeRohBot = ->
 	oldestMessage = 0xFFFFFFFF
 
 	rohBotPls = ->
-		server = 'wss://fpp.literallybrian.com/ws/'
+		server = 'ws://127.0.0.1:12000/'
 		if window.location.search == '?noproxy'
 			server = 'ws://fpp.literallybrian.com:12000/'
 		new RohBot server

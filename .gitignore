@@ -113,3 +113,6 @@ node_modules
 Web/dist
 Web/build
 *.sublime-workspace
+*.js.map
+Web/js/*.js
+!Web/js/init.js

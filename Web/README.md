@@ -1,6 +1,6 @@
 RohBot
 ==========
-RohBot is the front-end app for the SteamMobile service. It's written in [Coffeescript][cs], uses [LESS][less] + [Myth][myth] for CSS preprocessing, [Mustache][mustache] for templates and [Grunt][grunt] to bring everything together.
+RohBot is the front-end app for the SteamMobile service. It's written in [TypeScript][ts], uses [LESS][less] + [Myth][myth] for CSS preprocessing, [Mustache][mustache] for templates and [Grunt][grunt] to bring everything together.
 
 Compiling
 ---------
@@ -51,7 +51,7 @@ TODO
 	- Permanent name list on side like steam chat
 	- Tabs for multiple rooms + PMs
 
-[cs]: http://coffeescript.org
+[ts]: http://www.typescriptlang.org/
 [less]: http://lesscss.org/
 [myth]: http://www.myth.io/
 [mustache]: http://mustache.github.io/mustache.5.html

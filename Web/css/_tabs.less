@@ -1,0 +1,46 @@
+
+#tabs {
+    margin: 0;
+    padding: 6px;
+    vertical-align: top;
+    color: @rohpod-text;
+    background-color: @rohpod-ui-background;
+    list-style: none;
+
+    > li {
+        display: inline-block;
+        padding: 6px;
+        background-color: @rohpod-ui-background;
+        cursor: default;
+
+        &:hover {
+            background-color: lighten(@rohpod-ui-background, 8%);
+        }
+
+        > .tab-name {
+            display: inline-block;
+            max-width: 150px;
+            min-width: 50px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: top;
+        }
+
+        > .tab-close {
+            display: inline-block;
+            padding: 2px;
+            margin-left: 4px;
+            width: 16px;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            color: darken(@rohpod-text, 50%);
+
+            &:hover {
+                color: @rohpod-text;
+                background-color: @rohpod-buttons;
+            }
+        }
+    }
+}
