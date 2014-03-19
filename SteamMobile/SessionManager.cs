@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -14,12 +15,12 @@ namespace SteamMobile
         }
        
         private Server _server;
-        private Dictionary<string, Session> _sessions;
+        private ConcurrentDictionary<string, Session> _sessions;
         private Stopwatch _timer;
 
         public SessionManager()
         {
-            _sessions = new Dictionary<string, Session>();
+            _sessions = new ConcurrentDictionary<string, Session>();
             _timer = Stopwatch.StartNew();
 
             _server = new Server();
@@ -44,54 +45,45 @@ namespace SteamMobile
 
         public void Update()
         {
-            lock (_sessions)
+            var emptySessions = _sessions.Where(kv => kv.Value.TimeWithoutConnections >= 20).ToList();
+            foreach (var empty in emptySessions)
             {
-                // TODO: can replace this to provide disconnect messages
-                _sessions.RemoveAll(kv => kv.Value.TimeWithoutConnections >= 20);
+                Session removedSession;
 
-                foreach (var session in _sessions.Values)
+                if (_sessions.TryRemove(empty.Key, out removedSession))
                 {
-                    session.Update((float)_timer.Elapsed.TotalSeconds);
+                    // TODO: can provide disconnect messages
                 }
-
-                _timer.Restart();
             }
+
+            foreach (var session in _sessions.Values)
+            {
+                session.Update((float)_timer.Elapsed.TotalSeconds);
+            }
+
+            _timer.Restart();
         }
 
-        public List<Session> List
+        public ICollection<Session> List
         {
             get
             {
-                lock (_sessions)
-                    return _sessions.Values.ToList();
+                return _sessions.Values;
             }
         }
 
         public Session GetOrCreate(Account account)
         {
-            lock (_sessions)
-            {
-                Session result;
-                if (!_sessions.TryGetValue(account.Name, out result))
-                {
-                    result = new Session(account);
-                    _sessions.Add(account.Name, result);
-                }
-
-                return result;
-            }
+            return _sessions.GetOrAdd(account.Name, k => new Session(account));
         }
 
         public Session Get(string name)
         {
             name = (name ?? "").ToLower();
 
-            lock (_sessions)
-            {
-                Session result;
-                _sessions.TryGetValue(name, out result);
-                return result;
-            }
+            Session result;
+            _sessions.TryGetValue(name, out result);
+            return result;
         }
 
         private void OnReceive(Connection connection, string message)

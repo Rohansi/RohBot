@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -8,29 +9,25 @@ namespace SteamMobile
 {
     public class RoomManager
     {
-        private Dictionary<string, Room> _rooms;
+        private ConcurrentDictionary<string, Room> _rooms;
 
         public RoomManager()
         {
-            _rooms = new Dictionary<string, Room>();
+            _rooms = new ConcurrentDictionary<string, Room>();
         }
 
         public Room Get(string name)
         {
-            lock (_rooms)
-            {
-                Room result;
-                _rooms.TryGetValue(name.ToLower(), out result);
-                return result;
-            }
+            Room result;
+            _rooms.TryGetValue(name.ToLower(), out result);
+            return result;
         }
 
-        public List<Room> List
+        public ICollection<Room> List
         {
             get
             {
-                lock (_rooms)
-                    return _rooms.Values.ToList();
+                return _rooms.Values;
             }
         }
 
@@ -38,13 +35,19 @@ namespace SteamMobile
         {
             lock (_rooms)
             {
-                _rooms.RemoveAll(room => !room.Value.IsActive);
+                var deadRooms = _rooms.Where(kv => !kv.Value.IsActive).ToList();
+                foreach (var dead in deadRooms)
+                {
+                    Room removedRoom;
+                    _rooms.TryRemove(dead.Key, out removedRoom);
+                }
 
                 var settings = Program.Settings;
 
                 try
                 {
-                    foreach (var room in _rooms.Values.Where(r1 => settings.Rooms.All(r2 => r2["ShortName"] != r1.RoomInfo.ShortName)).ToList())
+                    var oldRooms = _rooms.Values.Where(r1 => settings.Rooms.All(r2 => r2["ShortName"] != r1.RoomInfo.ShortName)).ToList();
+                    foreach (var room in oldRooms)
                     {
                         room.Leave();
                     }
@@ -56,11 +59,12 @@ namespace SteamMobile
 
                 try
                 {
-                    foreach (var room in settings.Rooms.Where(r => !_rooms.ContainsKey(r["ShortName"])).ToList())
+                    var newRooms = settings.Rooms.Where(r => !_rooms.ContainsKey(r["ShortName"])).ToList();
+                    foreach (var room in newRooms)
                     {
                         var roomInfo = new RoomInfo(room);
                         var roomObj = (Room)Activator.CreateInstance(RoomTypes[roomInfo.Type], roomInfo);
-                        _rooms.Add(room["ShortName"], roomObj);
+                        _rooms.TryAdd(room["ShortName"], roomObj);
                     }
                 }
                 catch (Exception e)
@@ -77,14 +81,11 @@ namespace SteamMobile
 
         public void Broadcast(string message, Func<Room, bool> filter = null)
         {
-            lock (_rooms)
+            foreach (var room in _rooms.Values)
             {
-                foreach (var room in _rooms.Values)
+                if (filter == null || filter(room))
                 {
-                    if (filter == null || filter(room))
-                    {
-                        room.Send(message);
-                    }
+                    room.Send(message);
                 }
             }
         }
