@@ -6,13 +6,8 @@ Commands
 --------------
 Commands must be prefixed with the tilde character (~) to work. The website also allows a forward slash (/) to be used instead.
 
-### room ###
-Allows you to switch between rooms on the website.
-- `/room` display which room you are in
-- `/room fp` switch to room fp
-- `/room default` switch to your default room
-- `/room default fp` set your default room to fp and switch to it
-- `/room list` show a list of available rooms
+### join ###
+Allows you to join a room. `/join fp`
 
 ### users ###
 Display a list of users in the room.
@@ -37,9 +32,6 @@ Demotes an account from moderator. Can only be used by administrators.
 
 ### modded ###
 Displays a list of modded accounts for the room.
-
-### sessions ###
-Displays a list of accounts that are logged in.
 
 Permissions
 -------------

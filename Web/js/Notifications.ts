@@ -61,7 +61,6 @@ class Notifications {
         };
 
         setTimeout(closeNotification, 3000);
-        notification.show();
     }
 
 }
