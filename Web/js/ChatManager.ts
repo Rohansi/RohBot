@@ -14,7 +14,7 @@ class ChatManager {
 
         var history = $("#history");
         history.scroll(e => {
-            if (history[0].scrollTop != 0)
+            if (history[0].scrollTop <= 0 || history[0].scrollTop > 64)
                 return;
 
             var currentChat = this.getCurrentChat();
