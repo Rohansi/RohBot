@@ -16,11 +16,14 @@ namespace SteamMobile.Packets
 
         public override void Handle(Connection connection)
         {
+            var guest = false;
+
             switch (Method)
             {
                 case "login":
                     if (Program.DelayManager.AddAndCheck(connection, 10))
                         break;
+
                     Program.Logger.InfoFormat("Login '{1}' from {0}", connection.Address, Username);
                     connection.Login(Username, Password, (Tokens ?? "").Split(',').ToList());
                     break;
@@ -28,6 +31,7 @@ namespace SteamMobile.Packets
                 case "register":
                     if (Program.DelayManager.AddAndCheck(connection, 10))
                         break;
+
                     Program.Logger.InfoFormat("Register '{1}' from {0}", connection.Address, Username);
                     connection.Register(Username, Password);
                     break;
@@ -35,8 +39,14 @@ namespace SteamMobile.Packets
                 case "guest":
                     if (Program.DelayManager.AddAndCheck(connection, 10))
                         break;
-                    var room = Program.RoomManager.Get(Program.Settings.DefaultRoom);
-                    connection.SendJoinRoom(room);
+
+                    if (connection.Session != null)
+                    {
+                        connection.Session.Remove(connection);
+                        connection.Session = null;
+                    }
+
+                    guest = true;
                     break;
             }
 
@@ -44,10 +54,16 @@ namespace SteamMobile.Packets
             {
                 connection.Send(new AuthenticateResponse
                 {
-                    Name = "",
+                    Name = null,
                     Tokens = "",
-                    Success = false
+                    Success = guest
                 });
+
+                if (guest)
+                {
+                    var room = Program.RoomManager.Get(Program.Settings.DefaultRoom);
+                    connection.SendJoinRoom(room);
+                }
             }
         }
     }

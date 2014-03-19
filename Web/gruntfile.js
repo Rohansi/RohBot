@@ -26,7 +26,7 @@ module.exports = function(grunt) {
         // JavaScript
         typescript: {
             js: {
-                src: 'js/**/*.ts',
+                src: ['js/RohStore.ts', 'js/**/*.ts'],
                 dest: 'build/js/rohbot-typescript.js'
             }
         },

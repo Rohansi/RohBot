@@ -7,6 +7,9 @@ class Chat {
     history: JQuery;
     tab: JQuery;
 
+    private requestedHistory: boolean;
+    private oldestLine: number;
+
     constructor(chatMgr: ChatManager, name: string, shortName: string) {
         this.chatMgr = chatMgr;
         this.name = name;
@@ -18,34 +21,54 @@ class Chat {
         this.tab = $(templates.tab.render({ Name: name, ShortName: shortName }));
 
         this.tab.click(e => {
-            console.log("switch to", shortName);
             this.chatMgr.switchTo(this.shortName);
             return false;
         });
 
-        this.tab.find(".tab-close").click(e => {
-            console.log("close", shortName);
-            this.chatMgr.rohbot.sendMessage(this.shortName, "/leave " + this.shortName);
-            return false;
-        });
+        var tabClose = this.tab.find(".tab-close");
+
+        if (shortName == "home") {
+            tabClose.hide();
+        } else {
+            tabClose.click(e => {
+                this.chatMgr.rohbot.sendMessage(this.shortName, "/leave " + this.shortName);
+                return false;
+            });
+        }
 
         this.tab.appendTo("#tabs");
+
+        this.requestedHistory = false;
+        this.oldestLine = 0xFFFFFFFF;
     }
 
     destroy() {
+        if (this.shortName == "home")
+            return;
+        
         this.history.remove();
         this.tab.remove();
     }
 
-    addHistory(history: any[], requested: boolean) {
-        if (!requested) {
+    requestHistory() {
+        if (this.requestedHistory)
+            return;
+
+        this.chatMgr.rohbot.requestHistory(this.shortName, this.oldestLine);
+    }
+
+    addHistory(data: any) {
+        var history: any[] = data.Lines;
+
+        if (!data.Requested) {
             this.history.empty();
 
             for (var i = 0; i < history.length; i++) {
                 this.addLine(history[i], false);
             }
 
-            this.chatMgr.scrollToBottom();
+            if (this.isActive())
+                this.chatMgr.scrollToBottom();
         } else {
             var firstMsg = this.history.find(":first")[0];
 
@@ -53,16 +76,29 @@ class Chat {
                 this.addLine(history[i], true);
             }
 
-            // TODO: proper scrolling
-            //this.history.scrollTop(firstMsg.offsetTop);
+            this.requestedHistory = false;
+
+
+            if (this.isActive())
+                this.chatMgr.scrollTo(firstMsg.offsetTop);
         }
+
+        this.oldestLine = data.OldestLine;
     }
 
-    addLine(line: any, prepend: boolean) {
+    statusMessage(message: string) {
+        this.addLine({
+            Type: "state",
+            Date: Date.now() / 1000,
+            Content: message
+        });
+    }
+
+    addLine(line: any, prepend: boolean = false) {
         var date = new Date(line.Date * 1000);
 
         var data: any = {
-            Time: this.formatTime(date),
+            Time: Chat.formatTime(date),
             DateTime: date.toISOString(),
             Message: line.Content
         };
@@ -93,7 +129,7 @@ class Chat {
         this.addHtml(templates.message.render(data), prepend);
     }
 
-    addHtml(html: string, prepend: boolean) {
+    addHtml(html: string, prepend: boolean = false) {
         var historyElem = this.history[0];
         var atBottom = this.history.outerHeight() >= (historyElem.scrollHeight - historyElem.scrollTop - 32);
 
@@ -102,8 +138,12 @@ class Chat {
         else
             this.history.append(html);
 
-        if (!prepend && atBottom)
+        if (this.isActive && !prepend && atBottom)
             this.chatMgr.scrollToBottom();
+    }
+
+    private isActive() {
+        return this.chatMgr.getCurrentChat().shortName == this.shortName;
     }
 
     private linkify(text: string) {
@@ -115,7 +155,7 @@ class Chat {
         return text;
     }
 
-    private formatTime(date: Date) {
+    static formatTime(date: Date) {
         var hours: any = date.getHours();
         var minutes: any = date.getMinutes();
         var military = RohStore.get("clock format") == "24hr";

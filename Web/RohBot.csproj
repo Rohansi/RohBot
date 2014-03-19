@@ -70,12 +70,15 @@
   <ItemGroup>
     <TypeScriptCompile Include="js\Chat.ts" />
     <TypeScriptCompile Include="js\RohStore.ts" />
+    <TypeScriptCompile Include="js\Signal.ts" />
+    <TypeScriptCompile Include="js\SignalBinding.ts" />
     <TypeScriptCompile Include="js\UserInterface.ts" />
     <TypeScriptCompile Include="js\RohBot.ts" />
     <TypeScriptCompile Include="js\jquery.d.ts" />
     <TypeScriptCompile Include="js\ChatManager.ts" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="js\Notifications.ts" />
     <Content Include="templates\message.mustache" />
     <Content Include="templates\tab.mustache" />
     <Content Include="templates\users.mustache" />

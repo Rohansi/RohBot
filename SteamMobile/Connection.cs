@@ -42,6 +42,12 @@ namespace SteamMobile
 
             do
             {
+                if (Session != null)
+                {
+                    message = "You are already logged in.";
+                    break;
+                }
+
                 if (!Util.IsValidUsername(username))
                 {
                     message = Util.InvalidUsernameMessage;
@@ -113,15 +119,15 @@ namespace SteamMobile
 
             if (account != null)
             {
-                var session = Program.SessionManager.GetOrCreate(account);
-                session.Add(this);
-
                 Send(new AuthenticateResponse
                 {
                     Name = account.Name,
                     Tokens = string.Join(",", tokens),
                     Success = true
                 });
+
+                var session = Program.SessionManager.GetOrCreate(account);
+                session.Add(this);
             }
 
             SendSysMessage(message);

@@ -9,14 +9,38 @@ namespace SteamMobile
         public float TimeWithoutConnections { get; private set; }
 
         private List<Connection> _connections;
-        private HashSet<string> _rooms;
+        private OrderedSet<string> _rooms;
 
         public Session(Account account)
         {
             Account = account;
 
             _connections = new List<Connection>();
-            _rooms = new HashSet<string>(Account.Rooms);
+
+            var defaultRoom = Program.Settings.DefaultRoom;
+            var roomsList = new List<string>(Account.Rooms ?? new string[0]);
+            var defaultIdx = roomsList.IndexOf(defaultRoom);
+            if (roomsList.Count == 0)
+            {
+                roomsList.Add(defaultRoom);
+            }
+            else if (defaultIdx == -1)
+            {
+                roomsList.Insert(0, defaultRoom);
+            }
+            else if (defaultIdx > 0)
+            {
+                roomsList.RemoveAt(defaultIdx);
+                roomsList.Insert(0, defaultRoom);
+            }
+
+            if (!roomsList.SequenceEqual(Account.Rooms ?? new string[0]))
+            {
+                Account.Rooms = roomsList.ToArray();
+                Account.Save();
+            }
+
+            _rooms = new OrderedSet<string>(Account.Rooms);
 
             if (_rooms.Count == 0)
                 _rooms.Add(Program.Settings.DefaultRoom);
@@ -52,6 +76,14 @@ namespace SteamMobile
                         connection.SendJoinRoom(room);
                     }
                 }
+            }
+        }
+
+        public void Remove(Connection connection)
+        {
+            lock (_connections)
+            {
+                _connections.Remove(connection);
             }
         }
 
@@ -105,11 +137,12 @@ namespace SteamMobile
         public bool Leave(string roomName)
         {
             if (string.IsNullOrWhiteSpace(roomName))
-                roomName = Program.Settings.DefaultRoom;
+                return true;
 
             roomName = roomName.ToLower();
 
-            bool joinDefault;
+            if (roomName == Program.Settings.DefaultRoom)
+                return true;
 
             lock (_rooms)
             {
@@ -117,7 +150,6 @@ namespace SteamMobile
                     return true;
 
                 _rooms.Remove(roomName);
-                joinDefault = _rooms.Count == 0;
 
                 var room = Program.RoomManager.Get(roomName);
 
@@ -134,9 +166,6 @@ namespace SteamMobile
 
                 // TODO: can provide leave message
             }
-
-            if (joinDefault)
-                Join(Program.Settings.DefaultRoom);
 
             return true;
         }

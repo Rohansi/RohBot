@@ -7,11 +7,17 @@
     background-color: @rohpod-ui-background;
     list-style: none;
 
+    .selected {
+        background-color: lighten(@rohpod-ui-background, 4%);
+    }
+
     > li {
         display: inline-block;
         padding: 6px;
         background-color: @rohpod-ui-background;
         cursor: default;
+        max-width: 150px;
+        min-width: 65px;
 
         &:hover {
             background-color: lighten(@rohpod-ui-background, 8%);
@@ -19,8 +25,6 @@
 
         > .tab-name {
             display: inline-block;
-            max-width: 150px;
-            min-width: 50px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -32,6 +36,7 @@
             padding: 2px;
             margin-left: 4px;
             width: 16px;
+            float: right;
             font-size: 12px;
             font-weight: bold;
             text-align: center;

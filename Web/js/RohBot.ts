@@ -9,14 +9,14 @@ class RohBot {
     private isConnecting: boolean;
     private username: string;
 
-    onConnected: () => void;
-    onDisconnected: () => void;
-    onLogin: (packet) => void;
-    onChat: (packet) => void;
-    onChatHistory: (packet) => void;
-    onSysMessage: (packet) => void;
-    onMessage: (packet) => void;
-    onUserList: (packet) => void;
+    connected = new Signal();
+    disconnected = new Signal();
+    loggedIn = new Signal();
+    chatReceived = new Signal();
+    chatHistoryReceived = new Signal();
+    sysMessageReceived = new Signal();
+    messageReceived = new Signal();
+    userListReceived = new Signal();
 
     constructor(address: string) {
         this.address = address;
@@ -49,8 +49,7 @@ class RohBot {
 
             connected = true;
 
-            if (this.onConnected != null)
-                this.onConnected();
+            this.connected.dispatch();
         };
 
         var wsClosed = e => {
@@ -61,10 +60,8 @@ class RohBot {
 
             connected = false;
 
-            if (this.onDisconnected != null)
-                this.onDisconnected();
-
             this.disconnect();
+            this.disconnected.dispatch();
         };
 
         this.socket.onclose = wsClosed;
@@ -83,39 +80,32 @@ class RohBot {
                     if (this.username != null && this.username.length == 0)
                         this.username = null;
 
-                    if (this.onLogin != null)
-                        this.onLogin(packet);
-
+                    this.loggedIn.dispatch(packet);
                     break;
                 }
 
                 case "chat": {
-                    if (this.onChat != null)
-                        this.onChat(packet);
+                    this.chatReceived.dispatch(packet);
                     break;
                 }
 
                 case "chatHistory": {
-                    if (this.onChatHistory != null)
-                        this.onChatHistory(packet);
+                    this.chatHistoryReceived.dispatch(packet);
                     break;
                 }
 
                 case "message": {
-                    if (this.onMessage != null)
-                        this.onMessage(packet);
+                    this.messageReceived.dispatch(packet);
                     break;
                 }
 
                 case "sysMessage": {
-                    if (this.onSysMessage != null)
-                        this.onSysMessage(packet);
+                    this.sysMessageReceived.dispatch(packet);
                     break;
                 }
 
                 case "userList": {
-                    if (this.onUserList != null)
-                        this.onUserList(packet);
+                    this.userListReceived.dispatch(packet);
                     break;
                 }
             }
@@ -146,12 +136,20 @@ class RohBot {
         return this.username;
     }
 
-    login(username: string, password: string) {
+    login(username: string, password: string, tokens: string = null) {
         this.send({
             Type: "auth",
             Method: "login",
             Username: username,
-            Password: password
+            Password: password,
+            Tokens: tokens
+        });
+    }
+
+    loginGuest() {
+        this.send({
+            Type: "auth",
+            Method: "guest"
         });
     }
 
@@ -181,13 +179,11 @@ class RohBot {
     }
 
     private manualSysMessage(message: string) {
-        if (this.onSysMessage != null) {
-            this.onSysMessage({
-                Type: "sysMessage",
-                Date: new Date().getTime() / 1000,
-                Content: message
-            });
-        }
+        this.sysMessageReceived.dispatch({
+            Type: "sysMessage",
+            Date: new Date().getTime() / 1000,
+            Content: message
+        });
     }
 
     private send(packet) {

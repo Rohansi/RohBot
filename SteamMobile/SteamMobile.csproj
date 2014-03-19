@@ -101,7 +101,6 @@
     <Compile Include="Commands\Modded.cs" />
     <Compile Include="Commands\Reboot.cs" />
     <Compile Include="Commands\Reload.cs" />
-    <Compile Include="Commands\Sessions.cs" />
     <Compile Include="Commands\Status.cs" />
     <Compile Include="Commands\Unban.cs" />
     <Compile Include="Commands\Users.cs" />
@@ -110,6 +109,7 @@
     <Compile Include="DelayManager.cs" />
     <Compile Include="HistoryLine.cs" />
     <Compile Include="LinkTitles.cs" />
+    <Compile Include="OrderedSet.cs" />
     <Compile Include="Packet.cs" />
     <Compile Include="Packets\Authenticate.cs" />
     <Compile Include="Packets\AuthenticateResponse.cs" />
