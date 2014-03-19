@@ -28,8 +28,8 @@ CREATE TABLE rohbot.accounts
   name text NOT NULL,
   password text NOT NULL,
   salt text NOT NULL,
-  defaultroom text NOT NULL,
   enabledstyle text NOT NULL DEFAULT ''::text,
+  rooms text[] NOT NULL DEFAULT '{}'::text[],
   CONSTRAINT accounts_pkey PRIMARY KEY (id)
 )
 WITH (

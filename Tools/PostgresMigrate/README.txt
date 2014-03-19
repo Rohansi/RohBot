@@ -1,1 +1,0 @@
-used to transfer an existing mongodb steammobile database to postgres
