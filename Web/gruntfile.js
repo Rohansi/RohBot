@@ -13,13 +13,19 @@ module.exports = function(grunt) {
             },
             css: {
                 src: 'css/rohbot.less',
-                dest: 'build/css/rohbot.css'
+                dest: 'build/style.css'
             }
         },
         myth: {
             css: {
-                src: 'build/css/rohbot.css',
+                src: 'build/style.css',
                 dest: 'build/style.css'
+            }
+        },
+        cssmin: {
+            css: {
+                src: 'build/style.css',
+                dest: 'dist/style.css'
             }
         },
 
@@ -27,12 +33,12 @@ module.exports = function(grunt) {
         typescript: {
             js: {
                 src: ['js/RohStore.ts', 'js/**/*.ts'],
-                dest: 'build/js/rohbot-typescript.js'
+                dest: 'build/rohbot.js'
             }
         },
         concat: {
             js: {
-                src: ['build/js/rohbot-typescript.js', 'build/js/init.js'],
+                src: ['build/rohbot.js', 'js/init.js'],
                 dest: 'build/rohbot.js'
             },
             jslib: {
@@ -42,9 +48,8 @@ module.exports = function(grunt) {
         },
 		uglify: {
 		    js: {
-		        files: {
-		            'dist/rohbot.js': ['build/rohbot.js']
-		        }
+		        src: 'build/rohbot.js',
+		        dest: 'dist/rohbot.js'
 		    }
 		},
 
@@ -55,7 +60,7 @@ module.exports = function(grunt) {
                 collapseWhitespace: true
             },
             index: {
-                src: 'dist/index.htm',
+                src: 'build/index.htm',
                 dest: 'dist/index.htm'
             },
             templates: {
@@ -74,31 +79,26 @@ module.exports = function(grunt) {
 		
         // Other
         copy: {
-            js: {
-                src: 'js/*.js',
-                dest: 'build/js/',
-                expand: true,
-                flatten: true
-            },
-            img: {
-                src: 'img/*',
-                dest: 'dist/',
-                expand: true,
-                flatten: true,
-                filter: 'isFile'
-            },
             index: {
                 src: 'index.htm',
                 dest: 'build/'
             },
+            img: {
+                src: 'img/*',
+                dest: 'build/',
+                expand: true,
+                flatten: true,
+                filter: 'isFile'
+            },
             dist: {
-                src: 'build/*',
+                src: ['img/*', 'build/jslibs.min.js', 'build/templates.js'],
                 dest: 'dist/',
                 expand: true,
                 flatten: true,
                 filter: 'isFile'
             }
         },
+        
         clean: {
             dist: 'dist',
             build: 'build'
@@ -111,6 +111,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-htmlmin');
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-myth');
     grunt.loadNpmTasks('grunt-hogan');
     grunt.loadNpmTasks('grunt-typescript');
@@ -140,7 +141,6 @@ module.exports = function(grunt) {
 
     grunt.registerTask('js', [
         'typescript:js',
-        'copy:js',
         'concat:js'
     ]);
 
@@ -157,6 +157,7 @@ module.exports = function(grunt) {
     grunt.registerTask('dist', [
         'copy:dist',
         'htmlmin:index',
-        'uglify:js'
+        'uglify:js',
+        'cssmin:css'
     ]);
 };
