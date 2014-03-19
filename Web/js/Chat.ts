@@ -130,8 +130,8 @@ class Chat {
     }
 
     addHtml(html: string, prepend: boolean = false) {
-        var historyElem = this.history[0];
-        var atBottom = this.history.outerHeight() >= (historyElem.scrollHeight - historyElem.scrollTop - 32);
+        var historyElem = $("#history")[0];
+        var atBottom = historyElem.clientHeight >= (historyElem.scrollHeight - historyElem.scrollTop - 32);
 
         if (prepend)
             this.history.prepend(html);
