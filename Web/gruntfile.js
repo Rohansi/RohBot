@@ -82,7 +82,10 @@ module.exports = function(grunt) {
             },
             img: {
                 src: 'img/*',
-                dest: 'dist/'
+                dest: 'dist/',
+                expand: true,
+                flatten: true,
+                filter: 'isFile'
             },
             index: {
                 src: 'index.htm',

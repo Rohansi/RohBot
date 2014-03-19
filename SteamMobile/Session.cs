@@ -8,6 +8,7 @@ namespace SteamMobile
         public Account Account { get; private set; }
         public float TimeWithoutConnections { get; private set; }
 
+        private readonly object _sync = new object();
         private List<Connection> _connections;
         private OrderedSet<string> _rooms;
 
@@ -52,36 +53,31 @@ namespace SteamMobile
                 roomName = Program.Settings.DefaultRoom;
 
             roomName = roomName.ToLower();
-
-            lock (_rooms)
-            {
-                return _rooms.Contains(roomName);
-            }
+            return _rooms.Contains(roomName);
         }
 
         public void Add(Connection connection)
         {
-            lock (_connections)
+            lock (_sync)
             {
-                if (!_connections.Contains(connection))
-                    _connections.Add(connection);
+                if (_connections.Contains(connection))
+                    return;
 
-                connection.Session = this;
+                _connections.Add(connection);
+            }
 
-                lock (_rooms)
-                {
-                    foreach (var roomName in _rooms)
-                    {
-                        var room = Program.RoomManager.Get(roomName);
-                        connection.SendJoinRoom(room);
-                    }
-                }
+            connection.Session = this;
+
+            foreach (var roomName in _rooms)
+            {
+                var room = Program.RoomManager.Get(roomName);
+                connection.SendJoinRoom(room);
             }
         }
 
         public void Remove(Connection connection)
         {
-            lock (_connections)
+            lock (_sync)
             {
                 _connections.Remove(connection);
             }
@@ -89,7 +85,7 @@ namespace SteamMobile
 
         public void Update(float delta)
         {
-            lock (_connections)
+            lock (_sync)
             {
                 _connections.RemoveAll(conn => !conn.Connected);
             }
@@ -106,32 +102,31 @@ namespace SteamMobile
 
             roomName = roomName.ToLower();
 
-            lock (_rooms)
-            {
-                if (_rooms.Contains(roomName))
-                    return true;
-
-                var room = Program.RoomManager.Get(roomName);
-                if (room == null)
-                    return false;
-
-                _rooms.Add(room.RoomInfo.ShortName);
-
-                lock (_connections)
-                {
-                    foreach (var conn in _connections)
-                    {
-                        conn.SendJoinRoom(room);
-                    }
-                }
-
-                Account.Rooms = _rooms.ToArray();
-                Account.Save();
-
-                // TODO: can provide enter message
-
+            if (_rooms.Contains(roomName))
                 return true;
+
+            var room = Program.RoomManager.Get(roomName);
+            if (room == null)
+                return false;
+
+            _rooms.Add(room.RoomInfo.ShortName);
+
+            lock (_sync)
+            {
+                foreach (var conn in _connections)
+                {
+                    conn.SendJoinRoom(room);
+                }
             }
+
+            Account.Rooms = new string[_rooms.Count];
+            _rooms.CopyTo(Account.Rooms, 0);
+
+            Account.Save();
+
+            // TODO: can provide enter message
+
+            return true;
         }
 
         public bool Leave(string roomName)
@@ -144,28 +139,26 @@ namespace SteamMobile
             if (roomName == Program.Settings.DefaultRoom)
                 return true;
 
-            lock (_rooms)
+            if (!_rooms.Contains(roomName))
+                return true;
+
+            _rooms.Remove(roomName);
+
+            var room = Program.RoomManager.Get(roomName);
+            lock (_sync)
             {
-                if (!_rooms.Contains(roomName))
-                    return true;
-
-                _rooms.Remove(roomName);
-
-                var room = Program.RoomManager.Get(roomName);
-
-                lock (_connections)
+                foreach (var conn in _connections)
                 {
-                    foreach (var conn in _connections)
-                    {
-                        conn.SendLeaveRoom(room);
-                    }
+                    conn.SendLeaveRoom(room);
                 }
-
-                Account.Rooms = _rooms.ToArray();
-                Account.Save();
-
-                // TODO: can provide leave message
             }
+
+            Account.Rooms = new string[_rooms.Count];
+            _rooms.CopyTo(Account.Rooms, 0);
+
+            Account.Save();
+
+            // TODO: can provide leave message
 
             return true;
         }
@@ -178,9 +171,12 @@ namespace SteamMobile
 
         public void Send(string data)
         {
-            foreach (var conn in _connections)
+            lock (_sync)
             {
-                conn.Send(data);
+                foreach (var conn in _connections)
+                {
+                    conn.Send(data);
+                }
             }
         }
     }
