@@ -54,6 +54,7 @@ class Chat {
         if (this.requestedHistory)
             return;
 
+        this.requestedHistory = true;
         this.chatMgr.rohbot.requestHistory(this.shortName, this.oldestLine);
     }
 
