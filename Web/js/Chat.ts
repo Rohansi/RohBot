@@ -96,13 +96,18 @@ class Chat {
     }
 
     addLine(line: any, prepend: boolean = false) {
+        var timeFmt = RohStore.get("time format");
+        if (timeFmt == null) timeFmt = "12hr";
+
         var date = new Date(line.Date * 1000);
 
         var data: any = {
-            Time: Chat.formatTime(date),
             DateTime: date.toISOString(),
             Message: line.Content
         };
+
+        if (timeFmt != "off")
+            data.Time = Chat.formatTime(date, timeFmt);
 
         switch (line.Type) {
             case "chat": {
@@ -156,10 +161,13 @@ class Chat {
         return text;
     }
 
-    static formatTime(date: Date) {
+    static formatTime(date: Date, timeFmt: string) {
+        if (timeFmt == "off")
+            return "";
+
         var hours: any = date.getHours();
         var minutes: any = date.getMinutes();
-        var military = RohStore.get("clock format") == "24hr";
+        var military = timeFmt == "24hr";
         var suffix = "";
 
         if (military) {
@@ -174,9 +182,6 @@ class Chat {
 
             if (hours == 0)
                 hours = 12;
-
-            if (hours < 10)
-                hours = " " + hours;
         }
 
         if (minutes < 10)

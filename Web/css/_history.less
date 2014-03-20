@@ -19,7 +19,11 @@
             white-space: nowrap;
 
             &:after {
-                content: "\00a0\2011";
+                content: "\00a0\2011\00a0";
+            }
+
+            &.hidden {
+                display: none;
             }
         }
 
@@ -42,7 +46,7 @@
             white-space: nowrap;
 
             &:after {
-                content: ":";
+                content: ":\00a0";
                 display: inline;
             }
         }

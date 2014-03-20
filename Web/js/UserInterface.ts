@@ -136,22 +136,35 @@ class UserInterface {
                 }
             }
         } else if (command.indexOf("timeformat") == 0) {
-            var fmt = command.substr(11);
-            if (fmt == "24hr") {
-                RohStore.set("clock format", "24hr");
-                chat.statusMessage("Clock set to 24hr.");
-            } else if (fmt == "12hr") {
-                RohStore.set("clock format", "12hr");
-                chat.statusMessage("Clock set to 12hr.");
+            var oldFmt = RohStore.get("time format");
+            if (oldFmt == null) oldFmt = "12hr";
+
+            var newFmt = command.substr(11);
+            if (newFmt == "24hr") {
+                chat.statusMessage("Time set to 24hr.");
+            } else if (newFmt == "12hr") {
+                chat.statusMessage("Time set to 12hr.");
+            } else if (newFmt == "off") {
+                chat.statusMessage("Time disabled.");
             } else {
-                chat.statusMessage("Unknown clock format '" + fmt + "'. Try 12hr or 24hr.");
+                chat.statusMessage("Unknown time format '" + newFmt + "'. Try 12hr, 24hr or off.");
                 return true;
             }
 
-            $("#history time").each((i, e) => {
-                var j = $(e);
-                j.text(Chat.formatTime(new Date(j.attr("datetime"))));
-            });
+            RohStore.set("time format", newFmt);
+
+            if (oldFmt == "off" && newFmt != "off") {
+                $("#history time").removeClass("hidden");
+            } else if (oldFmt != "off" && newFmt == "off") {
+                $("#history time").addClass("hidden");
+            }
+
+            if (newFmt != "off") {
+                $("#history time").each((i, e) => {
+                    var j = $(e);
+                    j.text(Chat.formatTime(new Date(j.attr("datetime")), newFmt));
+                });
+            }
         } else {
             return false;
         }
