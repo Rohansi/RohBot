@@ -25,7 +25,7 @@ Logs out of the website.
 Enable or disable notifications on supported browsers. `/notify brian` will make notifications appear whenever somebody says Brian. `/notify` will disable noficiations. More complex conditions can be used by supplying a [regex](http://en.wikipedia.org/wiki/Regular_expression) pattern.
 
 ### timeformat ###
-Allows you to switch between 12 and 24 hour time formats. `/timeformat 12hr` or `/timeformat 24hr`.
+Allows you to switch time formats. Available options are `/timeformat 12hr`, `/timeformat 24hr` or `/timeformat off`.
 
 ### password ###
 Saves your password in the browser for automatic login. This is only useful if your IP changes a lot and hate logging in. `/password thisismypasswordshh` will save and `/password` will remove.

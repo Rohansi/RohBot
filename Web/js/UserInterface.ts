@@ -141,13 +141,13 @@ class UserInterface {
 
             var newFmt = command.substr(11);
             if (newFmt == "24hr") {
-                chat.statusMessage("Time set to 24hr.");
+                chat.statusMessage("Time format set to 24hr.");
             } else if (newFmt == "12hr") {
-                chat.statusMessage("Time set to 12hr.");
+                chat.statusMessage("Time format set to 12hr.");
             } else if (newFmt == "off") {
                 chat.statusMessage("Time disabled.");
             } else {
-                chat.statusMessage("Unknown time format '" + newFmt + "'. Try 12hr, 24hr or off.");
+                chat.statusMessage("Unknown times format '" + newFmt + "'. Try 12hr, 24hr or off.");
                 return true;
             }
 
