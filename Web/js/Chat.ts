@@ -90,6 +90,7 @@ class Chat {
     statusMessage(message: string) {
         this.addLine({
             Type: "state",
+            State: "Client",
             Date: Date.now() / 1000,
             Content: message
         });
