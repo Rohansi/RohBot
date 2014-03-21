@@ -11,6 +11,9 @@
             if (!target.IsWeb || parameters.Length == 0)
                 return;
 
+            if (Program.DelayManager.AddAndCheck(target.Connection, 5))
+                return;
+
             if (!target.Connection.Session.Leave(parameters[0]))
                 target.Send("Room does not exist.");
         }

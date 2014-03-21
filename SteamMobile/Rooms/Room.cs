@@ -97,6 +97,7 @@ namespace SteamMobile.Rooms
         public readonly bool IsHidden;
         public readonly bool IsPrivate;
         public readonly bool IsLogging;
+        public readonly bool ShowWebStates;
 
         /// <summary>
         /// If not empty, commands used in this room will potentially resolve to commands that use the prefix.
@@ -134,11 +135,12 @@ namespace SteamMobile.Rooms
                 _history.AddLast(line);
             }
 
-            _showLinkTitles = (roomInfo["LinkTitles"] ?? "").ToLower() == "true";
-            IsWhitelisted = (roomInfo["Whitelist"] ?? "").ToLower() == "true";
-            IsHidden = (roomInfo["Hidden"] ?? "").ToLower() == "true";
-            IsPrivate = (roomInfo["Private"] ?? "").ToLower() == "true";
-            IsLogging = (roomInfo["Logging"] ?? "true").ToLower() == "true";
+            _showLinkTitles = (RoomInfo["LinkTitles"] ?? "").ToLower() == "true";
+            IsWhitelisted = (RoomInfo["Whitelist"] ?? "").ToLower() == "true";
+            IsHidden = (RoomInfo["Hidden"] ?? "").ToLower() == "true";
+            IsPrivate = (RoomInfo["Private"] ?? "").ToLower() == "true";
+            IsLogging = (RoomInfo["Logging"] ?? "true").ToLower() == "true";
+            ShowWebStates = (RoomInfo["WebStates"] ?? "true").ToLower() == "true";
         }
 
         /// <summary>
@@ -249,9 +251,67 @@ namespace SteamMobile.Rooms
             }
 
             var userName = account.Name;
-            var userId = account.Id.ToString();
+            var userId = account.Id.ToString("D");
             var userStyle = account.EnabledStyle;
             var line = new ChatLine(Util.GetCurrentUnixTimestamp(), roomName, "RohBot", userName, userId, userStyle, message, false);
+            SendLine(line);
+        }
+
+        // TODO: merge these similarly to the one in SteamRoom
+        public void SessionEnter(Session session)
+        {
+            if (!ShowWebStates || session.Account == null || IsBanned(session.Account.Name))
+                return;
+
+            var account = session.Account;
+            var line = new StateLine(
+                Util.GetCurrentUnixTimestamp(),
+                RoomInfo.ShortName,
+                "Enter",
+                account.Name,
+                account.Id.ToString("D"),
+                "RohBot",
+                "", "0", "",
+                account.Name + " entered chat.");
+
+            SendLine(line);
+        }
+
+        public void SessionLeft(Session session)
+        {
+            if (!ShowWebStates || session.Account == null || IsBanned(session.Account.Name))
+                return;
+
+            var account = session.Account;
+            var line = new StateLine(
+                Util.GetCurrentUnixTimestamp(),
+                RoomInfo.ShortName,
+                "Left",
+                account.Name,
+                account.Id.ToString("D"),
+                "RohBot",
+                "", "0", "",
+                account.Name + " left chat.");
+
+            SendLine(line);
+        }
+
+        public void SessionDisconnect(Session session)
+        {
+            if (!ShowWebStates || session.Account == null || IsBanned(session.Account.Name))
+                return;
+
+            var account = session.Account;
+            var line = new StateLine(
+                Util.GetCurrentUnixTimestamp(),
+                RoomInfo.ShortName,
+                "Disconnected",
+                account.Name,
+                account.Id.ToString("D"),
+                "RohBot",
+                "", "0", "",
+                account.Name + " disconnected.");
+
             SendLine(line);
         }
 

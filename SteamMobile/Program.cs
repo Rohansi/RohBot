@@ -30,10 +30,19 @@ namespace SteamMobile
 
             LoadSettings();
 
+            if (Settings == null)
+            {
+                Logger.Fatal("Failed to load settings!");
+                return;
+            }
+
             SessionManager = new SessionManager();
             RoomManager = new RoomManager();
             DelayManager = new DelayManager();
             Steam = new Steam();
+
+            RoomManager.Update();
+            SessionManager.Start();
 
             _taskScheduler = new TaskScheduler();
             _taskScheduler.Add(TimeSpan.FromSeconds(0.5), () =>

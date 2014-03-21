@@ -2,12 +2,16 @@
 using System.Diagnostics;
 using System.Net;
 using EzSteam;
+using SteamKit2;
 
 namespace SteamMobile.Rooms
 {
     public class SteamRoom : Room
     {
         public Chat Chat { get; private set; }
+
+        public readonly SteamID SteamId;
+        public readonly bool EchoWebStates;
 
         private bool _hasConnected;
         private Stopwatch _lastMessage;
@@ -16,6 +20,9 @@ namespace SteamMobile.Rooms
             : base(roomInfo)
         {
             _lastMessage = Stopwatch.StartNew();
+
+            SteamId = new SteamID(ulong.Parse(RoomInfo["SteamId"]));
+            EchoWebStates = (RoomInfo["EchoWebStates"] ?? "true").ToLower() == "true";
         }
 
         public override void SendLine(HistoryLine line)
@@ -24,6 +31,32 @@ namespace SteamMobile.Rooms
             if (chatLine != null && Chat != null && chatLine.UserType == "RohBot")
             {
                 Chat.Send(string.Format("[{0}] {1}", WebUtility.HtmlDecode(chatLine.Sender), WebUtility.HtmlDecode(chatLine.Content)));
+            }
+
+            var stateLine = line as StateLine;
+            if (EchoWebStates && stateLine != null && Chat != null && stateLine.ForType == "RohBot")
+            {
+                string fmt;
+                switch (stateLine.State)
+                {
+                    case "Enter":
+                        fmt = "<{0}> entered chat.";
+                        break;
+                    case "Left":
+                        fmt = "<{0}> left chat.";
+                        break;
+                    case "Disconnected":
+                        fmt = "<{0}> disconnected.";
+                        break;
+                    default:
+                        fmt = null;
+                        break;
+                }
+
+                if (fmt != null)
+                {
+                    Chat.Send(string.Format(fmt, WebUtility.HtmlDecode(stateLine.For)));
+                }
             }
 
             base.SendLine(line);
@@ -80,7 +113,7 @@ namespace SteamMobile.Rooms
                 return;
             
             _hasConnected = false;
-            Chat = Program.Steam.Bot.Join(ulong.Parse(RoomInfo["SteamId"]));
+            Chat = Program.Steam.Bot.Join(SteamId);
 
             Chat.OnEnter += sender =>
             {
@@ -132,7 +165,7 @@ namespace SteamMobile.Rooms
 
             var message = user.Name + " entered chat.";
 
-            var line = new StateLine(Util.GetCurrentUnixTimestamp(), RoomInfo.ShortName, "Enter", user.Name, user.Id.ConvertToUInt64().ToString("D"), "", "0", message);
+            var line = new StateLine(Util.GetCurrentUnixTimestamp(), RoomInfo.ShortName, "Enter", user.Name, user.Id.ConvertToUInt64().ToString("D"), "Steam", "", "0", "", message);
             SendLine(line);
         }
 
@@ -159,8 +192,9 @@ namespace SteamMobile.Rooms
 
             var by = sourceUser != null ? sourceUser.Name : "";
             var byId = sourceUser != null ? sourceUser.Id.ConvertToUInt64().ToString("D") : "0";
+            var byType = sourceUser != null ? "Steam" : "";
 
-            var line = new StateLine(Util.GetCurrentUnixTimestamp(), RoomInfo.ShortName, reason.ToString(), user.Name, user.Id.ConvertToUInt64().ToString("D"), by, byId, message);
+            var line = new StateLine(Util.GetCurrentUnixTimestamp(), RoomInfo.ShortName, reason.ToString(), user.Name, user.Id.ConvertToUInt64().ToString("D"), "Steam", by, byId, byType, message);
             SendLine(line);
         }
     }

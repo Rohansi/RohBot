@@ -69,6 +69,8 @@ CREATE TABLE rohbot.chathistory
   forid text, -- StateLine
   by text, -- StateLine
   byid text, -- StateLine
+  fortype text, -- StateLine
+  bytype text, -- StateLine
   CONSTRAINT chathistory_pkey PRIMARY KEY (id)
 )
 WITH (
@@ -87,6 +89,8 @@ COMMENT ON COLUMN rohbot.chathistory."for" IS 'StateLine';
 COMMENT ON COLUMN rohbot.chathistory.forid IS 'StateLine';
 COMMENT ON COLUMN rohbot.chathistory.by IS 'StateLine';
 COMMENT ON COLUMN rohbot.chathistory.byid IS 'StateLine';
+COMMENT ON COLUMN rohbot.chathistory.fortype IS 'StateLine';
+COMMENT ON COLUMN rohbot.chathistory.bytype IS 'StateLine';
 
 -- Index: rohbot.chathistory_date_idx
 CREATE INDEX chathistory_date_idx

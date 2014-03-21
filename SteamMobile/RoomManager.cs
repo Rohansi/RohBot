@@ -72,9 +72,16 @@ namespace SteamMobile
                     Program.Logger.Error("Failed to load rooms", e);
                 }
 
-                foreach (var room in _rooms.Values)
+                try
                 {
-                    room.Update();
+                    foreach (var room in _rooms.Values)
+                    {
+                        room.Update();
+                    }
+                }
+                catch (Exception e)
+                {
+                    Program.Logger.Error("Failed to update rooms", e);
                 }
             }
         }

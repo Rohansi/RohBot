@@ -126,6 +126,11 @@ class ChatManager {
                 return;
             }
 
+            // ignore states for ourselves
+            var line = packet.Line;
+            if (line.Type == "state" && line.ForType == "RohBot" && line.For == this.rohbot.getUsername())
+                return;
+
             chat.addLine(packet.Line, false);
         });
 

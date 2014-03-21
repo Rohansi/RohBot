@@ -22,8 +22,11 @@ namespace SteamMobile
         {
             _sessions = new ConcurrentDictionary<string, Session>();
             _timer = Stopwatch.StartNew();
-
             _server = new Server();
+        }
+
+        public void Start()
+        {
             _server.Setup("0.0.0.0", 12000);
             _server.Start();
 
@@ -45,14 +48,18 @@ namespace SteamMobile
 
         public void Update()
         {
-            var emptySessions = _sessions.Where(kv => kv.Value.TimeWithoutConnections >= 20).ToList();
+            var emptySessions = _sessions.Where(kv => kv.Value.TimeWithoutConnections >= 30).ToList();
             foreach (var empty in emptySessions)
             {
                 Session removedSession;
 
                 if (_sessions.TryRemove(empty.Key, out removedSession))
                 {
-                    // TODO: can provide disconnect messages
+                    var rooms = Program.RoomManager.List.Where(r => removedSession.IsInRoom(r.RoomInfo.ShortName));
+                    foreach (var r in rooms)
+                    {
+                        r.SessionDisconnect(removedSession);
+                    }
                 }
             }
 

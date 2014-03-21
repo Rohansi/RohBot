@@ -40,6 +40,7 @@ namespace SteamMobile
                         SenderStyle = row.senderstyle,
                         InGame = row.ingame
                     };
+
                 case "state":
                     return new StateLine
                     {
@@ -50,9 +51,12 @@ namespace SteamMobile
                         State = row.state,
                         For = row.@for,
                         ForId = row.forid,
+                        ForType = row.fortype,
                         By = row.by,
-                        ById = row.byid
+                        ById = row.byid,
+                        ByType = row.bytype
                     };
+
                 default:
                     throw new NotSupportedException("Cannot read HistoryLine type: " + row.type);
             }
@@ -76,7 +80,7 @@ namespace SteamMobile
         public ChatLine(long date, string chat, string userType, string sender, string senderId, string senderStyle, string content, bool inGame)
             : base(date, chat, content)
         {
-            UserType = Util.HtmlEncode(userType);
+            UserType = userType;
             Sender = Util.HtmlEncode(sender);
             SenderId = senderId;
             SenderStyle = senderStyle;
@@ -110,19 +114,23 @@ namespace SteamMobile
         public string State;
         public string For;
         public string ForId;
+        public string ForType;
         public string By;
         public string ById;
+        public string ByType;
 
         public StateLine() { }
 
-        public StateLine(long date, string chat, string state, string @for, string forId, string by, string byId, string content)
+        public StateLine(long date, string chat, string state, string @for, string forId, string forType, string by, string byId, string byType, string content)
             : base(date, chat, content)
         {
-            State = Util.HtmlEncode(state);
+            State = state;
             For = Util.HtmlEncode(@for);
             ForId = forId;
+            ForType = forType;
             By = Util.HtmlEncode(by);
             ById = byId;
+            ByType = byType;
         }
 
         public override void Insert()
@@ -130,8 +138,8 @@ namespace SteamMobile
             if (Id != 0)
                 throw new InvalidOperationException("Cannot insert existing row");
 
-            var cmd = new SqlCommand("INSERT INTO rohbot.chathistory (type,date,chat,content,state,\"for\",forid,by,byid)" + 
-                                     "VALUES (:type,:date,:chat,:content,:state,:for,:forid,:by,:byid) RETURNING id;");
+            var cmd = new SqlCommand("INSERT INTO rohbot.chathistory (type,date,chat,content,state,\"for\",forid,fortype,by,byid,bytype)" + 
+                                     "VALUES (:type,:date,:chat,:content,:state,:for,:forid,:fortype,:by,:byid,:bytype) RETURNING id;");
             cmd["type"] = Type;
             cmd["date"] = Date;
             cmd["chat"] = Chat;
@@ -139,8 +147,10 @@ namespace SteamMobile
             cmd["state"] = State;
             cmd["for"] = For;
             cmd["forid"] = ForId;
+            cmd["fortype"] = ForType;
             cmd["by"] = By;
             cmd["byid"] = ById;
+            cmd["bytype"] = ByType;
             Id = (long)cmd.ExecuteScalar();
         }
     }

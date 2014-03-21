@@ -11,6 +11,7 @@ namespace SteamMobile
         private readonly object _sync = new object();
         private List<Connection> _connections;
         private OrderedSet<string> _rooms;
+        private bool _firstConnection;
 
         public Session(Account account)
         {
@@ -20,6 +21,9 @@ namespace SteamMobile
 
             var defaultRoom = Program.Settings.DefaultRoom;
             var roomsList = new List<string>(Account.Rooms ?? new string[0]);
+
+            roomsList.RemoveAll(r => Program.RoomManager.Get(r) == null);
+
             var defaultIdx = roomsList.IndexOf(defaultRoom);
             if (roomsList.Count == 0)
             {
@@ -42,6 +46,7 @@ namespace SteamMobile
             }
 
             _rooms = new OrderedSet<string>(Account.Rooms);
+            _firstConnection = true;
         }
 
         public bool IsInRoom(string roomName)
@@ -68,7 +73,12 @@ namespace SteamMobile
                 {
                     var room = Program.RoomManager.Get(roomName);
                     connection.SendJoinRoom(room);
+
+                    if (_firstConnection)
+                        room.SessionEnter(this);
                 }
+
+                _firstConnection = false;
             }
         }
 
@@ -106,6 +116,7 @@ namespace SteamMobile
             lock (_sync)
             {
                 _rooms.Add(room.RoomInfo.ShortName);
+                room.SessionEnter(this);
 
                 foreach (var conn in _connections)
                 {
@@ -115,8 +126,6 @@ namespace SteamMobile
                 Account.Rooms = _rooms.ToArray();
                 Account.Save();
             }
-
-            // TODO: can provide enter message
 
             return true;
         }
@@ -128,15 +137,18 @@ namespace SteamMobile
             if (roomName == Program.Settings.DefaultRoom)
                 return true;
 
+            var room = Program.RoomManager.Get(roomName);
+            if (room == null)
+                return true;
+
             lock (_sync)
             {
                 if (!_rooms.Contains(roomName))
                     return true;
 
+                room.SessionLeft(this);
                 _rooms.Remove(roomName);
 
-                var room = Program.RoomManager.Get(roomName);
-            
                 foreach (var conn in _connections)
                 {
                     conn.SendLeaveRoom(room);
@@ -145,8 +157,6 @@ namespace SteamMobile
                 Account.Rooms = _rooms.ToArray();
                 Account.Save();
             }
-
-            // TODO: can provide leave message
 
             return true;
         }
