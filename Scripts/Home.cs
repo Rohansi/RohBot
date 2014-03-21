@@ -53,17 +53,18 @@ public class Script : IScript
                     SendMessage(connection, "you need to create an account to send messages");
 
                 SendMessage(connection, "to join other rooms use the '/join' command");
-                SendMessage(connection, "more help can be found here: https://github.com/Rohansi/SteamMobile#commands");
+                SendMessage(connection, "more help can be found " + Link("https://github.com/Rohansi/SteamMobile#commands", "right here"));
                 SendMessage(connection, "");
                 SendMessage(connection, "here are some of the rooms you can join:");
 
                 var rooms = Program.RoomManager.List.Where(r => !r.IsHidden);
                 foreach (var room in rooms)
                 {
+                    var name = room.RoomInfo.Name;
                     var notes = new List<string>();
 
                     if (room is SteamRoom)
-                        notes.Add(string.Format("http://steamcommunity.com/gid/{0}", room.RoomInfo["SteamId"]));
+                        name = Link("http://steamcommunity.com/gid/" + room.RoomInfo["SteamId"], name);
 
                     if (room.IsWhitelisted)
                         notes.Add("whitelisted");
@@ -73,13 +74,13 @@ public class Script : IScript
 
                     SendMessage(connection, string.Format("{0} -> {1}{2}{3}",
                         room.RoomInfo.ShortName,
-                        room.RoomInfo.Name,
+                        name,
                         notes.Count == 0 ? "" : " - ",
                         string.Join(", ", notes)));
                 }
 
                 SendMessage(connection, "");
-                SendMessage(connection, "want me in your group? talk to this guy: http://steamcommunity.com/id/rohans/");
+                SendMessage(connection, "want me in your group? " + Link("http://steamcommunity.com/id/rohans/", "talk to this guy"));
             }
         }
     }
@@ -88,8 +89,19 @@ public class Script : IScript
     {
         connection.Send(new Message
         {
-            Line = new ChatLine(Util.GetCurrentUnixTimestamp(), "home", "Steam", "~", "0", "", message, false)
+            Line = new StateLine
+            {
+                Date = Util.GetCurrentUnixTimestamp(),
+                Chat = "home",
+                Content = message,
+                State = "Client"
+            }
         });
+    }
+
+    private static string Link(string target, string caption)
+    {
+        return string.Format("<a href=\"{0}\" target=\"_blank\">{1}</a>", target, Util.HtmlEncode(caption));
     }
 
     public bool OnSendLine(HistoryLine line) { return true; }
