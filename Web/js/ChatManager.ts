@@ -116,6 +116,7 @@ class ChatManager {
             }
 
             packet.Type = "state";
+            packet.State = "Client";
             chat.addLine(packet, false);
         });
 

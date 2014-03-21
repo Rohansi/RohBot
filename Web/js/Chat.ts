@@ -125,6 +125,49 @@ class Chat {
             }
 
             case "state":
+                if (line.State == "Client")
+                    break;
+
+                var style = t => t == "Steam" ? "steam" : "rohBot";
+                var stateData: any = {
+                    For: line.For,
+                    ForStyle: style(line.ForType),
+                };
+
+                if (line.By != "") {
+                    stateData.By = line.By;
+                    stateData.ByStyle = style(line.ByType);
+                }
+
+                switch (line.State) {
+                    case "Enter":
+                        stateData.Content1 = " entered chat.";
+                        break;
+
+                    case "Left":
+                        stateData.Content1 = " left chat.";
+                        break;
+
+                    case "Disconnected":
+                        stateData.Content1 = " disconnected.";
+                        break;
+
+                    case "Kicked":
+                        stateData.Content1 = " was kicked by ";
+                        stateData.Content2 = ".";
+                        break;
+
+                    case "Banned":
+                        stateData.Content1 = " was banned by ";
+                        stateData.Content2 = ".";
+                        break;
+
+                    default:
+                        console.warn("unhandled state type", line.State);
+                        break;
+                }
+
+                data.Message = templates.statemessage.render(stateData);
                 break;
 
             default:

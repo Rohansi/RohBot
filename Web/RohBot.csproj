@@ -86,6 +86,9 @@
   <ItemGroup>
     <Content Include="templates\history.mustache" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="templates\statemessage.mustache" />
+  </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <TypeScriptCompileOnSaveEnabled>False</TypeScriptCompileOnSaveEnabled>
   </PropertyGroup>
