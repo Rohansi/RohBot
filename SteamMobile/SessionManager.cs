@@ -48,7 +48,7 @@ namespace SteamMobile
 
         public void Update()
         {
-            var emptySessions = _sessions.Where(kv => kv.Value.TimeWithoutConnections >= 30).ToList();
+            var emptySessions = _sessions.Where(kv => !kv.Value.IsActive).ToList();
             foreach (var empty in emptySessions)
             {
                 Session removedSession;

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace SteamMobile
@@ -6,16 +7,18 @@ namespace SteamMobile
     public class Session
     {
         public Account Account { get; private set; }
-        public float TimeWithoutConnections { get; private set; }
+        public bool IsActive { get; private set; }
 
         private readonly object _sync = new object();
         private List<Connection> _connections;
         private OrderedSet<string> _rooms;
         private bool _firstConnection;
+        private float _timeWithoutConnection;
 
         public Session(Account account)
         {
             Account = account;
+            IsActive = true;
 
             _connections = new List<Connection>();
 
@@ -47,6 +50,7 @@ namespace SteamMobile
 
             _rooms = new OrderedSet<string>(Account.Rooms);
             _firstConnection = true;
+            _timeWithoutConnection = 0;
         }
 
         public bool IsInRoom(string roomName)
@@ -95,11 +99,19 @@ namespace SteamMobile
             lock (_sync)
             {
                 _connections.RemoveAll(conn => !conn.Connected);
-            }
 
-            TimeWithoutConnections += delta;
-            if (_connections.Count > 0)
-                TimeWithoutConnections = 0;
+                if (_connections.Count > 0)
+                {
+                    _timeWithoutConnection = 0;
+                    return;
+                }
+
+                var hasMobile = _connections.Any(c => c.IsMobile);
+                float timeout = hasMobile ? 2.5f * 60 : 0.5f * 60;
+                
+                _timeWithoutConnection += delta;
+                IsActive = _timeWithoutConnection < timeout;
+            }
         }
 
         public bool Join(string roomName)

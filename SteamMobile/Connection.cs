@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Npgsql;
 using SteamMobile.Packets;
 using SteamMobile.Rooms;
@@ -11,7 +12,8 @@ namespace SteamMobile
     public class Connection : WebSocketSession<Connection>
     {
         public string Address { get; private set; }
-        public Session Session;
+        public bool IsMobile { get; private set; }
+        public Session Session { get; set; }
 
         public void SendJoinRoom(Room room)
         {
@@ -203,6 +205,8 @@ namespace SteamMobile
             Send(Packet.WriteToMessage(packet));
         }
 
+        private static readonly Regex MobileUserAgent = new Regex(@"Android|iPhone|iPad|iPod|Windows Phone", RegexOptions.Compiled);
+
         protected override void OnSessionStarted()
         {
             Session = null;
@@ -215,6 +219,15 @@ namespace SteamMobile
             catch
             {
                 Address = "127.0.0.1";
+            }
+
+            try
+            {
+                IsMobile = MobileUserAgent.IsMatch(Items["User-Agent"].ToString());
+            }
+            catch
+            {
+                IsMobile = false;
             }
         }
     }
