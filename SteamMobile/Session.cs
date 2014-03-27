@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace SteamMobile
@@ -14,6 +13,7 @@ namespace SteamMobile
         private OrderedSet<string> _rooms;
         private bool _firstConnection;
         private float _timeWithoutConnection;
+        private bool _isMobile;
 
         public Session(Account account)
         {
@@ -102,15 +102,15 @@ namespace SteamMobile
 
                 if (_connections.Count > 0)
                 {
+                    _isMobile = _connections.Any(c => c.IsMobile);
                     _timeWithoutConnection = 0;
                     return;
                 }
 
-                var hasMobile = _connections.Any(c => c.IsMobile);
-                float timeout = hasMobile ? 2.5f * 60 : 0.5f * 60;
+                float timeout = _isMobile ? 2.5f : 0.5f;
                 
                 _timeWithoutConnection += delta;
-                IsActive = _timeWithoutConnection < timeout;
+                IsActive = _timeWithoutConnection < (timeout * 60);
             }
         }
 
