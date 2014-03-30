@@ -65,6 +65,7 @@ namespace SteamMobile
         public void Add(Connection connection)
         {
             List<string> rooms;
+            bool firstConnection;
 
             lock (_sync)
             {
@@ -74,8 +75,10 @@ namespace SteamMobile
                 _connections.Add(connection);
 
                 connection.Session = this;
-                _firstConnection = false;
                 rooms = _rooms.ToList();
+
+                firstConnection = _firstConnection;
+                _firstConnection = false;
             }
 
             foreach (var roomName in rooms)
@@ -83,7 +86,7 @@ namespace SteamMobile
                 var room = Program.RoomManager.Get(roomName);
                 connection.SendJoinRoom(room);
 
-                if (_firstConnection)
+                if (firstConnection)
                     room.SessionEnter(this);
             }
         }
