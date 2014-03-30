@@ -162,7 +162,7 @@ class UserInterface {
             if (newFmt != "off") {
                 $("#history time").each((i, e) => {
                     var j = $(e);
-                    j.text(Chat.formatTime(new Date(j.attr("datetime")), newFmt));
+                    j.html(Chat.formatTime(new Date(j.attr("datetime")), newFmt));
                 });
             }
         } else {

@@ -218,9 +218,9 @@ class Chat {
             if (hours < 10)
                 hours = '0' + hours;
         } else {
-            suffix = "AM";
+            suffix = " AM";
             if (hours >= 12) {
-                suffix = "PM";
+                suffix = " PM";
                 hours -= 12;
             }
 
@@ -231,9 +231,7 @@ class Chat {
         if (minutes < 10)
             minutes = "0" + minutes;
 
-        if (military)
-            return hours + ":" + minutes;
-        else
-            return hours + ":" + minutes + " " + suffix;
+        suffix += "&nbsp;&#8209;&nbsp;";
+        return hours + ":" + minutes + suffix;
     }
 }

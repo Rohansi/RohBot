@@ -1,6 +1,6 @@
 <li class="message">
 	{{# Time }}
-	<time datetime="{{ DateTime }}">{{ Time }}</time>
+	<time datetime="{{ DateTime }}">{{{ Time }}}</time>
 	{{/ Time }}
 	{{^ Time }}
 	<time datetime="{{ DateTime }}" class="hidden"></time>
@@ -8,7 +8,7 @@
 
 	{{# Sender }}
 	<span class="sender">
-		<span class="{{ SenderClasses }}">{{{ Sender }}}</span>
+		<span class="{{ SenderClasses }}">{{{ Sender }}}</span>:&nbsp;
 	</span>
 	{{/ Sender}}
 
