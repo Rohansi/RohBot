@@ -86,8 +86,6 @@ namespace SteamMobile
 
         public Session Get(string name)
         {
-            name = (name ?? "").ToLower();
-
             Session result;
             _sessions.TryGetValue(name, out result);
             return result;

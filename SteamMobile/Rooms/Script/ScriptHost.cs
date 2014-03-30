@@ -16,11 +16,6 @@ namespace SteamMobile.Rooms.Script
             
         }
 
-        public Session GetSession(string name)
-        {
-            return Program.SessionManager.Get(name);
-        }
-
         public void RegisterCommand(string type, string format, Action<CommandTarget, string[]> handler)
         {
             var cmdHandler = new ScriptRoom.CommandHandler(type, format, handler);

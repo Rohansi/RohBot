@@ -95,12 +95,14 @@
     <Compile Include="Commands\FixSteam.cs" />
     <Compile Include="Commands\Hug.cs" />
     <Compile Include="Commands\Join.cs" />
+    <Compile Include="Commands\Kick.cs" />
     <Compile Include="Commands\Leave.cs" />
     <Compile Include="Commands\Me.cs" />
     <Compile Include="Commands\Mod.cs" />
     <Compile Include="Commands\Modded.cs" />
     <Compile Include="Commands\Reboot.cs" />
     <Compile Include="Commands\Reload.cs" />
+    <Compile Include="Commands\Sessions.cs" />
     <Compile Include="Commands\Status.cs" />
     <Compile Include="Commands\Unban.cs" />
     <Compile Include="Commands\Users.cs" />

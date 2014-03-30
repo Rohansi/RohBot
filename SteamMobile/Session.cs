@@ -15,6 +15,15 @@ namespace SteamMobile
         private float _timeWithoutConnection;
         private bool _isMobile;
 
+        public int ConnectionCount
+        {
+            get
+            {
+                lock (_sync)
+                    return _connections.Count;
+            }
+        }
+
         public Session(Account account)
         {
             Account = account;
@@ -116,6 +125,22 @@ namespace SteamMobile
                 
                 _timeWithoutConnection += delta;
                 IsActive = _timeWithoutConnection < (timeout * 60);
+            }
+        }
+
+        public void Destroy()
+        {
+            lock (_sync)
+            {
+                foreach (var conn in _connections)
+                {
+                    conn.Close();
+                }
+
+                _connections.Clear();
+
+                _timeWithoutConnection = float.MaxValue;
+                IsActive = false;
             }
         }
 
