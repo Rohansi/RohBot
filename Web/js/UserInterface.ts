@@ -17,7 +17,7 @@ class UserInterface {
         this.setupHandlers();
         this.setChatEnabled(false);
 
-        if (!this.setNotificationRegex(RohStore.get("notifications-regex"))) {
+        if (this.setNotificationRegex(RohStore.get("notifications-regex"))) {
             this.notificationRegex = null;
             RohStore.delete("notifications-regex");
         }
