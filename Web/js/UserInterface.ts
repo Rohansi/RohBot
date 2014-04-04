@@ -60,7 +60,9 @@ class UserInterface {
                 if (chat == null)
                     return;
 
-                Notifications.create(chat.name, line.Sender + ": " + line.Content);
+                var sender = $("<textarea/>").html(line.Sender).text();
+                var content = $("<textarea/>").html(line.Content).text();
+                Notifications.create(chat.name, sender + ": " + content);
             }
         });
 
