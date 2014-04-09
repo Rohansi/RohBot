@@ -52,7 +52,7 @@ class UserInterface {
         this.rohbot.messageReceived.add(packet => {
             var line = packet.Line;
 
-            if (line.Type != "chat" || line.Id == "0" || line.Sender == this.rohbot.getUsername())
+            if (line.Type != "chat" || line.SenderId == "0" || line.Sender == this.rohbot.getUsername())
                 return;
 
             if (this.notificationRegex != null && this.notificationRegex.test(line.Content)) {
