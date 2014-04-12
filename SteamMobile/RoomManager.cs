@@ -35,7 +35,7 @@ namespace SteamMobile
         {
             lock (_rooms)
             {
-                var deadRooms = _rooms.Where(kv => !kv.Value.IsActive).ToList();
+                var deadRooms = _rooms.Where(kv => !kv.Value.IsActive);
                 foreach (var dead in deadRooms)
                 {
                     Room removedRoom;
@@ -46,10 +46,10 @@ namespace SteamMobile
 
                 try
                 {
-                    var oldRooms = _rooms.Values.Where(r1 => settings.Rooms.All(r2 => r2["ShortName"] != r1.RoomInfo.ShortName)).ToList();
+                    var oldRooms = _rooms.Where(r1 => settings.Rooms.All(r2 => r2["ShortName"] != r1.Value.RoomInfo.ShortName));
                     foreach (var room in oldRooms)
                     {
-                        room.Leave();
+                        room.Value.Leave();
                     }
                 }
                 catch (Exception e)
@@ -59,7 +59,7 @@ namespace SteamMobile
 
                 try
                 {
-                    var newRooms = settings.Rooms.Where(r => !_rooms.ContainsKey(r["ShortName"])).ToList();
+                    var newRooms = settings.Rooms.Where(r => !_rooms.ContainsKey(r["ShortName"]));
                     foreach (var room in newRooms)
                     {
                         var roomInfo = new RoomInfo(room);
@@ -74,9 +74,9 @@ namespace SteamMobile
 
                 try
                 {
-                    foreach (var room in _rooms.Values)
+                    foreach (var room in _rooms)
                     {
-                        room.Update();
+                        room.Value.Update();
                     }
                 }
                 catch (Exception e)
@@ -88,11 +88,11 @@ namespace SteamMobile
 
         public void Broadcast(string message, Func<Room, bool> filter = null)
         {
-            foreach (var room in _rooms.Values)
+            foreach (var room in _rooms)
             {
-                if (filter == null || filter(room))
+                if (filter == null || filter(room.Value))
                 {
-                    room.Send(message);
+                    room.Value.Send(message);
                 }
             }
         }

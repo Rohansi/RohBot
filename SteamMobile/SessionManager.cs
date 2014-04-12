@@ -48,7 +48,7 @@ namespace SteamMobile
 
         public void Update()
         {
-            var emptySessions = _sessions.Where(kv => !kv.Value.IsActive).ToList();
+            var emptySessions = _sessions.Where(kv => !kv.Value.IsActive);
             foreach (var empty in emptySessions)
             {
                 Session removedSession;
@@ -63,9 +63,9 @@ namespace SteamMobile
                 }
             }
 
-            foreach (var session in _sessions.Values)
+            foreach (var session in _sessions)
             {
-                session.Update((float)_timer.Elapsed.TotalSeconds);
+                session.Value.Update((float)_timer.Elapsed.TotalSeconds);
             }
 
             _timer.Restart();
