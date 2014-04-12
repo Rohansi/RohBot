@@ -134,7 +134,7 @@ namespace SteamMobile
             {
                 foreach (var conn in _connections)
                 {
-                    conn.Close();
+                    conn.CloseWithHandshake("kick");
                 }
 
                 _connections.Clear();
