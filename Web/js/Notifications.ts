@@ -45,7 +45,7 @@ class Notifications {
         });
     }
 
-    static create(title: string, body: string) {
+    static create(title: string, body: string, clicked: () => void = null) {
         Notifications.requestPermission();
 
         if (!Notifications.areEnabled() || !Notifications.areSupported() || !Notifications.hasPermission())
@@ -58,6 +58,13 @@ class Notifications {
 
         var closeNotification = () => {
             notification.close();
+        };
+
+        notification.onclick = () => {
+            closeNotification();
+
+            if (clicked != null)
+                clicked();
         };
 
         setTimeout(closeNotification, 3000);

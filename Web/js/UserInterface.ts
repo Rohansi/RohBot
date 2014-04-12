@@ -62,7 +62,11 @@ class UserInterface {
 
                 var sender = $("<textarea/>").html(line.Sender).text();
                 var content = $("<textarea/>").html(line.Content).text();
-                Notifications.create(chat.name, sender + ": " + content);
+
+                Notifications.create(chat.name, sender + ": " + content, () => {
+                    chatMgr.switchTo(line.Chat);
+                    window.focus();
+                });
             }
         });
 

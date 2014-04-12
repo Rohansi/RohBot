@@ -28,7 +28,7 @@ class RohBot {
             } else {
                 this.connect();
             }
-        }, 2500);
+        }, 5000);
 
         this.manualSysMessage("Connecting to RohBot...");
         this.connect();
@@ -189,7 +189,9 @@ class RohBot {
     private send(packet) {
         try {
             this.socket.send(JSON.stringify(packet));
-        } catch (e) { }
+        } catch (e) {
+            console.error("send", e);
+        }
     }
 
 }
