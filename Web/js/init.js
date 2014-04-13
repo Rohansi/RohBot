@@ -8,5 +8,8 @@ function send(room, message) {
 }
 
 function join(room) {
-    send("home", "/join " + room);
+    if (chatMgr.getChat(room) == null)
+        send("home", "/join " + room);
+    else
+        chatMgr.switchTo(room);
 }
