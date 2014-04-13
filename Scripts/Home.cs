@@ -20,7 +20,7 @@ public class Script : IScript
         _greetings = new List<string>()
 		{
 			"hi!", "sup", "hi mom", "hi how are you", "beep", "boop", "hi im dog",
-			"hello world"
+			"hello world", "hello"
 		};
     }
 
@@ -52,19 +52,20 @@ public class Script : IScript
                 if (connection.Session == null)
                     SendMessage(connection, "you need to create an account to send messages");
 
-                SendMessage(connection, "to join other rooms use the '/join' command");
-                SendMessage(connection, "more help can be found " + Link("https://github.com/Rohansi/SteamMobile#commands", "right here"));
+                SendMessage(connection, "to join a room click on its name below");
                 SendMessage(connection, "");
-                SendMessage(connection, "here are some of the rooms you can join:");
 
                 var rooms = Program.RoomManager.List.Where(r => !r.IsHidden);
                 foreach (var room in rooms)
                 {
+                    var shortName = room.RoomInfo.ShortName;
                     var name = room.RoomInfo.Name;
                     var notes = new List<string>();
 
+                    name = JsLink("join('" + shortName +"')", name);
+                    
                     if (room is SteamRoom)
-                        name = Link("http://steamcommunity.com/gid/" + room.RoomInfo["SteamId"], name);
+                        notes.Add(Link("http://steamcommunity.com/gid/" + room.RoomInfo["SteamId"], "steam"));
 
                     if (room.IsWhitelisted)
                         notes.Add("whitelisted");
@@ -72,14 +73,15 @@ public class Script : IScript
                     if (room.IsPrivate)
                         notes.Add("private");
 
-                    SendMessage(connection, string.Format("{0} -> {1}{2}{3}",
-                        room.RoomInfo.ShortName,
+                    SendMessage(connection, string.Format("{1}{2}{3}",
+                        shortName,
                         name,
-                        notes.Count == 0 ? "" : " - ",
+                        notes.Count == 0 ? "" : " — ",
                         string.Join(", ", notes)));
                 }
 
                 SendMessage(connection, "");
+                SendMessage(connection, "need help with commands? " + Link("https://github.com/Rohansi/SteamMobile#commands", "read this"));
                 SendMessage(connection, "want me in your group? " + Link("http://steamcommunity.com/id/rohans/", "talk to this guy"));
             }
         }
@@ -102,6 +104,11 @@ public class Script : IScript
     private static string Link(string target, string caption)
     {
         return string.Format("<a href=\"{0}\" target=\"_blank\">{1}</a>", target, Util.HtmlEncode(caption));
+    }
+    
+    private static string JsLink(string target, string caption)
+    {
+        return string.Format("<a onclick=\"{0}\">{1}</a>", target, Util.HtmlEncode(caption));
     }
 
     public bool OnSendLine(HistoryLine line) { return true; }
