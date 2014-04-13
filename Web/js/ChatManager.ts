@@ -4,13 +4,17 @@ class ChatManager {
     private chats: { [shortName: string]: Chat; };
     rohbot: RohBot;
 
+    private loggingIn: boolean;
+
     constructor(rohbot: RohBot) {
         this.chats = {};
         this.rohbot = rohbot;
+        this.loggingIn = true;
 
         this.setupRohBot(this.rohbot);
 
         this.joinChat("Home", "home");
+        this.switchTo("home");
 
         var history = $("#history");
         history.scroll(e => {
@@ -31,6 +35,9 @@ class ChatManager {
             console.error("switchTo without existing chat:", shortName);
             return;
         }
+
+        if (shortName != "home")
+            RohStore.set("last-chat", shortName);
 
         $("#history > *").hide();
         target.history.show();
@@ -72,6 +79,8 @@ class ChatManager {
 
     private setupRohBot(rohbot: RohBot) {
         rohbot.loggedIn.add(packet => {
+            this.loggingIn = true;
+
             for (var k in this.chats) {
                 if (k == "home")
                     continue;
@@ -80,8 +89,6 @@ class ChatManager {
                 chat.destroy();
                 delete this.chats[k];
             }
-
-            this.switchTo("home");
         });
 
         rohbot.chatReceived.add(packet => {
@@ -89,12 +96,6 @@ class ChatManager {
                 this.joinChat(packet.Name, packet.ShortName);
             } else if (packet.Method == "leave") {
                 this.leaveChat(packet.ShortName);
-
-                if (this.getCurrentChat() == null) {
-                    var last = $("#history > *").last().attr("data-name");
-                    if (last != null)
-                        this.switchTo(last);
-                }
             }
         });
 
@@ -113,6 +114,15 @@ class ChatManager {
             if (chat == null) {
                 console.error("sysMessage without chat");
                 return;
+            }
+
+            var loginMsg = "Logged in as";
+            if (this.loggingIn && packet.Content.substring(0, loginMsg.length) == loginMsg) {
+                this.loggingIn = false;
+
+                var lastChat = RohStore.get("last-chat");
+                if (lastChat != null)
+                    this.switchTo(lastChat);
             }
 
             packet.Type = "state";
@@ -176,7 +186,9 @@ class ChatManager {
         }
 
         this.chats[shortName] = new Chat(this, name, shortName);
-        this.switchTo(shortName);
+
+        if (!this.loggingIn)
+            this.switchTo(shortName);
     }
 
     private leaveChat(shortName: string) {
@@ -188,5 +200,11 @@ class ChatManager {
 
         this.chats[shortName].destroy();
         delete this.chats[shortName];
+
+        if (this.getCurrentChat() == null) {
+            var last = $("#history > *").last().attr("data-name");
+            if (last != null)
+                this.switchTo(last);
+        }
     }
 }
