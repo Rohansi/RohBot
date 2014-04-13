@@ -9,13 +9,11 @@ using SteamMobile.Rooms.Script;
 public class Script : IScript
 {
     private ScriptHost _host;
-    private Queue<Connection> _connections;
     private List<string> _greetings;
 
     public void Initialize(ScriptHost host)
     {
         _host = host;
-        _connections = new Queue<Connection>();
 
         _greetings = new List<string>()
 		{
@@ -26,79 +24,63 @@ public class Script : IScript
 
     public bool OnSendHistory(Connection connection)
     {
-        lock (_connections)
-            _connections.Enqueue(connection);
+        var lines = new List<HistoryLine>();
+        
+        lines.Add(Message(_greetings[new Random().Next(_greetings.Count)]));
 
+        if (connection.Session == null)
+            lines.Add(Message("you need to create an account to send messages"));
+
+        lines.Add(Message("to join a room click on its name below"));
+        lines.Add(Message(""));
+
+        var rooms = Program.RoomManager.List.Where(r => !r.IsHidden);
+        foreach (var room in rooms)
+        {
+            var shortName = room.RoomInfo.ShortName;
+            var name = room.RoomInfo.Name;
+            var notes = new List<string>();
+
+            name = JsLink("join('" + shortName +"')", name);
+            
+            if (room is SteamRoom)
+                notes.Add(Link("http://steamcommunity.com/gid/" + room.RoomInfo["SteamId"], "steam"));
+
+            if (room.IsWhitelisted)
+                notes.Add("whitelisted");
+
+            if (room.IsPrivate)
+                notes.Add("private");
+
+            lines.Add(Message(string.Format("{0}{1}{2}",
+                name,
+                notes.Count == 0 ? "" : " -- ",
+                string.Join(", ", notes))));
+        }
+
+        lines.Add(Message(""));
+        lines.Add(Message("need help with commands? " + Link("https://github.com/Rohansi/SteamMobile#commands", "read this")));
+        lines.Add(Message("want me in your group? " + Link("http://steamcommunity.com/id/rohans/", "talk to this guy")));
+    
         connection.Send(new ChatHistory
         {
             ShortName = "home",
             Requested = false,
-            Lines = new List<HistoryLine>()
+            Lines = lines
         });
 
         return false;
     }
 
-    public void Update(float deltaTime)
+    private HistoryLine Message(string message)
     {
-        lock (_connections)
+        return new StateLine
         {
-            while (_connections.Count > 0)
-            {
-                var connection = _connections.Dequeue();
-
-                SendMessage(connection, _greetings[new Random().Next(_greetings.Count)]);
-
-                if (connection.Session == null)
-                    SendMessage(connection, "you need to create an account to send messages");
-
-                SendMessage(connection, "to join a room click on its name below");
-                SendMessage(connection, "");
-
-                var rooms = Program.RoomManager.List.Where(r => !r.IsHidden);
-                foreach (var room in rooms)
-                {
-                    var shortName = room.RoomInfo.ShortName;
-                    var name = room.RoomInfo.Name;
-                    var notes = new List<string>();
-
-                    name = JsLink("join('" + shortName +"')", name);
-                    
-                    if (room is SteamRoom)
-                        notes.Add(Link("http://steamcommunity.com/gid/" + room.RoomInfo["SteamId"], "steam"));
-
-                    if (room.IsWhitelisted)
-                        notes.Add("whitelisted");
-
-                    if (room.IsPrivate)
-                        notes.Add("private");
-
-                    SendMessage(connection, string.Format("{1}{2}{3}",
-                        shortName,
-                        name,
-                        notes.Count == 0 ? "" : " — ",
-                        string.Join(", ", notes)));
-                }
-
-                SendMessage(connection, "");
-                SendMessage(connection, "need help with commands? " + Link("https://github.com/Rohansi/SteamMobile#commands", "read this"));
-                SendMessage(connection, "want me in your group? " + Link("http://steamcommunity.com/id/rohans/", "talk to this guy"));
-            }
-        }
-    }
-
-    private void SendMessage(Connection connection, string message)
-    {
-        connection.Send(new Message
-        {
-            Line = new StateLine
-            {
-                Date = Util.GetCurrentUnixTimestamp(),
-                Chat = "home",
-                Content = message,
-                State = "Client"
-            }
-        });
+            Date = Util.GetCurrentUnixTimestamp(),
+            Chat = "home",
+            Content = message,
+            State = "Client"
+        };
     }
 
     private static string Link(string target, string caption)
@@ -110,7 +92,8 @@ public class Script : IScript
     {
         return string.Format("<a onclick=\"{0}\">{1}</a>", target, Util.HtmlEncode(caption));
     }
-
+    
+    public void Update(float deltaTime) { }
     public bool OnSendLine(HistoryLine line) { return true; }
     public bool OnSendMessage(Connection connection, string message) { return true; }
 }
