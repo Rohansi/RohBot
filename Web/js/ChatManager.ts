@@ -39,8 +39,14 @@ class ChatManager {
         if (shortName != "home")
             RohStore.set("last-chat", shortName);
 
-        $("#history > *").hide();
-        target.history.show();
+        $("#history > *").each((i, e) => {
+            var elem = $(e);
+
+            if (elem.attr("data-name") == shortName)
+                elem.show();
+            else
+                elem.hide();
+        });
 
         $("#tabs > *").removeClass("selected");
         target.tab.addClass("selected");
@@ -202,7 +208,7 @@ class ChatManager {
         delete this.chats[shortName];
 
         if (this.getCurrentChat() == null) {
-            var last = $("#history > *").last().attr("data-name");
+            var last = $("#tabs > *").last().attr("data-name");
             if (last != null)
                 this.switchTo(last);
         }
