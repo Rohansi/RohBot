@@ -95,6 +95,8 @@ class ChatManager {
                 chat.destroy();
                 delete this.chats[k];
             }
+
+            this.switchTo("home");
         });
 
         rohbot.chatReceived.add(packet => {
