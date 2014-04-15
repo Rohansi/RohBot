@@ -52,7 +52,7 @@ class UserInterface {
         this.rohbot.messageReceived.add(packet => {
             var line = packet.Line;
 
-            if (line.Type != "chat" || line.SenderId == "0" || line.Sender == this.rohbot.getUsername())
+            if (line.Type != "chat" || line.SenderId == "0" || (line.SenderType == "rohBot" && line.Sender == this.rohbot.getUsername()))
                 return;
 
             if (this.notificationRegex != null && this.notificationRegex.test(line.Content)) {
@@ -95,7 +95,7 @@ class UserInterface {
             $("#message-box").removeAttr("disabled").val("");
         } else {
             $("#header").show();
-            $("#message-box").attr("disabled", "true").val("Guests can not speak!");
+            $("#message-box").attr("disabled", "true").val("guests can't speak");
         }
     }
 
@@ -121,7 +121,7 @@ class UserInterface {
                 RohStore.delete("password");
                 chat.statusMessage("Password removed.");
             } else if (pass.length < 6) {
-                chat.statusMessage("Password too short!");
+                chat.statusMessage("Password too short.");
             } else {
                 RohStore.set("password", pass);
                 chat.statusMessage("Password saved.");
@@ -131,14 +131,14 @@ class UserInterface {
                 chat.statusMessage("Your browser doesn't support notifications.");
             } else if (command.length <= 7) {
                 Notifications.disable();
-                chat.statusMessage("Notifications disabled!");
+                chat.statusMessage("Notifications disabled.");
             } else {
                 var err = this.setNotificationRegex(message.substr(8));
                 if (err) {
                     chat.statusMessage("Regex error: " + err);
                 } else {
                     Notifications.enable();
-                    chat.statusMessage("Notification regex saved!");
+                    chat.statusMessage("Notification regex saved.");
                 }
             }
         } else if (command.indexOf("timeformat") == 0) {
@@ -238,6 +238,11 @@ class UserInterface {
     }
 
     private setNotificationRegex(source: string) {
+        if (source == null) {
+            this.notificationRegex = null;
+            return false;
+        }
+
         try {
             var regex = new RegExp(source, "gim");
             this.notificationRegex = regex;
