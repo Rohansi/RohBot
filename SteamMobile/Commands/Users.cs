@@ -20,16 +20,21 @@ namespace SteamMobile.Commands
                 return;
             }
 
+            var room = target.Room;
+            var roomName = room.RoomInfo.ShortName;
+
+            var sessions = Program.SessionManager.List;
+            var accounts = sessions.Where(s => s.IsInRoom(roomName))
+                                   .Select(s => s.Account)
+                                   .Distinct(new Account.Comparer());
+
             if (target.IsWeb)
             {
-                var roomName = target.Room.RoomInfo.ShortName;
-                var room = target.Room;
-
+                // TODO: clean up this garbage
                 var steamRoom = room as SteamRoom;
                 var userList = new Packets.UserList();
                 var chat = Program.Steam.Status == Steam.ConnectionStatus.Connected && steamRoom != null ? steamRoom.Chat : null;
                 var steamUsers = chat != null ? chat.Members.ToList() : new List<SteamID>();
-                var sessions = Program.SessionManager.List;
 
                 foreach (var id in steamUsers.Where(i => i != Program.Steam.Bot.PersonaId))
                 {
@@ -38,16 +43,15 @@ namespace SteamMobile.Commands
                     var groupMember = chat.Group.Members.FirstOrDefault(m => m.Id == id);
                     var rank = groupMember != null ? groupMember.Rank.ToString() : "Member";
                     var avatar = BitConverter.ToString(persona.Avatar).Replace("-", "").ToLower();
-                    userList.AddUser(persona.Name, steamId, rank, avatar, persona.PlayingName, false);
+                    var status = GetStatusString(persona.State);
+                    userList.AddUser(persona.Name, steamId, rank, avatar, status, persona.PlayingName, false);
                 }
-
-                var accounts = sessions.Where(s => s.IsInRoom(roomName)).Select(s => s.Account).Distinct(new Account.Comparer());
 
                 foreach (var account in accounts)
                 {
                     var userId = account.Id.ToString();
                     var rank = Util.GetRank(target.Room, account.Name).ToString();
-                    userList.AddUser(account.Name, userId, rank, "", "", true);
+                    userList.AddUser(account.Name, userId, rank, "", "", "", true);
                 }
 
                 userList.Users = userList.Users.OrderBy(u => u.Name).ToList();
@@ -55,10 +59,30 @@ namespace SteamMobile.Commands
             }
             else
             {
-                var roomName = target.Room.RoomInfo.ShortName;
-                var sessions = Program.SessionManager.List;
-                var accounts = sessions.Where(s => s.IsInRoom(roomName)).Select(s => s.Account).Distinct(new Account.Comparer());
                 target.Send("In this room: " + string.Join(", ", accounts.Select(a => a.Name)));
+            }
+        }
+
+        private static string GetStatusString(EPersonaState status)
+        {
+            switch (status)
+            {
+                case EPersonaState.Offline:
+                    return "Offline";
+                case EPersonaState.Online:
+                    return "Online";
+                case EPersonaState.Busy:
+                    return "Busy";
+                case EPersonaState.Away:
+                    return "Away";
+                case EPersonaState.Snooze:
+                    return "Snooze";
+                case EPersonaState.LookingToTrade:
+                    return "Looking to Trade";
+                case EPersonaState.LookingToPlay:
+                    return "Looking to Play";
+                default:
+                    return "";
             }
         }
     }

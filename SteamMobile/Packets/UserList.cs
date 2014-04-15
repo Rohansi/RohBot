@@ -11,16 +11,18 @@ namespace SteamMobile.Packets
             public readonly string Name;
             public readonly string UserId;
             public readonly string Rank;        // Owner/Officer/Moderator/Member/Guest
-            public readonly string Avatar;      // Empty if only using web
-            public readonly string Playing;     // Empty if not playing OR only using web
-            public readonly bool Web;           // True if the account is logged in to the RohBot client
+            public readonly string Avatar;      // Empty if using web
+            public readonly string Status;      // Online/Busy/Away/Snooze/Looking to Trade/Looking to Play/Offline OR empty if using web
+            public readonly string Playing;     // Empty if not playing OR using web
+            public readonly bool Web;           // True if the account is using the RohBot client
 
-            internal User(string name, string userId, string rank, string avatar, string playing, bool web)
+            internal User(string name, string userId, string rank, string avatar, string status, string playing, bool web)
             {
                 Name = Util.HtmlEncode(name);
                 UserId = userId;
                 Rank = rank;
                 Avatar = avatar;
+                Status = status;
                 Playing = playing;
                 Web = web;
             }
@@ -29,9 +31,9 @@ namespace SteamMobile.Packets
         public override string Type { get { return "userList"; } }
         public List<User> Users = new List<User>();
 
-        public void AddUser(string name, string userId, string rank, string avatar, string playing, bool web)
+        public void AddUser(string name, string userId, string rank, string avatar, string status, string playing, bool web)
         {
-            Users.Add(new User(name, userId, rank, avatar, playing, web));
+            Users.Add(new User(name, userId, rank, avatar, status, playing, web));
         }
 
         public override void Handle(Connection connection)

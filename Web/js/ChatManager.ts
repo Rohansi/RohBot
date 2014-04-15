@@ -164,8 +164,14 @@ class ChatManager {
                 else
                     u.AvatarFolder = u.Avatar.substring(0, 2);
 
-                if (!u.Playing)
+                if (u.Playing === "")
                     u.Playing = false;
+
+                if (u.Status === "")
+                    u.Status = "&nbsp;";
+
+                if (u.Playing)
+                    u.Status = "In-Game: " + u.Playing;
 
                 if (u.Playing)
                     u.Color = "ingame";
