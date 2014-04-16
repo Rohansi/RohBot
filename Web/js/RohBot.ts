@@ -181,7 +181,7 @@ class RohBot {
     private manualSysMessage(message: string) {
         this.sysMessageReceived.dispatch({
             Type: "sysMessage",
-            Date: new Date().getTime() / 1000,
+            Date: Date.now(),
             Content: message
         });
     }

@@ -91,7 +91,7 @@ class Chat {
         this.addLine({
             Type: "state",
             State: "Client",
-            Date: Date.now() / 1000,
+            Date: Date.now(),
             Content: message
         });
     }
@@ -100,7 +100,7 @@ class Chat {
         var timeFmt = RohStore.get("time format");
         if (timeFmt == null) timeFmt = "12hr";
 
-        var date = new Date(line.Date * 1000);
+        var date = new Date(line.Date);
 
         var data: any = {
             DateTime: date.toISOString(),

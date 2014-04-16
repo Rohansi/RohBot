@@ -55,7 +55,7 @@ namespace SteamMobile
 
             _taskScheduler.Add(TimeSpan.FromHours(1), () =>
             {
-                var t = Util.GetUnixTimestamp(DateTime.UtcNow - TimeSpan.FromDays(30));
+                var t = Util.GetTimestamp(DateTime.UtcNow - TimeSpan.FromDays(30));
                 LoginToken.RemoveOlderThan(t);
             });
 

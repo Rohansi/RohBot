@@ -164,19 +164,19 @@ namespace SteamMobile
         private static readonly DateTime UnixEpoch =
             new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-        public static long GetCurrentUnixTimestamp()
+        public static long GetCurrentTimestamp()
         {
-            return GetUnixTimestamp(DateTime.UtcNow);
+            return GetTimestamp(DateTime.UtcNow);
         }
 
-        public static long GetUnixTimestamp(DateTime dateTime)
+        public static long GetTimestamp(DateTime dateTime)
         {
-            return (long)(dateTime.ToUniversalTime() - UnixEpoch).TotalSeconds;
+            return (long)(dateTime.ToUniversalTime() - UnixEpoch).TotalMilliseconds;
         }
 
-        public static DateTime DateTimeFromUnixTimestamp(long seconds)
+        public static DateTime DateTimeFromTimestamp(long milliseconds)
         {
-            return UnixEpoch.AddSeconds(seconds);
+            return UnixEpoch.AddMilliseconds(milliseconds);
         }
         #endregion
 

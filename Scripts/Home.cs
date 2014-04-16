@@ -29,33 +29,38 @@ public class Script : IScript
         lines.Add(Message(_greetings[new Random().Next(_greetings.Count)]));
 
         if (connection.Session == null)
-            lines.Add(Message("you need to create an account to send messages"));
-
-        lines.Add(Message("to join a room click on its name below"));
-        lines.Add(Message(""));
-
-        var rooms = Program.RoomManager.List.Where(r => !r.IsHidden);
-        foreach (var room in rooms)
         {
-            var shortName = room.RoomInfo.ShortName;
-            var name = room.RoomInfo.Name;
-            var notes = new List<string>();
+            lines.Add(Message("this is a web interface for steam group chats (try it on your phone!)"));
+            lines.Add(Message("you will need to create an account to use it"));
+        }
+        else
+        {
+            lines.Add(Message("to join a room click on its name below"));
+            lines.Add(Message(""));
 
-            name = JsLink("join('" + shortName +"')", name);
-            
-            if (room is SteamRoom)
-                notes.Add(Link("http://steamcommunity.com/gid/" + room.RoomInfo["SteamId"], "steam"));
+            var rooms = Program.RoomManager.List.Where(r => !r.IsHidden);
+            foreach (var room in rooms)
+            {
+                var shortName = room.RoomInfo.ShortName;
+                var name = room.RoomInfo.Name;
+                var notes = new List<string>();
 
-            if (room.IsWhitelisted)
-                notes.Add("whitelisted");
+                name = JsLink("join('" + shortName +"')", name);
+                
+                if (room is SteamRoom)
+                    notes.Add(Link("http://steamcommunity.com/gid/" + room.RoomInfo["SteamId"], "steam"));
 
-            if (room.IsPrivate)
-                notes.Add("private");
+                if (room.IsWhitelisted)
+                    notes.Add("whitelisted");
 
-            lines.Add(Message(string.Format("{0}{1}{2}",
-                name,
-                notes.Count == 0 ? "" : " -- ",
-                string.Join(", ", notes))));
+                if (room.IsPrivate)
+                    notes.Add("private");
+
+                lines.Add(Message(string.Format("{0}{1}{2}",
+                    name,
+                    notes.Count == 0 ? "" : " -- ",
+                    string.Join(", ", notes))));
+            }
         }
 
         lines.Add(Message(""));
@@ -76,7 +81,7 @@ public class Script : IScript
     {
         return new StateLine
         {
-            Date = Util.GetCurrentUnixTimestamp(),
+            Date = Util.GetCurrentTimestamp(),
             Chat = "home",
             Content = message,
             State = "Client"

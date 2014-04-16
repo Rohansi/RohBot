@@ -183,7 +183,7 @@ namespace SteamMobile.Rooms
         /// </summary>
         public virtual void Send(string str)
         {
-            var line = new ChatLine(Util.GetCurrentUnixTimestamp(), RoomInfo.ShortName, "Steam", Program.Settings.PersonaName, "0", "", str, false);
+            var line = new ChatLine(Util.GetCurrentTimestamp(), RoomInfo.ShortName, "Steam", Program.Settings.PersonaName, "0", "", str, false);
             SendLine(line);
         }
 
@@ -253,7 +253,7 @@ namespace SteamMobile.Rooms
             var userName = account.Name;
             var userId = account.Id.ToString("D");
             var userStyle = account.EnabledStyle;
-            var line = new ChatLine(Util.GetCurrentUnixTimestamp(), roomName, "RohBot", userName, userId, userStyle, message, false);
+            var line = new ChatLine(Util.GetCurrentTimestamp(), roomName, "RohBot", userName, userId, userStyle, message, false);
             SendLine(line);
         }
 
@@ -265,7 +265,7 @@ namespace SteamMobile.Rooms
 
             var account = session.Account;
             var line = new StateLine(
-                Util.GetCurrentUnixTimestamp(),
+                Util.GetCurrentTimestamp(),
                 RoomInfo.ShortName,
                 "Enter",
                 account.Name,
@@ -284,7 +284,7 @@ namespace SteamMobile.Rooms
 
             var account = session.Account;
             var line = new StateLine(
-                Util.GetCurrentUnixTimestamp(),
+                Util.GetCurrentTimestamp(),
                 RoomInfo.ShortName,
                 "Left",
                 account.Name,
@@ -303,7 +303,7 @@ namespace SteamMobile.Rooms
 
             var account = session.Account;
             var line = new StateLine(
-                Util.GetCurrentUnixTimestamp(),
+                Util.GetCurrentTimestamp(),
                 RoomInfo.ShortName,
                 "Disconnected",
                 account.Name,

@@ -141,7 +141,7 @@ namespace SteamMobile.Rooms
 
         private void SendPersistentSysMessage(string str)
         {
-            var line = new ChatLine(Util.GetCurrentUnixTimestamp(), RoomInfo.ShortName, "Steam", Program.Settings.PersonaName, "0", "", str, false);
+            var line = new ChatLine(Util.GetCurrentTimestamp(), RoomInfo.ShortName, "Steam", Program.Settings.PersonaName, "0", "", str, false);
             base.SendLine(line);
         }
 
@@ -153,7 +153,7 @@ namespace SteamMobile.Rooms
             var senderId = messageSender.Id.ConvertToUInt64().ToString("D");
             var inGame = messageSender.Playing != null && messageSender.Playing.ToUInt64() != 0;
 
-            var line = new ChatLine(Util.GetCurrentUnixTimestamp(), RoomInfo.ShortName, "Steam", senderName, senderId, "", message, inGame);
+            var line = new ChatLine(Util.GetCurrentTimestamp(), RoomInfo.ShortName, "Steam", senderName, senderId, "", message, inGame);
             SendLine(line);
 
             Command.Handle(new CommandTarget(this, messageSender.Id), message, "~");
@@ -165,7 +165,7 @@ namespace SteamMobile.Rooms
 
             var message = user.Name + " entered chat.";
 
-            var line = new StateLine(Util.GetCurrentUnixTimestamp(), RoomInfo.ShortName, "Enter", user.Name, user.Id.ConvertToUInt64().ToString("D"), "Steam", "", "0", "", message);
+            var line = new StateLine(Util.GetCurrentTimestamp(), RoomInfo.ShortName, "Enter", user.Name, user.Id.ConvertToUInt64().ToString("D"), "Steam", "", "0", "", message);
             SendLine(line);
         }
 
@@ -194,7 +194,7 @@ namespace SteamMobile.Rooms
             var byId = sourceUser != null ? sourceUser.Id.ConvertToUInt64().ToString("D") : "0";
             var byType = sourceUser != null ? "Steam" : "";
 
-            var line = new StateLine(Util.GetCurrentUnixTimestamp(), RoomInfo.ShortName, reason.ToString(), user.Name, user.Id.ConvertToUInt64().ToString("D"), "Steam", by, byId, byType, message);
+            var line = new StateLine(Util.GetCurrentTimestamp(), RoomInfo.ShortName, reason.ToString(), user.Name, user.Id.ConvertToUInt64().ToString("D"), "Steam", by, byId, byType, message);
             SendLine(line);
         }
     }

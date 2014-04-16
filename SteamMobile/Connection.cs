@@ -107,7 +107,7 @@ namespace SteamMobile
                             Name = account.Name.ToLower(),
                             Address = Address,
                             Token = Util.GenerateLoginToken(),
-                            Created = Util.GetCurrentUnixTimestamp()
+                            Created = Util.GetCurrentTimestamp()
                         };
 
                         newToken.Insert();
@@ -197,7 +197,7 @@ namespace SteamMobile
 
         public void SendSysMessage(string message)
         {
-            Send(new SysMessage { Content = Util.HtmlEncode(message), Date = Util.GetCurrentUnixTimestamp() });
+            Send(new SysMessage { Content = Util.HtmlEncode(message), Date = Util.GetCurrentTimestamp() });
         }
 
         public void Send(Packet packet)
