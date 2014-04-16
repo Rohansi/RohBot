@@ -16,10 +16,10 @@ public class Script : IScript
         _host = host;
 
         _greetings = new List<string>()
-		{
-			"hi!", "sup", "hi mom", "hi how are you", "beep", "boop", "hi im dog",
-			"hello world", "hello"
-		};
+        {
+            "hi!", "sup", "hi mom", "hi how are you", "beep", "boop", "hi im dog",
+            "hello world", "hello"
+        };
     }
 
     public bool OnSendHistory(Connection connection)
