@@ -59,7 +59,7 @@ namespace SteamMobile.Rooms
                 }
             }
 
-            if (stateLine != null && Chat != null && stateLine.Type == "Action")
+            if (stateLine != null && Chat != null && stateLine.State == "Action")
             {
                 Chat.Send(stateLine.Content);
             }
