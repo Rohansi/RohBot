@@ -11,7 +11,7 @@
             if (!target.IsWeb || parameters.Length == 0)
                 return;
 
-            if (Program.DelayManager.AddAndCheck(target.Connection, 1))
+            if (Program.DelayManager.AddAndCheck(target.Connection, 2.5))
                 return;
 
             var username = target.Connection.Session.Account.Name;
