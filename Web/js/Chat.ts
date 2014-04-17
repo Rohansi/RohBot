@@ -71,7 +71,7 @@ class Chat {
             if (this.isActive())
                 this.chatMgr.scrollToBottom();
         } else {
-            var firstMsg = this.history.find(":first")[0];
+            var firstMsg = this.history.children(":first")[0];
 
             for (var i = history.length - 1; i >= 0; i--) {
                 this.addLine(history[i], true);
@@ -198,7 +198,7 @@ class Chat {
 
     private linkify(text: string) {
         // Put spaces infront of <s to stop urlize seizing them as urls
-        text = text.replace(/ː(\w+?)ː/g, ' ː<img src="/economy/emoticon/$1" alt="$1" class="emote">');
+        text = text.replace(/ː(\w+?)ː/g, ' ː<img src="/economy/emoticon/$1" alt=":$1:" class="emote">');
         text = urlize(text, { target: "_blank" });
         text = text.replace('\n', ' <br>'); // whitespace infront of a <br> isn't noticable
         text = text.replace(/\ ː/g, ''); // Get rid of the sentinel chars. (triangle colons are guaranteed to never appear in normal text)
