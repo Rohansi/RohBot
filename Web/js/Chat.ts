@@ -71,17 +71,18 @@ class Chat {
             if (this.isActive())
                 this.chatMgr.scrollToBottom();
         } else {
-            var firstMsg = this.history.children(":first")[0];
+            var prevHeight = this.history[0].clientHeight;
 
             for (var i = history.length - 1; i >= 0; i--) {
                 this.addLine(history[i], true);
             }
 
-            this.requestedHistory = false;
-
+            var currHeight = this.history[0].clientHeight;
 
             if (this.isActive())
-                this.chatMgr.scrollTo(firstMsg.offsetTop);
+                this.chatMgr.scrollRelative(currHeight - prevHeight - 16);
+
+            this.requestedHistory = false;
         }
 
         this.oldestLine = data.OldestLine;
@@ -96,7 +97,7 @@ class Chat {
         });
     }
 
-    addLine(line: any, prepend: boolean = false) {
+    renderLine(line: any) {
         var timeFmt = RohStore.get("time format");
         if (timeFmt == null) timeFmt = "12hr";
 
@@ -176,7 +177,11 @@ class Chat {
                 break;
         }
 
-        this.addHtml(templates.message.render(data), prepend);
+        return templates.message.render(data);
+    }
+
+    addLine(line: any, prepend: boolean = false) {
+        this.addHtml(this.renderLine(line), prepend);
     }
 
     addHtml(html: string, prepend: boolean = false) {

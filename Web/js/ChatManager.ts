@@ -17,8 +17,9 @@ class ChatManager {
         this.switchTo("home");
 
         var history = $("#history");
+        var historyElem = history[0];
         history.scroll(e => {
-            if (history[0].scrollTop <= 0 || history[0].scrollTop > 64)
+            if (historyElem.scrollTop > 0 || historyElem.scrollHeight <= historyElem.clientHeight)
                 return;
 
             var currentChat = this.getCurrentChat();
@@ -81,6 +82,11 @@ class ChatManager {
     scrollTo(position: number) {
         var historyElem = $("#history")[0];
         historyElem.scrollTop = position;
+    }
+
+    scrollRelative(amount: number) {
+        var historyElem = $("#history")[0];
+        historyElem.scrollTop += amount;
     }
 
     private setupRohBot(rohbot: RohBot) {
