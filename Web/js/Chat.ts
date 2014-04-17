@@ -139,7 +139,7 @@ class Chat {
             }
 
             case "state":
-                if (line.State == "Client")
+                if (line.State == "Action" || line.State == "Client")
                     break;
 
                 var style = t => t == "Steam" ? "steam" : "rohBot";
