@@ -40,6 +40,8 @@ class ChatManager {
         if (shortName != "home")
             RohStore.set("last-chat", shortName);
 
+        target.resetUnreadCounter();
+
         $("#history > *").each((i, e) => {
             var elem = $(e);
 
@@ -150,6 +152,9 @@ class ChatManager {
                 console.warn("message without existing chat:", packet.Line.Chat);
                 return;
             }
+
+            if (packet.Line.Type == "chat")
+                chat.incrementUnreadCounter();
 
             chat.addLine(packet.Line, false);
         });

@@ -9,6 +9,7 @@ class Chat {
 
     private requestedHistory: boolean;
     private oldestLine: number;
+    private unreadMessages: number;
 
     constructor(chatMgr: ChatManager, name: string, shortName: string) {
         this.chatMgr = chatMgr;
@@ -39,7 +40,8 @@ class Chat {
         this.tab.appendTo("#tabs");
 
         this.requestedHistory = false;
-        this.oldestLine = 0xFFFFFFFF;
+        this.oldestLine = 0;
+        this.unreadMessages = 0;
     }
 
     destroy() {
@@ -48,6 +50,16 @@ class Chat {
         
         this.history.remove();
         this.tab.remove();
+    }
+
+    incrementUnreadCounter() {
+        this.unreadMessages++;
+        this.updateUnreadCounter();
+    }
+
+    resetUnreadCounter() {
+        this.unreadMessages = 0;
+        this.updateUnreadCounter();
     }
 
     requestHistory() {
@@ -197,8 +209,22 @@ class Chat {
             this.chatMgr.scrollToBottom();
     }
 
+    private updateUnreadCounter() {
+        if (this.isActive())
+            this.unreadMessages = 0;
+
+        var newName = this.name;
+        if (this.unreadMessages > 0) {
+            var countStr = this.unreadMessages > 99 ? "99+" : this.unreadMessages.toString();
+            newName = "[" + countStr + "] " + newName;
+        }
+
+        this.tab.find(".tab-name").text(newName);
+    }
+
     private isActive() {
-        return this.chatMgr.getCurrentChat().shortName == this.shortName;
+        var currentChat = this.chatMgr.getCurrentChat();
+        return currentChat != null && currentChat.shortName == this.shortName;
     }
 
     private linkify(text: string) {
