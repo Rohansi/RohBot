@@ -1,7 +1,4 @@
-﻿using SteamKit2.GC.Dota.Internal;
-using SteamMobile.Rooms;
-
-namespace SteamMobile.Commands
+﻿namespace SteamMobile.Commands
 {
     public class Me : Command
     {
@@ -11,7 +8,7 @@ namespace SteamMobile.Commands
 
         public override void Handle(CommandTarget target, string type, string[] parameters)
         {
-            if (!target.IsWeb || parameters.Length == 0 || !target.IsRoom)
+            if (!target.IsWeb || !target.IsRoom || parameters.Length == 0)
                 return;
 
             if (Program.DelayManager.AddAndCheck(target.Connection, 2.5))

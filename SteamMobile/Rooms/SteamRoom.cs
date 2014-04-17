@@ -63,7 +63,6 @@ namespace SteamMobile.Rooms
             {
                 Chat.Send(stateLine.Content);
             }
-            
 
             base.SendLine(line);
         }
