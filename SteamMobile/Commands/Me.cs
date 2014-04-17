@@ -1,4 +1,7 @@
-﻿namespace SteamMobile.Commands
+﻿using SteamKit2.GC.Dota.Internal;
+using SteamMobile.Rooms;
+
+namespace SteamMobile.Commands
 {
     public class Me : Command
     {
@@ -8,7 +11,7 @@
 
         public override void Handle(CommandTarget target, string type, string[] parameters)
         {
-            if (!target.IsWeb || parameters.Length == 0)
+            if (!target.IsWeb || parameters.Length == 0 || !target.IsRoom)
                 return;
 
             if (Program.DelayManager.AddAndCheck(target.Connection, 2.5))
@@ -22,7 +25,17 @@
                 return;
             }
 
-            room.Send(string.Format("{0} {1}", username, parameters[0]));
+            var line = new StateLine(
+                Util.GetCurrentTimestamp(),
+                target.Room.RoomInfo.ShortName,
+                "Action",
+                username,
+                target.Connection.Session.Account.Id.ToString("D"),
+                "RohBot",
+                "", "0", "",
+                string.Format("{0} {1}", username, parameters[0]));
+
+            target.Room.SendLine(line);
         }
     }
 }
