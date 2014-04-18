@@ -5,6 +5,7 @@ class UserInterface {
     chatMgr: ChatManager;
 
     private notificationRegex: RegExp;
+    private unreadMessages: number;
 
     loginPressed = new Signal();
     registerPressed = new Signal();
@@ -52,6 +53,11 @@ class UserInterface {
         this.rohbot.messageReceived.add(packet => {
             var line = packet.Line;
 
+            if (line.Type == "chat") {
+                this.unreadMessages++;
+                this.updateUnreadCounter();
+            }
+
             if (line.Type != "chat" || line.SenderId == "0" || (line.SenderType == "rohBot" && line.Sender == this.rohbot.getUsername()))
                 return;
 
@@ -87,6 +93,15 @@ class UserInterface {
 
             this.rohbot.sendMessage(roomName, message);
         });
+
+        this.unreadMessages = 0;
+
+        Visibility.change((e, state) => {
+            if (state == "visible") {
+                this.unreadMessages = 0;
+                this.updateUnreadCounter();
+            }
+        });
     }
 
     setChatEnabled(enabled: boolean) {
@@ -98,6 +113,20 @@ class UserInterface {
             $("#message-box").attr("disabled", "true").val("guests can't speak");
         }
     }
+
+    private updateUnreadCounter() {
+        if (!Visibility.hidden())
+            this.unreadMessages = 0;
+
+        var title = "RohBot";
+
+        if (this.unreadMessages > 0) {
+            var countStr = this.unreadMessages > 99 ? "99+" : this.unreadMessages.toString();
+            title = "(" + countStr + ") " + title;
+        }
+
+        window.document.title = title;
+   } 
 
     private processCommand(message: string): boolean {
         message = message.trim();

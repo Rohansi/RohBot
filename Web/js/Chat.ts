@@ -213,13 +213,13 @@ class Chat {
         if (this.isActive())
             this.unreadMessages = 0;
 
-        var newName = this.name;
+        var title = this.name;
         if (this.unreadMessages > 0) {
             var countStr = this.unreadMessages > 99 ? "99+" : this.unreadMessages.toString();
-            newName = "[" + countStr + "] " + newName;
+            title = "(" + countStr + ") " + title;
         }
 
-        this.tab.find(".tab-name").text(newName);
+        this.tab.find(".tab-name").text(title);
     }
 
     private isActive() {
