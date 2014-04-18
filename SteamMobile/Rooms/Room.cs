@@ -333,7 +333,11 @@ namespace SteamMobile.Rooms
         {
             lock (_settings)
             {
-                _settings.Bans.Add(name.ToLower());
+                if (!IsWhitelisted)
+                    _settings.Bans.Add(name.ToLower());
+                else
+                    _settings.Bans.Remove(name.ToLower());
+
                 _settings.Save();
             }
         }
@@ -342,7 +346,11 @@ namespace SteamMobile.Rooms
         {
             lock (_settings)
             {
-                _settings.Bans.Remove(name.ToLower());
+                if (!IsWhitelisted)
+                    _settings.Bans.Remove(name.ToLower());
+                else
+                    _settings.Bans.Add(name.ToLower());
+
                 _settings.Save();
             }
         }

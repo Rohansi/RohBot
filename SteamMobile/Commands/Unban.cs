@@ -30,11 +30,15 @@ namespace SteamMobile.Commands
                 return;
             }
 
-            if (!target.Room.IsWhitelisted)
-                target.Room.Unban(parameters[0]);
+            string sourceUser;
+            if (target.IsWeb)
+                sourceUser = target.Connection.Session.Account.Name;
             else
-                target.Room.Ban(parameters[0]);
+                sourceUser = string.Format("steam:{0:D}", (ulong)target.SteamId);
 
+            Program.Logger.InfoFormat("User '{0}' unbanning '{1}'", sourceUser, parameters[0]);
+
+            target.Room.Unban(parameters[0]);
             target.Send("Account unbanned.");
         }
     }

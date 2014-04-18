@@ -29,12 +29,16 @@ namespace SteamMobile.Commands
                 target.Send("Administrators can not be banned.");
                 return;
             }
-            
-            if (!target.Room.IsWhitelisted)
-                target.Room.Ban(parameters[0]);
-            else
-                target.Room.Unban(parameters[0]);
 
+            string sourceUser;
+            if (target.IsWeb)
+                sourceUser = target.Connection.Session.Account.Name;
+            else
+                sourceUser = string.Format("steam:{0:D}", (ulong)target.SteamId);
+
+            Program.Logger.InfoFormat("User '{0}' banning '{1}'", sourceUser, parameters[0]);
+            
+            target.Room.Ban(parameters[0]);
             target.Send("Account banned.");
         }
     }
