@@ -93,6 +93,9 @@ namespace SteamMobile
             foreach (var roomName in rooms)
             {
                 var room = Program.RoomManager.Get(roomName);
+                if (room == null)
+                    continue;
+
                 connection.SendJoinRoom(room);
 
                 if (firstConnection)
