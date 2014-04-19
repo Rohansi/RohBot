@@ -48,8 +48,8 @@ namespace SteamMobile
             var steamRoom = room as SteamRoom;
             if (steamRoom != null)
             {
-                var member = steamRoom.Chat.Group.Members.FirstOrDefault(m => m.Id == steamId);
-                return member != null && (member.Rank == ClanRank.Owner || member.Rank == ClanRank.Officer);
+                var member = steamRoom.Chat.Group.Members.FirstOrDefault(m => m.Persona.Id == steamId);
+                return member != null && (member.Rank == EClanPermission.Owner || member.Rank == EClanPermission.Officer);
             }
 
             return false;
@@ -84,8 +84,8 @@ namespace SteamMobile
             var steamRoom = room as SteamRoom;
             if (steamRoom != null)
             {
-                var member = steamRoom.Chat.Group.Members.FirstOrDefault(m => m.Id == steamId);
-                return member != null && (member.Rank == ClanRank.Owner || member.Rank == ClanRank.Officer || member.Rank == ClanRank.Moderator);
+                var member = steamRoom.Chat.Group.Members.FirstOrDefault(m => m.Persona.Id == steamId);
+                return member != null && (member.Rank == EClanPermission.Owner || member.Rank == EClanPermission.Officer || member.Rank == EClanPermission.Moderator);
             }
 
             return false;
@@ -103,15 +103,15 @@ namespace SteamMobile
             return false;
         }
 
-        public static ClanRank GetRank(Room room, string username)
+        public static string GetRank(Room room, string username)
         {
             if (IsAdmin(room, username))
-                return ClanRank.Officer;
+                return "Officer";
             if (IsMod(room, username))
-                return ClanRank.Moderator;
+                return "Moderator";
             if (room.IsBanned(username))
-                return ClanRank.Guest;
-            return ClanRank.Member;
+                return "Guest";
+            return "Member";
         }
         #endregion
 

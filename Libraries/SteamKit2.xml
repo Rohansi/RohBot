@@ -1314,21 +1314,16 @@
             The CDNClient class is used for downloading game content from the Steam servers.
             </summary>
         </member>
-        <member name="M:SteamKit2.CDNClient.#ctor(SteamKit2.SteamClient,System.UInt32,System.Byte[],System.Byte[])">
+        <member name="M:SteamKit2.CDNClient.#ctor(SteamKit2.SteamClient,System.Byte[])">
             <summary>
             Initializes a new instance of the <see cref="T:SteamKit2.CDNClient"/> class.
             </summary>
             <param name="steamClient">
             The <see cref="T:SteamKit2.SteamClient"/> this instance will be associated with.
             The SteamClient instance must be connected and logged onto Steam.</param>
-            <param name="depotId">The DepotID of the depot that will be downloaded.</param>
             <param name="appTicket">
             The optional appticket for the depot that will be downloaded.
             This must be present when connected to steam non-anonymously.
-            </param>
-            <param name="depotKey">
-            The optional depot decryption key for the depot that will be downloaded.
-            This is used for decrypting filenames (if needed) in depot manifests, and processing depot chunks.
             </param>
         </member>
         <member name="M:SteamKit2.CDNClient.FetchServerList(System.Net.IPEndPoint,System.Nullable{System.UInt32},System.Int32)">
@@ -1352,19 +1347,31 @@
         </member>
         <member name="M:SteamKit2.CDNClient.Connect(SteamKit2.CDNClient.Server)">
             <summary>
-            Connects and authenticates to the specified content server.
+            Connects and initializes a session to the specified content server.
             </summary>
             <param name="csServer">The content server to connect to.</param>
             <exception cref="T:System.ArgumentNullException">csServer was null.</exception>
         </member>
-        <member name="M:SteamKit2.CDNClient.DownloadManifest(System.UInt64)">
+        <member name="M:SteamKit2.CDNClient.AuthenticateDepot(System.UInt32,System.Byte[],System.String)">
+            <summary>
+            Authenticate a CDNClient to a depot in the connected session
+            </summary>
+            <param name="depotid">The id of the depot being accessed.</param>
+            <param name="depotKey">
+            The optional depot decryption key for the depot that will be downloaded.
+            This is used for decrypting filenames (if needed) in depot manifests, and processing depot chunks.
+            </param>
+            <param name="cdnAuthToken">CDN auth token for CDN content server endpoints.</param>
+        </member>
+        <member name="M:SteamKit2.CDNClient.DownloadManifest(System.UInt32,System.UInt64)">
             <summary>
             Downloads the depot manifest specified by the given manifest ID, and optionally decrypts the manifest's filenames if the depot decryption key has been provided.
             </summary>
+            <param name="depotId">The id of the depot being accessed.</param>
             <param name="manifestId">The unique identifier of the manifest to be downloaded.</param>
             <returns>A <see cref="T:SteamKit2.DepotManifest"/> instance that contains information about the files present within a depot.</returns>
         </member>
-        <member name="M:SteamKit2.CDNClient.DownloadDepotChunk(SteamKit2.DepotManifest.ChunkData)">
+        <member name="M:SteamKit2.CDNClient.DownloadDepotChunk(System.UInt32,SteamKit2.DepotManifest.ChunkData)">
             <summary>
             Downloads the specified depot chunk, and optionally processes the chunk and verifies the checksum if the depot decryption key has been provided.
             </summary>
@@ -1372,9 +1379,10 @@
             This function will also validate the length of the downloaded chunk with the value of <see cref="P:SteamKit2.DepotManifest.ChunkData.CompressedLength"/>,
             if it has been assigned a value.
             </remarks>
+            <param name="depotId">The id of the depot being accessed.</param>
             <param name="chunk">
             A <see cref="T:SteamKit2.DepotManifest.ChunkData"/> instance that represents the chunk to download.
-            This value should come from a manifest downloaded with <see cref="M:SteamKit2.CDNClient.DownloadManifest(System.UInt64)"/>.
+            This value should come from a manifest downloaded with <see cref="M:SteamKit2.CDNClient.DownloadManifest(System.UInt32,System.UInt64)"/>.
             </param>
             <returns>A <see cref="T:SteamKit2.CDNClient.DepotChunk"/> instance that contains the data for the given chunk.</returns>
             <exception cref="T:System.ArgumentNullException">chunk's <see cref="P:SteamKit2.DepotManifest.ChunkData.ChunkID"/> was null.</exception>
@@ -2787,7 +2795,7 @@
         <member name="P:SteamKit2.UFSClient.ConnectedUniverse">
             <summary>
             Gets the connected universe of this client.
-            This value will be <see cref="F:SteamKit2.EUniverse.Invalid"/> if the client is logged off of Steam.
+            This value will be <see cref="F:SteamKit2.EUniverse.Invalid"/> if the client is not connected to Steam.
             </summary>
             <value>The universe.</value>
         </member>
@@ -3687,6 +3695,15 @@
             <param name="accountId">Account ID of the recipient</param>
             <param name="email">Optional email of the recipient</param>
         </member>
+        <member name="M:SteamKit2.SteamApps.GetCDNAuthToken(System.UInt32,System.String)">
+            <summary>
+            Request product information for an app or package
+            Results are returned in a <see cref="T:SteamKit2.SteamApps.CDNAuthTokenCallback"/> callback.
+            </summary>
+            <param name="app">App id requested.</param>
+            <param name="host_name">CDN host name being requested.</param>
+            <returns>The Job ID of the request. This can be used to find the appropriate <see cref="T:SteamKit2.SteamClient.JobCallback`1"/>.</returns>
+        </member>
         <member name="M:SteamKit2.SteamApps.HandleMsg(SteamKit2.IPacketMsg)">
             <summary>
             Handles a client message. This should not be called directly.
@@ -4171,6 +4188,26 @@
         <member name="P:SteamKit2.SteamApps.SendGuestPassCallback.Result">
             <summary>
             Result of the operation
+            </summary>
+        </member>
+        <member name="T:SteamKit2.SteamApps.CDNAuthTokenCallback">
+            <summary>
+            This callback is received when a CDN auth token is received
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamApps.CDNAuthTokenCallback.Result">
+            <summary>
+            Result of the operation
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamApps.CDNAuthTokenCallback.Token">
+            <summary>
+            CDN auth token
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamApps.CDNAuthTokenCallback.Expiration">
+            <summary>
+            Token expiration date
             </summary>
         </member>
         <member name="T:SteamKit2.SteamApps.AppDetails">
@@ -5616,7 +5653,7 @@
         <member name="P:SteamKit2.Internal.CMClient.ConnectedUniverse">
             <summary>
             Gets the connected universe of this client.
-            This value will be <see cref="F:SteamKit2.EUniverse.Invalid"/> if the client is logged off of Steam.
+            This value will be <see cref="F:SteamKit2.EUniverse.Invalid"/> if the client is not connected to Steam.
             </summary>
             <value>The universe.</value>
         </member>
@@ -6751,6 +6788,13 @@
             </summary>
             <param name="steamId">A "STEAM_" rendered form of the SteamID.</param>
             <param name="eUniverse">The universe the SteamID belongs to.</param>
+            <returns><c>true</c> if this instance was successfully assigned; otherwise, <c>false</c> if the given string was in an invalid format.</returns>
+        </member>
+        <member name="M:SteamKit2.SteamID.SetFromSteam3String(System.String)">
+            <summary>
+            Sets the various components of this SteamID from a Steam3 "[X:1:2:3]" rendered form and universe.
+            </summary>
+            <param name="steamId">A "[X:1:2:3]" rendered form of the SteamID.</param>
             <returns><c>true</c> if this instance was successfully assigned; otherwise, <c>false</c> if the given string was in an invalid format.</returns>
         </member>
         <member name="M:SteamKit2.SteamID.SetFromUInt64(System.UInt64)">

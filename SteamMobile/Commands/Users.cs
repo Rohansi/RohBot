@@ -34,23 +34,23 @@ namespace SteamMobile.Commands
                 var steamRoom = room as SteamRoom;
                 var userList = new Packets.UserList();
                 var chat = Program.Steam.Status == Steam.ConnectionStatus.Connected && steamRoom != null ? steamRoom.Chat : null;
-                var steamUsers = chat != null ? chat.Members.ToList() : new List<SteamID>();
+                var steamUsers = chat != null ? chat.Users.Select(p => p.Id).ToList() : new List<SteamID>();
 
-                foreach (var id in steamUsers.Where(i => i != Program.Steam.Bot.PersonaId))
+                foreach (var id in steamUsers.Where(i => i != Program.Steam.Bot.SteamId))
                 {
                     var persona = Program.Steam.Bot.GetPersona(id);
                     var steamId = id.ConvertToUInt64().ToString("D");
-                    var groupMember = chat.Group.Members.FirstOrDefault(m => m.Id == id);
+                    var groupMember = chat.Group.Members.FirstOrDefault(m => m.Persona.Id == id);
                     var rank = groupMember != null ? groupMember.Rank.ToString() : "Member";
                     var avatar = BitConverter.ToString(persona.Avatar).Replace("-", "").ToLower();
                     var status = GetStatusString(persona.State);
-                    userList.AddUser(persona.Name, steamId, rank, avatar, status, persona.PlayingName, false);
+                    userList.AddUser(persona.DisplayName, steamId, rank, avatar, status, persona.PlayingName, false);
                 }
 
                 foreach (var account in accounts)
                 {
                     var userId = account.Id.ToString();
-                    var rank = Util.GetRank(target.Room, account.Name).ToString();
+                    var rank = Util.GetRank(target.Room, account.Name);
                     userList.AddUser(account.Name, userId, rank, "", "", "", true);
                 }
 

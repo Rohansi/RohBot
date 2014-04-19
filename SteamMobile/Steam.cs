@@ -13,12 +13,12 @@ namespace SteamMobile
 
         public ConnectionStatus Status { get; private set; }
 
-        public Bot Bot
+        public SteamBot Bot
         {
             get { return Status == ConnectionStatus.Connected ? _bot : null; }
         }
 
-        private Bot _bot;
+        private SteamBot _bot;
         private bool _hasConnected;
         private Stopwatch _connectStarted = Stopwatch.StartNew();
 
@@ -44,13 +44,13 @@ namespace SteamMobile
             _connectStarted.Restart();
             Program.Logger.Info("Connecting");
 
-            _bot = new Bot(Program.Settings.Username, Program.Settings.Password);
+            _bot = new SteamBot(Program.Settings.Username, Program.Settings.Password);
             _bot.OnConnected += sender =>
             {
                 _hasConnected = true;
                 _connectStarted.Stop();
 
-                _bot.PersonaName = Program.Settings.PersonaName;
+                _bot.DisplayName = Program.Settings.PersonaName;
                 _bot.PersonaState = EPersonaState.Online;
                 Status = ConnectionStatus.Connected;
 

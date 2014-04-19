@@ -8,7 +8,7 @@ namespace SteamMobile.Rooms
 {
     public class SteamRoom : Room
     {
-        public Chat Chat { get; private set; }
+        public SteamChat Chat { get; private set; }
 
         public readonly SteamID SteamId;
         public readonly bool EchoWebStates;
@@ -81,7 +81,7 @@ namespace SteamMobile.Rooms
         {
             if (Chat != null)
             {
-                Chat.Leave(ChatLeaveReason.Left);
+                Chat.Leave(SteamChatLeaveReason.Left);
                 Chat = null;
             }
 
@@ -101,7 +101,7 @@ namespace SteamMobile.Rooms
             if (!IsActive)
             {
                 if (Chat != null)
-                    Chat.Leave(ChatLeaveReason.Left);
+                    Chat.Leave(SteamChatLeaveReason.Left);
 
                 return;
             }
@@ -110,7 +110,7 @@ namespace SteamMobile.Rooms
             {
                 Program.Logger.Info("Rejoining " + RoomInfo.ShortName);
                 _lastMessage.Restart();
-                Chat.Leave(ChatLeaveReason.Disconnected);
+                Chat.Leave(SteamChatLeaveReason.Disconnected);
                 return;
             }
 
@@ -150,56 +150,56 @@ namespace SteamMobile.Rooms
             base.SendLine(line);
         }
 
-        private void HandleMessage(Chat sender, Persona messageSender, string message)
+        private void HandleMessage(SteamChat chat, SteamPersona user, string message)
         {
             _lastMessage.Restart();
 
-            var senderName = messageSender.Name;
-            var senderId = messageSender.Id.ConvertToUInt64().ToString("D");
-            var inGame = messageSender.Playing != null && messageSender.Playing.ToUInt64() != 0;
+            var senderName = user.DisplayName;
+            var senderId = user.Id.ConvertToUInt64().ToString("D");
+            var inGame = user.Playing != null && user.Playing.ToUInt64() != 0;
 
             var line = new ChatLine(Util.GetCurrentTimestamp(), RoomInfo.ShortName, "Steam", senderName, senderId, "", message, inGame);
             SendLine(line);
 
-            Command.Handle(new CommandTarget(this, messageSender.Id), message, "~");
+            Command.Handle(new CommandTarget(this, user.Id), message, "~");
         }
 
-        private void HandleEnter(Chat sender, Persona user)
+        private void HandleEnter(SteamChat chat, SteamPersona user)
         {
             _lastMessage.Restart();
 
-            var message = user.Name + " entered chat.";
+            var message = user.DisplayName + " entered chat.";
 
-            var line = new StateLine(Util.GetCurrentTimestamp(), RoomInfo.ShortName, "Enter", user.Name, user.Id.ConvertToUInt64().ToString("D"), "Steam", "", "0", "", message);
+            var line = new StateLine(Util.GetCurrentTimestamp(), RoomInfo.ShortName, "Enter", user.DisplayName, user.Id.ConvertToUInt64().ToString("D"), "Steam", "", "0", "", message);
             SendLine(line);
         }
 
-        private void HandleLeave(Chat sender, Persona user, ChatLeaveReason reason, Persona sourceUser)
+        private void HandleLeave(SteamChat chat, SteamPersona user, SteamChatLeaveReason reason, SteamPersona sourceUser)
         {
             _lastMessage.Restart();
 
-            var message = user.Name;
+            var message = user.DisplayName;
             switch (reason)
             {
-                case ChatLeaveReason.Left:
+                case SteamChatLeaveReason.Left:
                     message += " left chat.";
                     break;
-                case ChatLeaveReason.Disconnected:
+                case SteamChatLeaveReason.Disconnected:
                     message += " disconnected.";
                     break;
-                case ChatLeaveReason.Kicked:
-                    message += string.Format(" was kicked by {0}.", sourceUser.Name);
+                case SteamChatLeaveReason.Kicked:
+                    message += string.Format(" was kicked by {0}.", sourceUser.DisplayName);
                     break;
-                case ChatLeaveReason.Banned:
-                    message += string.Format(" was banned by {0}.", sourceUser.Name);
+                case SteamChatLeaveReason.Banned:
+                    message += string.Format(" was banned by {0}.", sourceUser.DisplayName);
                     break;
             }
 
-            var by = sourceUser != null ? sourceUser.Name : "";
+            var by = sourceUser != null ? sourceUser.DisplayName : "";
             var byId = sourceUser != null ? sourceUser.Id.ConvertToUInt64().ToString("D") : "0";
             var byType = sourceUser != null ? "Steam" : "";
 
-            var line = new StateLine(Util.GetCurrentTimestamp(), RoomInfo.ShortName, reason.ToString(), user.Name, user.Id.ConvertToUInt64().ToString("D"), "Steam", by, byId, byType, message);
+            var line = new StateLine(Util.GetCurrentTimestamp(), RoomInfo.ShortName, reason.ToString(), user.DisplayName, user.Id.ConvertToUInt64().ToString("D"), "Steam", by, byId, byType, message);
             SendLine(line);
         }
     }

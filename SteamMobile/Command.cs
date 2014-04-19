@@ -203,7 +203,7 @@ namespace SteamMobile
     public class CommandTarget
     {
         public readonly Room Room;
-        public readonly Chat PrivateChat;
+        public readonly SteamChat PrivateChat;
         public readonly SteamID SteamId;
         public readonly Connection Connection;
 
@@ -218,7 +218,7 @@ namespace SteamMobile
             SteamId = sender;
         }
 
-        public CommandTarget(Chat steamChat, SteamID sender)
+        public CommandTarget(SteamChat steamChat, SteamID sender)
         {
             PrivateChat = steamChat;
             SteamId = sender;
