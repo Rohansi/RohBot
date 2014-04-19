@@ -61,7 +61,7 @@ namespace SteamMobile.Rooms
 
             if (stateLine != null && Chat != null && stateLine.State == "Action")
             {
-                Chat.Send(stateLine.Content);
+                Chat.Send(WebUtility.HtmlDecode(stateLine.Content));
             }
 
             base.SendLine(line);
