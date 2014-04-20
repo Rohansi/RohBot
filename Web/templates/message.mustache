@@ -8,7 +8,14 @@
 
 	{{# Sender }}
 	<span class="sender">
-		<span class="{{ SenderClasses }}">{{{ Sender }}}</span>:&nbsp;
+		{{# SteamId }}
+		<a href="http://steamcommunity.com/profiles/{{ SteamId }}" target="_blank" class="inherit">
+		{{/ SteamId }}
+		<span class="{{ SenderClasses }}">{{{ Sender }}}</span>
+		{{# SteamId }}
+		</a>
+		{{/ SteamId }}
+		:&nbsp;
 	</span>
 	{{/ Sender}}
 

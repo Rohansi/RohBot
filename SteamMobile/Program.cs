@@ -20,6 +20,13 @@ namespace SteamMobile
         {
             Logger.Info("Process starting");
 
+            /*DebugLog.AddListener((a, b) =>
+            {
+                Console.WriteLine("{0} {1} {2}", DateTime.Now, a, b);
+            });
+
+            DebugLog.Enabled = true;*/
+
             AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
             {
                 Logger.Fatal("Unhandled exception: " + e.ExceptionObject);

@@ -132,6 +132,9 @@ class Chat {
                 else if (line.InGame)
                     senderClasses = "inGame";
 
+                if (line.UserType == "Steam" && line.SenderId != "0")
+                    data.SteamId = line.SenderId;
+
                 data.Sender = line.Sender;
                 data.SenderClasses = senderClasses;
                 data.Message = this.linkify(line.Content);
@@ -148,9 +151,15 @@ class Chat {
                     ForStyle: style(line.ForType),
                 };
 
+                if (line.ForType == "Steam" && line.ForId != "0")
+                    stateData.ForSteamId = line.ForId;
+
                 if (line.By != "") {
                     stateData.By = line.By;
                     stateData.ByStyle = style(line.ByType);
+
+                    if (line.ByType == "Steam" && line.ById != "0")
+                        stateData.BySteamId = line.ById;
                 }
 
                 switch (line.State) {

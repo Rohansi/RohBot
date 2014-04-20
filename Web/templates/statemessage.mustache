@@ -1,1 +1,23 @@
-﻿<span class="state"><span class="{{ ForStyle }}">{{{ For }}}</span>{{ Content1 }}{{# By }}<span class="{{ ByStyle }}">{{{ By }}}</span>{{ Content2 }}{{/ By }}</span>
+﻿<span class="state">
+	{{# ForSteamId }}
+	<a href="http://steamcommunity.com/profiles/{{ ForSteamId }}" target="_blank" class="inherit">
+	{{/ ForSteamId }}
+	<span class="{{ ForStyle }}">{{{ For }}}</span>
+	{{# ForSteamId }}
+	</a>
+	{{/ ForSteamId }}
+
+	{{ Content1 }}
+
+	{{# By }}
+		{{# BySteamId }}
+		<a href="http://steamcommunity.com/profiles/{{ BySteamId }}" target="_blank" class="inherit">
+		{{/ BySteamId }}
+		<span class="{{ ByStyle }}">{{{ By }}}</span>
+		{{# BySteamId }}
+		</a>
+		{{/ BySteamId }}
+
+		{{ Content2 }}
+	{{/ By }}
+</span>

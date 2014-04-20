@@ -14,11 +14,8 @@ namespace SteamMobile.Commands
 
         public override void Handle(CommandTarget target, string type, string[] parameters)
         {
-            if (!target.IsRoom && !target.IsPrivateChat)
-            {
-                target.Send("RohBot is not in this room.");
+            if (!target.IsRoom || target.IsPrivateChat)
                 return;
-            }
 
             var room = target.Room;
             var roomName = room.RoomInfo.ShortName;

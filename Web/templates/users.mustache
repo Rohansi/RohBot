@@ -2,20 +2,20 @@
 	{{# Users }}
 	<div>
 		{{# Avatar }}
-			<img alt="{{{ Name }}}'s Steam Avatar" class="avatar"
-				src="/steamcommunity/public/images/avatars/{{ AvatarFolder }}/{{ Avatar }}_full.jpg">
+		<img alt="{{{ Name }}}'s Steam Avatar" class="avatar"
+			 src="/steamcommunity/public/images/avatars/{{ AvatarFolder }}/{{ Avatar }}_full.jpg">
 		{{/ Avatar }}
 		{{^ Avatar }}
-			<img alt="RohBot User" src="rohbot.png">
+		<img alt="RohBot User" src="rohbot.png">
 		{{/ Avatar }}
 		<div data-color="{{ Color }}" data-rank="{{ Rank }}">
 			{{# Web }}
-				{{{ Name }}}
+			{{{ Name }}}
 			{{/ Web }}
 			{{^ Web }}
-				<a href="http://steamcommunity.com/profiles/{{ UserId }}" target="_blank">
-					{{{ Name }}}
-				</a>
+			<a href="http://steamcommunity.com/profiles/{{ UserId }}" target="_blank">
+				{{{ Name }}}
+			</a>
 			{{/ Web }}
 			<br>
 			{{{ Status }}}
