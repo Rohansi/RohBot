@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using EzSteam;
 using SteamKit2;
 using SteamMobile.Rooms;
 
@@ -49,7 +48,7 @@ namespace SteamMobile
             if (steamRoom != null)
             {
                 var member = steamRoom.Chat.Group.Members.FirstOrDefault(m => m.Persona.Id == steamId);
-                return member != null && (member.Rank == EClanPermission.Owner || member.Rank == EClanPermission.Officer);
+                return member != null && (member.Rank == EClanPermission.Owner);
             }
 
             return false;
@@ -101,17 +100,6 @@ namespace SteamMobile
             if (target.IsWeb)
                 return IsMod(target.Room, target.Connection.Session.Account.Name);
             return false;
-        }
-
-        public static string GetRank(Room room, string username)
-        {
-            if (IsAdmin(room, username))
-                return "Officer";
-            if (IsMod(room, username))
-                return "Moderator";
-            if (room.IsBanned(username))
-                return "Guest";
-            return "Member";
         }
         #endregion
 

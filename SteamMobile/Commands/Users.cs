@@ -38,7 +38,7 @@ namespace SteamMobile.Commands
                     var persona = Program.Steam.Bot.GetPersona(id);
                     var steamId = id.ConvertToUInt64().ToString("D");
                     var groupMember = chat.Group.Members.FirstOrDefault(m => m.Persona.Id == id);
-                    var rank = groupMember != null ? groupMember.Rank.ToString() : "Member";
+                    var rank = groupMember != null ? GetRankString(groupMember.Rank) : "Guest";
                     var avatar = BitConverter.ToString(persona.Avatar).Replace("-", "").ToLower();
                     var status = GetStatusString(persona.State);
                     userList.AddUser(persona.DisplayName, steamId, rank, avatar, status, persona.PlayingName, false);
@@ -47,7 +47,7 @@ namespace SteamMobile.Commands
                 foreach (var account in accounts)
                 {
                     var userId = account.Id.ToString();
-                    var rank = Util.GetRank(target.Room, account.Name);
+                    var rank = GetRankString(target.Room, account.Name);
                     userList.AddUser(account.Name, userId, rank, "", "", "", true);
                 }
 
@@ -81,6 +81,33 @@ namespace SteamMobile.Commands
                 default:
                     return "";
             }
+        }
+
+        private static string GetRankString(EClanPermission permission)
+        {
+            switch (permission)
+            {
+                case EClanPermission.Owner:
+                    return "Administrator";
+                case EClanPermission.Officer:
+                case EClanPermission.Moderator:
+                    return "Moderator";
+                case EClanPermission.Member:
+                    return "Member";
+                default:
+                    return "Guest";
+            }
+        }
+
+        private static string GetRankString(Room room, string username)
+        {
+            if (Util.IsAdmin(room, username))
+                return "Administrator";
+            if (Util.IsMod(room, username))
+                return "Moderator";
+            if (room.IsBanned(username))
+                return "Guest";
+            return "Member";
         }
     }
 }

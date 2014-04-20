@@ -52,9 +52,8 @@ Permissions
 -------------
 Permissions are unique to rooms.
 
-| Name            | Description                                                        |
-|-----------------|--------------------------------------------------------------------|
-| Super Admin     | Global permission to everything. The person running the bot.       |
-| Administrator   | Administrator for the room. Gold star or super admin's choice.     |
-| Moderator       | Moderator for the room. Admin's choice.                            |
-
+| Name            | Description                                                          |
+|-----------------|----------------------------------------------------------------------|
+| Super Admin     | Global permission to everything. The person running the bot.         |
+| Administrator   | Owner of the room.                                                   |
+| Moderator       | Administrator's choice (mod command) or silver/gold star on Steam.   |
