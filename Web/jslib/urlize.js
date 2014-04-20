@@ -167,9 +167,7 @@ var urlize = (function () {
   				     ['“', '”'], ['‘', '’']];
   var word_split_re_django = /(\s+)/;
   var word_split_re_improved = /([\s<>"]+)/;
-  var simple_url_re = /^(https?|ftp):\/\/\w/i;
-  var simple_url_2_re = /^www\.|^(?!http)\w[^@]+\.(com|edu|gov|int|mil|org)$/i;
-  var simple_email_re = /^\S+@\S+\.\S+$/;
+  var simple_url_re = /^(https?|ftp|steam):\/\/\w/i;
 
   function htmlescape(html, options) {
     var escaped = html
@@ -204,7 +202,7 @@ var urlize = (function () {
         target: args[4]
       };
     }
-    if (!('django_compatible' in options)) options.django_compatible = true;
+    if (!('django_compatible' in options)) options.django_compatible = false;
     return options;
   }
 
@@ -224,7 +222,7 @@ var urlize = (function () {
     for (var i = 0; i < words.length; i++) {
       var word = words[i];
       var match = undefined;
-      if (word.indexOf('.') != -1 || word.indexOf('@') != -1 || word.indexOf(':') != -1) {
+      if (word.indexOf('.') != -1 || word.indexOf(':') != -1) {
         // Deal with punctuation.
         var lead = '';
         var middle = word;
@@ -255,13 +253,8 @@ var urlize = (function () {
         var nofollow_attr = options.nofollow ? ' rel="nofollow"' : '';
         var target_attr = options.target ? ' target="' + options.target + '"' : '';
 
-        if (middle.match(simple_url_re)) url = smart_urlquote(middle);
-        else if (middle.match(simple_url_2_re)) url = smart_urlquote('http://' + middle);
-        else if (middle.indexOf(':') == -1 && middle.match(simple_email_re)) {
-          // XXX: Not handling IDN.
-          url = 'mailto:' + middle;
-          nofollow_attr = '';
-        }
+        if (middle.match(simple_url_re))
+          url = smart_urlquote(middle);
 
         // Make link.
         if (url) {
