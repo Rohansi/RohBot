@@ -58,21 +58,36 @@ class UserInterface {
                 this.updateUnreadCounter();
             }
 
-            if (line.Type != "chat" || line.SenderId == "0" || (line.SenderType == "rohBot" && line.Sender == this.rohbot.getUsername()))
-                return;
+            if (this.notificationRegex != null) {
+                var isNotifiableChatLine = line.Type == "chat" && line.SenderId != "0" && !(line.UserType == "RohBot" && line.Sender == this.rohbot.getUsername());
+                var isNotifiableStateLine = line.Type == "state" && line.State == "Action" && !(line.ForType == "RohBot" && line.For == this.rohbot.getUsername());
 
-            if (this.notificationRegex != null && this.notificationRegex.test(line.Content)) {
-                var chat = this.chatMgr.getChat(line.Chat);
-                if (chat == null)
-                    return;
+                if ((isNotifiableChatLine || isNotifiableStateLine) && this.notificationRegex.test(line.Content)) {
+                    var chat = this.chatMgr.getChat(line.Chat);
+                    if (chat == null)
+                        return;
 
-                var sender = $("<textarea/>").html(line.Sender).text();
-                var content = $("<textarea/>").html(line.Content).text();
+                    var notificationText;
 
-                Notifications.create(chat.name, sender + ": " + content, () => {
-                    chatMgr.switchTo(line.Chat);
-                    window.focus();
-                });
+                    switch (line.Type) {
+                        case "chat":
+                            var sender = $("<textarea/>").html(line.Sender).text();
+                            var content = $("<textarea/>").html(line.Content).text();
+                            notificationText = sender + ": " + content;
+                            break;
+                        case "state":
+                            notificationText = $("<textarea/>").html(line.Content).text();
+                            break;
+                        default:
+                            notificationText = "error";
+                            break;
+                    }
+
+                    Notifications.create(chat.name, notificationText, () => {
+                        chatMgr.switchTo(line.Chat);
+                        window.focus();
+                    });
+                }
             }
         });
 
@@ -126,7 +141,7 @@ class UserInterface {
         }
 
         window.document.title = title;
-   } 
+    }
 
     private processCommand(message: string): boolean {
         message = message.trim();
