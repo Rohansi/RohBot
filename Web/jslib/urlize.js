@@ -167,6 +167,7 @@ var urlize = (function () {
   				     ['“', '”'], ['‘', '’']];
   var word_split_re_django = /(\s+)/;
   var word_split_re_improved = /([\s<>"]+)/;
+  var simple_url_2_re = /^www\./i;
   var simple_url_re = /^(https?|ftp|steam):\/\/\w/i;
 
   function htmlescape(html, options) {
@@ -253,8 +254,8 @@ var urlize = (function () {
         var nofollow_attr = options.nofollow ? ' rel="nofollow"' : '';
         var target_attr = options.target ? ' target="' + options.target + '"' : '';
 
-        if (middle.match(simple_url_re))
-          url = smart_urlquote(middle);
+        if (middle.match(simple_url_re)) url = smart_urlquote(middle);
+        else if (middle.match(simple_url_2_re)) url = smart_urlquote('http://' + middle);
 
         // Make link.
         if (url) {
