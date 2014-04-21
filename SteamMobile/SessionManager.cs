@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using SuperSocket.SocketBase.Config;
 using SuperWebSocket;
 
 namespace SteamMobile
@@ -27,7 +28,15 @@ namespace SteamMobile
 
         public void Start()
         {
-            _server.Setup("0.0.0.0", 12000);
+            var config = new ServerConfig
+            {
+                Ip = "0.0.0.0",
+                Port = 12000,
+                MaxConnectionNumber = 256,
+                MaxRequestLength = 8192
+            };
+
+            _server.Setup(config);
             _server.Start();
 
             _server.NewMessageReceived += OnReceive;
