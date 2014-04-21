@@ -17,23 +17,25 @@ namespace SteamMobile
 
         public static NpgsqlConnection CreateConnection()
         {
-            var conn = _connections.FirstOrDefault(c => c.State == ConnectionState.Open);
-
-            if (conn == null)
-            {
-                var settings = Program.Settings;
-                var connectionStr = string.Format("Server={0};Port={1};User Id={2};Password={3};Database={4};Encoding=UNICODE;",
-                    settings.DbAddress, settings.DbPort, settings.DbUser, settings.DbPass, settings.DbName);
-
-                conn = new NpgsqlConnection(connectionStr);
-                conn.Open();
-                return conn;
-            }
-
             lock (_connections)
+            {
+                var conn = _connections.FirstOrDefault(c => c.State == ConnectionState.Open);
+
+                if (conn == null)
+                {
+                    var settings = Program.Settings;
+                    var connectionStr = string.Format("Server={0};Port={1};User Id={2};Password={3};Database={4};Encoding=UNICODE;",
+                        settings.DbAddress, settings.DbPort, settings.DbUser, settings.DbPass, settings.DbName);
+
+                    conn = new NpgsqlConnection(connectionStr);
+                    conn.Open();
+                    return conn;
+                }
+
                 _connections.Remove(conn);
 
-            return conn;
+                return conn;
+            }
         }
 
         public static void RecycleConnection(NpgsqlConnection conn)
