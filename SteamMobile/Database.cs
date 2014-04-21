@@ -1,59 +1,44 @@
 ﻿using System.Collections.Generic;
-using System.Data;
 using System.Dynamic;
-using System.Linq;
 using Npgsql;
 
 namespace SteamMobile
 {
     public static class Database
     {
-        private static List<NpgsqlConnection> _connections;
+        private static NpgsqlConnectionStringBuilder _connectionStr;
 
         static Database()
         {
-            _connections = new List<NpgsqlConnection>();
+            _connectionStr = new NpgsqlConnectionStringBuilder
+            {
+                Host = Program.Settings.DbAddress,
+                Port = Program.Settings.DbPort,
+                Database = Program.Settings.DbName,
+                UserName = Program.Settings.DbUser,
+                Password = Program.Settings.DbPass,
+
+                Pooling = true,
+                MinPoolSize = 1,
+                MaxPoolSize = 20
+            };
         }
 
         public static NpgsqlConnection CreateConnection()
         {
-            lock (_connections)
-            {
-                var conn = _connections.FirstOrDefault(c => c.State == ConnectionState.Open);
-
-                if (conn == null)
-                {
-                    var settings = Program.Settings;
-                    var connectionStr = string.Format("Server={0};Port={1};User Id={2};Password={3};Database={4};Encoding=UNICODE;",
-                        settings.DbAddress, settings.DbPort, settings.DbUser, settings.DbPass, settings.DbName);
-
-                    conn = new NpgsqlConnection(connectionStr);
-                    conn.Open();
-                    return conn;
-                }
-
-                _connections.Remove(conn);
-
-                return conn;
-            }
-        }
-
-        public static void RecycleConnection(NpgsqlConnection conn)
-        {
-            lock (_connections)
-                _connections.Add(conn);
+            var connection = new NpgsqlConnection(_connectionStr);
+            connection.Open();
+            return connection;
         }
     }
 
     public class SqlCommand
     {
-        private NpgsqlConnection _connection;
         private readonly NpgsqlCommand _command;
 
         public SqlCommand(string sql)
         {
-            _connection = Database.CreateConnection();
-            _command = new NpgsqlCommand(sql, _connection);
+            _command = new NpgsqlCommand(sql, Database.CreateConnection());
         }
 
         public object this[string name]
@@ -69,12 +54,9 @@ namespace SteamMobile
 
         public IEnumerable<dynamic> Execute()
         {
-            NpgsqlDataReader reader = null;
-
-            try
+            using (_command.Connection)
+            using (var reader = _command.ExecuteReader())
             {
-                reader = _command.ExecuteReader();
-
                 var names = new string[reader.FieldCount];
                 var values = new object[reader.FieldCount];
 
@@ -89,40 +71,18 @@ namespace SteamMobile
                     yield return new SqlResult(names, values);
                 }
             }
-            finally
-            {
-                if (reader != null)
-                    reader.Dispose();
-
-                Database.RecycleConnection(_connection);
-                _connection = null;
-            }
         }
 
         public void ExecuteNonQuery()
         {
-            try
-            {
+            using (_command.Connection)
                 _command.ExecuteNonQuery();
-            }
-            finally
-            {
-                Database.RecycleConnection(_connection);
-                _connection = null;
-            }
         }
 
         public object ExecuteScalar()
         {
-            try
-            {
+            using (_command.Connection)
                 return _command.ExecuteScalar();
-            }
-            finally
-            {
-                Database.RecycleConnection(_connection);
-                _connection = null;
-            }
         }
     }
 
@@ -130,11 +90,11 @@ namespace SteamMobile
     {
         private readonly Dictionary<string, object> _columns;
 
-        public SqlResult(string[] names, object[] values)
+        public SqlResult(IList<string> names, IList<object> values)
         {
             _columns = new Dictionary<string, object>();
 
-            for (var i = 0; i < names.Length; i++)
+            for (var i = 0; i < names.Count; i++)
             {
                 _columns.Add(names[i], values[i]);
             }
