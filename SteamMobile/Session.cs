@@ -206,6 +206,11 @@ namespace SteamMobile
             return true;
         }
 
+        public void Ping()
+        {
+            Send(new Packets.Ping());
+        }
+
         public void Send(Packet packet)
         {
             var packetStr = Packet.WriteToMessage(packet);

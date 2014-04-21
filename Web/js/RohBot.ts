@@ -10,6 +10,9 @@ class RohBot {
     private isConnecting: boolean;
     private username: string;
 
+    private timeout: number;
+    private lastMessage: number;
+
     connected = new Signal();
     disconnected = new Signal();
     loggedIn = new Signal();
@@ -20,16 +23,20 @@ class RohBot {
     userListReceived = new Signal();
 
     constructor(address: string) {
+        this.timeout = 10 * 1000;
+
         this.address = address;
         this.username = null;
 
         window.setInterval(() => {
-            if (this.isConnected()) {
-                this.send({ Type: "ping" });
-            } else {
+            if (!this.isConnecting && !this.isConnected()) {
                 this.connect();
             }
-        }, 5000);
+
+            if (this.isConnected() && Date.now() - this.lastMessage >= this.timeout) {
+                this.disconnect();
+            }
+        }, 2500);
 
         this.manualSysMessage("Connecting to RohBot...");
         this.connect();
@@ -44,6 +51,7 @@ class RohBot {
 
         this.socket.onopen = e => {
             this.isConnecting = false;
+            this.lastMessage = Date.now();
 
             if (!connected)
                 this.manualSysMessage("Connected to RohBot!");
@@ -74,6 +82,8 @@ class RohBot {
 
         this.socket.onmessage = e => {
             var packet = JSON.parse(e.data);
+
+            this.lastMessage = Date.now();
 
             switch (packet.Type) {
                 case "authResponse": {
