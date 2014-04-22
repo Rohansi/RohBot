@@ -30,6 +30,12 @@ namespace SteamMobile.Commands
                 return;
             }
 
+            if (!target.Room.IsBanned(parameters[0]))
+            {
+                target.Send("Account is not banned.");
+                return;
+            }
+
             string sourceUser;
             if (target.IsWeb)
                 sourceUser = target.Connection.Session.Account.Name;

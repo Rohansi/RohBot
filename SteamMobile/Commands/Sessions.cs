@@ -15,7 +15,7 @@ namespace SteamMobile.Commands
 
             var sessions = Program.SessionManager.List.Select(s => string.Format("{0} ({1})", s.Account.Name, s.ConnectionCount));
             var sessionsText = string.Join(", ", sessions);
-            target.Send(string.Format("Active sessions: {0}", sessionsText));
+            target.Send(string.Format("Sessions: {0}", sessionsText));
         }
     }
 }

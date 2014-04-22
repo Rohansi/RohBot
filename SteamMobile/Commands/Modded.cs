@@ -10,7 +10,7 @@ namespace SteamMobile.Commands
 
         public override void Handle(CommandTarget target, string type, string[] parameters)
         {
-            if (!target.IsRoom)
+            if (!target.IsRoom || !Util.IsMod(target))
                 return;
 
             var modded = target.Room.Modded;

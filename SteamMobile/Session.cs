@@ -175,21 +175,21 @@ namespace SteamMobile
             return true;
         }
 
-        public bool Leave(string roomName)
+        public void Leave(string roomName)
         {
             roomName = (roomName ?? "").ToLower();
 
             if (roomName == Program.Settings.DefaultRoom)
-                return true;
+                return;
 
             var room = Program.RoomManager.Get(roomName);
             if (room == null)
-                return true;
+                return;
 
             lock (_sync)
             {
                 if (!_rooms.Contains(roomName))
-                    return true;
+                    return;
 
                 room.SessionLeft(this);
                 _rooms.Remove(roomName);
@@ -202,8 +202,6 @@ namespace SteamMobile
                 Account.Rooms = _rooms.ToArray();
                 Account.Save();
             }
-
-            return true;
         }
 
         public void Ping()

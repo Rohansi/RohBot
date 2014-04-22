@@ -24,6 +24,12 @@ namespace SteamMobile.Commands
                 return;
             }
 
+            if (!target.Room.IsMod(parameters[0]))
+            {
+                target.Send("Account is not a mod.");
+                return;
+            }
+
             target.Room.Demod(parameters[0]);
             target.Send("Account demodded.");
         }

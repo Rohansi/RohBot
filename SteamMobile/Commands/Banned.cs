@@ -10,7 +10,7 @@ namespace SteamMobile.Commands
 
         public override void Handle(CommandTarget target, string type, string[] parameters)
         {
-            if (!target.IsRoom)
+            if (!target.IsRoom || !Util.IsMod(target))
                 return;
 
             var banned = target.Room.Banned;
@@ -26,9 +26,9 @@ namespace SteamMobile.Commands
             else
             {
                 if (!target.Room.IsWhitelisted)
-                    target.Send(string.Format("Banned from this room: {0}", string.Join(", ", banned)));
+                    target.Send(string.Format("Banned: {0}", string.Join(", ", banned)));
                 else
-                    target.Send(string.Format("Allowed in this room: {0}", string.Join(", ", banned)));
+                    target.Send(string.Format("Whitelisted: {0}", string.Join(", ", banned)));
             }
         }
     }

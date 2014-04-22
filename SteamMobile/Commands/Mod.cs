@@ -24,6 +24,12 @@ namespace SteamMobile.Commands
                 return;
             }
 
+            if (target.Room.IsMod(parameters[0]))
+            {
+                target.Send("Account is already a mod.");
+                return;
+            }
+
             target.Room.Mod(parameters[0]);
             target.Send("Account modded.");
         }
