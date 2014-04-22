@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using SteamKit2;
 using SteamMobile.Rooms;
@@ -27,26 +26,31 @@ namespace SteamMobile.Commands
 
             if (target.IsWeb)
             {
-                // TODO: clean up this garbage
-                var steamRoom = room as SteamRoom;
                 var userList = new Packets.UserList();
-                var chat = Program.Steam.Status == Steam.ConnectionStatus.Connected && steamRoom != null ? steamRoom.Chat : null;
-                var steamUsers = chat != null ? chat.Users.Select(p => p.Id).ToList() : new List<SteamID>();
 
-                foreach (var id in steamUsers.Where(i => i != Program.Steam.Bot.SteamId))
+                var steamRoom = room as SteamRoom;
+                var chat = steamRoom != null && Program.Steam.Status == Steam.ConnectionStatus.Connected ? steamRoom.Chat : null;
+
+                if (chat != null)
                 {
-                    var persona = Program.Steam.Bot.GetPersona(id);
-                    var steamId = id.ConvertToUInt64().ToString("D");
-                    var groupMember = chat.Group.Members.FirstOrDefault(m => m.Persona.Id == id);
-                    var rank = groupMember != null ? GetRankString(groupMember.Rank) : "Guest";
-                    var avatar = BitConverter.ToString(persona.Avatar).Replace("-", "").ToLower();
-                    var status = GetStatusString(persona.State);
-                    userList.AddUser(persona.DisplayName, steamId, rank, avatar, status, persona.PlayingName, false);
+                    var steamUsers = chat.Users.Select(p => p.Id)
+                                               .Where(i => i != Program.Steam.Bot.SteamId);
+
+                    foreach (var id in steamUsers)
+                    {
+                        var persona = Program.Steam.Bot.GetPersona(id);
+                        var steamId = id.ConvertToUInt64().ToString("D");
+                        var groupMember = chat.Group.Members.FirstOrDefault(m => m.Persona.Id == id);
+                        var rank = groupMember != null ? GetRankString(groupMember.Rank) : "Guest";
+                        var avatar = BitConverter.ToString(persona.Avatar).Replace("-", "").ToLower();
+                        var status = GetStatusString(persona.State);
+                        userList.AddUser(persona.DisplayName, steamId, rank, avatar, status, persona.PlayingName, false);
+                    }
                 }
 
                 foreach (var account in accounts)
                 {
-                    var userId = account.Id.ToString();
+                    var userId = account.Id.ToString("D");
                     var rank = GetRankString(target.Room, account.Name);
                     userList.AddUser(account.Name, userId, rank, "", "", "", true);
                 }
