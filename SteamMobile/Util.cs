@@ -259,5 +259,11 @@ namespace SteamMobile
             }
         }
         #endregion
+
+        // http://www.mono-project.com/Guide%3a_Porting_Winforms_Applications#Runtime_Conditionals
+        public static bool IsRunningOnMono()
+        {
+            return Type.GetType("Mono.Runtime") != null;
+        }
     }
 }

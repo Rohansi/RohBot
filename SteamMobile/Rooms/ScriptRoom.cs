@@ -49,11 +49,20 @@ namespace SteamMobile.Rooms
 
             _references = new List<string>();
             _references.AddRange((roomInfo["References"] ?? "").Split(','));
+
+            if (Util.IsRunningOnMono())
+            {
+                _references.AddRange(new List<string>
+                {
+                    "System", "System.Collections.Generic", "System.Linq", "System.Text"
+                });
+            }
+
             _references.AddRange(new List<string>
             {
-                "System", "System.Collections.Generic", "System.Linq", "System.Text",
                 "log4net", "Newtonsoft.Json", "Npgsql", "SteamKit2", "EzSteam"
             });
+
             _references = _references.Distinct().ToList();
 
             Recompile();
