@@ -3,29 +3,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.IO;
 using System.Net;
+using System.Threading.Tasks;
 using System.Web;
 using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
 
 namespace SteamMobile
 {
-    class LinkTitles
+    public static class LinkTitles
     {
-        public static string Lookup(string message)
+        public static async Task<string> Lookup(string message)
         {
             var sb = new StringBuilder();
             var titles = LookupYoutube(message)
                         .Concat(LookupSpotify(message))
                         .Concat(LookupFacepunch(message))
                         .OrderBy(i => i.Item1)
-                        .Where(i => !string.IsNullOrWhiteSpace(i.Item2.Value))
-                        .Take(5);
+                        .Take(5)
+                        .ToList();
+
+            await Task.WhenAll(titles.Select(i => i.Item2.Value));
 
             foreach (var i in titles)
             {
-                sb.AppendLine(i.Item2.Value);
+                if (!string.IsNullOrWhiteSpace(i.Item2.Value.Result))
+                    sb.AppendLine(i.Item2.Value.Result);
             }
 
             var res = sb.ToString().TrimEnd();
@@ -35,7 +38,7 @@ namespace SteamMobile
         }
 
         private static Regex _spotify = new Regex(@"https?://\w*?.spotify.com/track/([\w]+)", RegexOptions.Compiled);
-        private static IEnumerable<Tuple<int, Lazy<string>>> LookupSpotify(string message)
+        private static IEnumerable<Tuple<int, AsyncLazy<string>>> LookupSpotify(string message)
         {
             var matches = _spotify.Matches(message).Cast<Match>();
 
@@ -43,12 +46,12 @@ namespace SteamMobile
             {
                 var match = m;
                 var offset = match.Index;
-                var response = new Lazy<string>(() =>
+                var response = new AsyncLazy<string>(async () =>
                 {
                     try
                     {
                         var url = string.Format("http://ws.spotify.com/lookup/1/.json?uri={0}", HttpUtility.UrlEncode(match.Value));
-                        var spotifyResponse = DownloadPage(url, "UTF-8");
+                        var spotifyResponse = await DownloadPage(url, "UTF-8");
 
                         var token = JObject.Parse(spotifyResponse);
                         var track = token["track"];
@@ -72,7 +75,7 @@ namespace SteamMobile
                         {
                             const string apiKey = "AIzaSyB2tZ7wquAcn3W78aqaaYKGVfIQWuuVNgg";
                             var apiQuery = string.Format("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&order=relevance&q={0}%20%2B%20{1}&key={2}", ytName, ytArtist, apiKey);
-                            var ytResponse = DownloadPage(apiQuery, "UTF-8");
+                            var ytResponse = await DownloadPage(apiQuery, "UTF-8");
 
                             var ytToken = JObject.Parse(ytResponse);
                             youtubeUrl = ytToken["items"].First["id"]["videoId"].ToObject<string>();
@@ -95,7 +98,7 @@ namespace SteamMobile
 
         private static Regex _youtube = new Regex(@"youtube\.com/watch\S*?(?:&v|\?v)=([a-zA-Z0-9-_]+)", RegexOptions.Compiled);
         private static Regex _youtubeShort = new Regex(@"youtu\.be/([a-zA-Z0-9-_]+)", RegexOptions.Compiled);
-        private static IEnumerable<Tuple<int, Lazy<string>>> LookupYoutube(string message)
+        private static IEnumerable<Tuple<int, AsyncLazy<string>>> LookupYoutube(string message)
         {
             var matches = _youtube.Matches(message).Cast<Match>();
             matches = matches.Concat(_youtubeShort.Matches(message).Cast<Match>());
@@ -104,7 +107,7 @@ namespace SteamMobile
             {
                 var match = m;
                 var offset = match.Index;
-                var response = new Lazy<string>(() =>
+                var response = new AsyncLazy<string>(async () =>
                 {
                     try
                     {
@@ -116,7 +119,7 @@ namespace SteamMobile
                             videoId = videoId.Substring(0, 11);
 
                         var apiRequestUrl = string.Format(@"http://gdata.youtube.com/feeds/api/videos/{0}?alt=json", videoId);
-                        var responseFromServer = DownloadPage(apiRequestUrl, "UTF-8");
+                        var responseFromServer = await DownloadPage(apiRequestUrl, "UTF-8");
 
                         var token = JObject.Parse(responseFromServer);
                         var name = token["entry"]["title"]["$t"].ToObject<string>();
@@ -147,7 +150,7 @@ namespace SteamMobile
 
         private static Regex _facepunch = new Regex(@"http://facepunch\.com/showthread\.php\S*?(?:&[tp]|\?[tp])=\d+", RegexOptions.Compiled);
         private static Regex _facepunchTitle = new Regex(@"<title\b[^>]*>(.*?)</title>", RegexOptions.Compiled);
-        private static IEnumerable<Tuple<int, Lazy<string>>> LookupFacepunch(string message)
+        private static IEnumerable<Tuple<int, AsyncLazy<string>>> LookupFacepunch(string message)
         {
             var matches = _facepunch.Matches(message).Cast<Match>();
 
@@ -155,11 +158,11 @@ namespace SteamMobile
             {
                 var match = m;
                 var offset = match.Index;
-                var response = new Lazy<string>(() =>
+                var response = new AsyncLazy<string>(async () =>
                 {
                     try
                     {
-                        var page = DownloadPage(match.Value, "Windows-1252");
+                        var page = await DownloadPage(match.Value, "Windows-1252");
                         var title = WebUtility.HtmlDecode(_facepunchTitle.Match(page).Groups[1].Value.Trim());
 
                         if (title == "Facepunch")
@@ -179,15 +182,11 @@ namespace SteamMobile
             }
         }
 
-        private static string DownloadPage(string uri, string encoding)
+        private async static Task<string> DownloadPage(string uri, string encoding)
         {
-            var request = (HttpWebRequest)WebRequest.Create(uri);
-            request.KeepAlive = true;
-            request.Timeout = 5000;
-
-            using (var response = request.GetResponse())
-            using (var reader = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding(encoding)))
-                return reader.ReadToEnd();
+            var request = new TimeoutWebClient();
+            request.Encoding = Encoding.GetEncoding(encoding);
+            return await request.DownloadStringTaskAsync(uri);
         }
 
         private static string FormatTime(TimeSpan time)

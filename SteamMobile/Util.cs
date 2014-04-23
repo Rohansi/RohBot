@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using SteamKit2;
 using SteamMobile.Rooms;
 
@@ -273,5 +275,33 @@ namespace SteamMobile
             }
         }
         #endregion
+    }
+
+    public class TimeoutWebClient : WebClient
+    {
+        protected override WebRequest GetWebRequest(Uri uri)
+        {
+            WebRequest w = base.GetWebRequest(uri);
+
+            if (w != null)
+                w.Timeout = 5 * 1000;
+
+            return w;
+        }
+    }
+
+    public class AsyncLazy<T> : Lazy<Task<T>>
+    {
+        public AsyncLazy(Func<T> valueFactory)
+            : base(() => Task.Factory.StartNew(valueFactory))
+        {
+
+        }
+
+        public AsyncLazy(Func<Task<T>> taskFactory)
+            : base(() => Task.Factory.StartNew(taskFactory).Unwrap())
+        {
+
+        }
     }
 }

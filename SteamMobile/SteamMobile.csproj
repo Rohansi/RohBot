@@ -139,7 +139,9 @@
     <Compile Include="Settings.cs" />
     <Compile Include="Steam.cs" />
     <Compile Include="TaskScheduler.cs" />
-    <Compile Include="Util.cs" />
+    <Compile Include="Util.cs">
+      <SubType>Component</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

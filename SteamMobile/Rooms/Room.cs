@@ -151,12 +151,14 @@ namespace SteamMobile.Rooms
             var chatLine = line as ChatLine;
             if (chatLine != null && _showLinkTitles && chatLine.SenderId != "0")
             {
-                ThreadPool.QueueUserWorkItem(a =>
+                Action checkTitles = async () =>
                 {
-                    var titles = LinkTitles.Lookup(chatLine.Content);
+                    var titles = await LinkTitles.Lookup(chatLine.Content);
                     if (!string.IsNullOrWhiteSpace(titles))
                         Send(titles);
-                });
+                };
+
+                checkTitles();
             }
 
             var message = new Message();
