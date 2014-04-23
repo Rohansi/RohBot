@@ -19,7 +19,8 @@ namespace SteamMobile
             var titles = LookupYoutube(message)
                 .Concat(LookupSpotify(message))
                 .Concat(LookupFacepunch(message))
-                .OrderBy(i => i.Item1);
+                .OrderBy(i => i.Item1)
+                .Take(5);
 
             foreach (var i in titles)
             {
@@ -33,12 +34,12 @@ namespace SteamMobile
             return res;
         }
 
-        private static Regex _spotify = new Regex(@"(http|https):\/\/\w*?.spotify.com\/track\/([\w]+)", RegexOptions.Compiled);
+        private static Regex _spotify = new Regex(@"https?://\w*?.spotify.com/track/([\w]+)", RegexOptions.Compiled);
         private static IEnumerable<Tuple<int, string>> LookupSpotify(string message)
         {
-            var matches = _spotify.Matches(message);
+            var matches = _spotify.Matches(message).Cast<Match>();
 
-            foreach (Match match in matches)
+            foreach (Match match in matches.DistinctBy(m => m.Value))
             {
                 var offset = match.Index;
                 string response;
@@ -89,14 +90,14 @@ namespace SteamMobile
             }
         }
 
-        private static Regex _youtube = new Regex(@"youtube\.com/.*?(?:&|&amp;|\?)v=([a-zA-Z0-9-_]+)", RegexOptions.Compiled);
+        private static Regex _youtube = new Regex(@"youtube\.com/watch\S*?(?:&v|\?v)=([a-zA-Z0-9-_]+)", RegexOptions.Compiled);
         private static Regex _youtubeShort = new Regex(@"youtu\.be/([a-zA-Z0-9-_]+)", RegexOptions.Compiled);
         private static IEnumerable<Tuple<int, string>> LookupYoutube(string message)
         {
             var matches = _youtube.Matches(message).Cast<Match>();
             matches = matches.Concat(_youtubeShort.Matches(message).Cast<Match>());
 
-            foreach (Match match in matches)
+            foreach (Match match in matches.DistinctBy(m => m.Groups[1].Value))
             {
                 var offset = match.Index;
                 string response;
@@ -138,21 +139,20 @@ namespace SteamMobile
             }
         }
 
-        private static Regex _facepunch = new Regex(@"facepunch\.com/showthread\.php.*?(?:&|\?)t=(\d+)", RegexOptions.Compiled);
+        private static Regex _facepunch = new Regex(@"http://facepunch\.com/showthread\.php\S*?(?:&[tp]|\?[tp])=\d+", RegexOptions.Compiled);
         private static Regex _facepunchTitle = new Regex(@"<title\b[^>]*>(.*?)</title>", RegexOptions.Compiled);
         private static IEnumerable<Tuple<int, string>> LookupFacepunch(string message)
         {
             var matches = _facepunch.Matches(message).Cast<Match>();
 
-            foreach (Match match in matches)
+            foreach (Match match in matches.DistinctBy(m => m.Value))
             {
                 var offset = match.Index;
                 string response;
 
                 try
                 {
-                    var url = string.Format("http://facepunch.com/showthread.php?t={0}", match.Groups[1].Value);
-                    var page = DownloadPage(url, "Windows-1252");
+                    var page = DownloadPage(match.Value, "Windows-1252");
                     var title = WebUtility.HtmlDecode(_facepunchTitle.Match(page).Groups[1].Value.Trim());
 
                     if (title == "Facepunch")

@@ -169,14 +169,28 @@ namespace SteamMobile
         #endregion
 
         #region Misc
-        // http://stackoverflow.com/a/654454/1056845
-        public static void RemoveAll<TKey, TValue>(this Dictionary<TKey, TValue> dict,
-                                     Func<KeyValuePair<TKey, TValue>, bool> condition)
+        public static void RemoveAll<TKey, TValue>(
+            this Dictionary<TKey, TValue> dict,
+            Func<KeyValuePair<TKey, TValue>, bool> condition)
         {
             foreach (var cur in dict.Where(condition).ToList())
             {
                 dict.Remove(cur.Key);
             }
+        }
+
+        public static IEnumerable<TValue> DistinctBy<TKey, TValue>(
+            this IEnumerable<TValue> source,
+            Func<TValue, TKey> keySelector)
+        {
+            var keys = new HashSet<TKey>();
+            return source.Where(value => keys.Add(keySelector(value)));
+        }
+
+        // http://www.mono-project.com/Guide%3a_Porting_Winforms_Applications#Runtime_Conditionals
+        public static bool IsRunningOnMono()
+        {
+            return Type.GetType("Mono.Runtime") != null;
         }
         #endregion
 
@@ -259,11 +273,5 @@ namespace SteamMobile
             }
         }
         #endregion
-
-        // http://www.mono-project.com/Guide%3a_Porting_Winforms_Applications#Runtime_Conditionals
-        public static bool IsRunningOnMono()
-        {
-            return Type.GetType("Mono.Runtime") != null;
-        }
     }
 }
