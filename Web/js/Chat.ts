@@ -185,6 +185,11 @@ class Chat {
                         stateData.Content2 = ".";
                         break;
 
+                    case "Unbanned":
+                        stateData.Content1 = " was unbanned by ";
+                        stateData.Content2 = ".";
+                        break;
+
                     default:
                         console.warn("unhandled state type", line.State);
                         break;

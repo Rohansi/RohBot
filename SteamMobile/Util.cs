@@ -25,7 +25,7 @@ namespace SteamMobile
         public static bool IsSuperAdmin(CommandTarget target)
         {
             if (target.IsSteam)
-                return IsSuperAdmin(target.SteamId);
+                return IsSuperAdmin(target.Persona.Id);
             if (target.IsWeb)
                 return IsSuperAdmin(target.Connection.Session.Account.Name);
             return false;
@@ -60,7 +60,7 @@ namespace SteamMobile
                 return false;
 
             if (target.IsSteam)
-                return IsAdmin(target.Room, target.SteamId);
+                return IsAdmin(target.Room, target.Persona.Id);
             if (target.IsWeb)
                 return IsAdmin(target.Room, target.Connection.Session.Account.Name);
             return false;
@@ -96,7 +96,7 @@ namespace SteamMobile
                 return false;
 
             if (target.IsSteam)
-                return IsMod(target.Room, target.SteamId);
+                return IsMod(target.Room, target.Persona.Id);
             if (target.IsWeb)
                 return IsMod(target.Room, target.Connection.Session.Account.Name);
             return false;

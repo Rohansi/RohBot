@@ -161,7 +161,7 @@ namespace SteamMobile.Rooms
             var line = new ChatLine(Util.GetCurrentTimestamp(), RoomInfo.ShortName, "Steam", senderName, senderId, "", message, inGame);
             SendLine(line);
 
-            Command.Handle(new CommandTarget(this, user.Id), message, "~");
+            Command.Handle(new CommandTarget(this, user), message, "~");
         }
 
         private void HandleEnter(SteamChat chat, SteamPersona user)

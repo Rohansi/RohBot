@@ -18,34 +18,55 @@ namespace SteamMobile.Commands
                 return;
             }
 
-            if (!Account.Exists(parameters[0]))
+            var forAccount = Account.Get(parameters[0]);
+
+            if (forAccount == null)
             {
                 target.Send("Account does not exist.");
                 return;
             }
 
-            if (Util.IsAdmin(target.Room, parameters[0]))
+            if (Util.IsAdmin(target.Room, forAccount.Name))
             {
                 target.Send("Administrators can not be banned.");
                 return;
             }
 
-            if (!target.Room.IsBanned(parameters[0]))
+            if (target.Room.IsBanned(forAccount.Name))
             {
                 target.Send("Account is not banned.");
                 return;
             }
 
-            string sourceUser;
-            if (target.IsWeb)
-                sourceUser = target.Connection.Session.Account.Name;
-            else
-                sourceUser = string.Format("steam:{0:D}", (ulong)target.SteamId);
-
-            Program.Logger.InfoFormat("User '{0}' unbanning '{1}'", sourceUser, parameters[0]);
-
             target.Room.Unban(parameters[0]);
-            target.Send("Account unbanned.");
+
+            var line = new StateLine
+            {
+                Date = Util.GetCurrentTimestamp(),
+                Chat = target.Room.RoomInfo.ShortName,
+                State = "Unbanned",
+                For = forAccount.Name,
+                ForId = forAccount.Id.ToString("D"),
+                ForType = "RohBot"
+            };
+
+            if (target.IsWeb)
+            {
+                var byAccount = target.Connection.Session.Account;
+                line.By = byAccount.Name;
+                line.ById = byAccount.Id.ToString("D");
+                line.ByType = "RohBot";
+            }
+            else
+            {
+                line.By = target.Persona.DisplayName;
+                line.ById = target.Persona.Id.ConvertToUInt64().ToString("D");
+                line.ByType = "Steam";
+            }
+
+            line.Content = string.Format("{0} was unbanned by {1}.", line.For, line.By);
+
+            target.Room.SendLine(line);
         }
     }
 }

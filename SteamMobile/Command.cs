@@ -204,26 +204,29 @@ namespace SteamMobile
     {
         public readonly Room Room;
         public readonly SteamChat PrivateChat;
-        public readonly SteamID SteamId;
+        public readonly SteamPersona Persona;
         public readonly Connection Connection;
 
-        public bool IsSteam { get { return Connection == null; } }
+        public bool IsSteam { get { return Persona != null; } }
         public bool IsRoom { get { return Room != null; } }
         public bool IsPrivateChat { get { return PrivateChat != null; } }
         public bool IsWeb { get { return Connection != null; } }
 
-        public CommandTarget(Room room, SteamID sender)
+        // For Steam rooms
+        public CommandTarget(Room room, SteamPersona sender)
         {
             Room = room;
-            SteamId = sender;
+            Persona = sender;
         }
 
-        public CommandTarget(SteamChat steamChat, SteamID sender)
+        // For Steam private messages
+        public CommandTarget(SteamChat steamChat, SteamPersona sender)
         {
             PrivateChat = steamChat;
-            SteamId = sender;
+            Persona = sender;
         }
 
+        // For RohBot rooms
         public CommandTarget(Connection connection, string room)
         {
             Room = Program.RoomManager.Get(room);
