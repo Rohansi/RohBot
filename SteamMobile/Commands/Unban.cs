@@ -32,7 +32,7 @@ namespace SteamMobile.Commands
                 return;
             }
 
-            if (target.Room.IsBanned(forAccount.Name))
+            if (!target.Room.IsBanned(forAccount.Name))
             {
                 target.Send("Account is not banned.");
                 return;
