@@ -17,74 +17,77 @@ namespace SteamMobile
         {
             var sb = new StringBuilder();
             var titles = LookupYoutube(message)
-                .Concat(LookupSpotify(message))
-                .Concat(LookupFacepunch(message))
-                .OrderBy(i => i.Item1)
-                .Take(5);
+                        .Concat(LookupSpotify(message))
+                        .Concat(LookupFacepunch(message))
+                        .OrderBy(i => i.Item1)
+                        .Where(i => !string.IsNullOrWhiteSpace(i.Item2.Value))
+                        .Take(5);
 
             foreach (var i in titles)
             {
-                if (!string.IsNullOrWhiteSpace(i.Item2))
-                    sb.AppendLine(i.Item2);
+                sb.AppendLine(i.Item2.Value);
             }
 
-            var res = sb.ToString();
+            var res = sb.ToString().TrimEnd();
             if (res.Length > 500)
                 res = res.Substring(0, 500) + "...";
             return res;
         }
 
         private static Regex _spotify = new Regex(@"https?://\w*?.spotify.com/track/([\w]+)", RegexOptions.Compiled);
-        private static IEnumerable<Tuple<int, string>> LookupSpotify(string message)
+        private static IEnumerable<Tuple<int, Lazy<string>>> LookupSpotify(string message)
         {
             var matches = _spotify.Matches(message).Cast<Match>();
 
-            foreach (Match match in matches.DistinctBy(m => m.Value))
+            foreach (Match m in matches.DistinctBy(m => m.Value))
             {
+                var match = m;
                 var offset = match.Index;
-                string response;
-
-                try
+                var response = new Lazy<string>(() =>
                 {
-                    var url = string.Format("http://ws.spotify.com/lookup/1/.json?uri={0}", HttpUtility.UrlEncode(match.Value));
-                    var spotifyResponse = DownloadPage(url, "UTF-8");
-
-                    var token = JObject.Parse(spotifyResponse);
-                    var track = token["track"];
-
-                    var name = track["name"].ToObject<string>();
-                    var artist = track["artists"].First["name"].ToObject<string>();
-                    var length = track["length"].ToObject<double>();
-
-                    var formattedlength = FormatTime(TimeSpan.FromSeconds(length));
-
-                    var chatResponse = string.Format("{0} - {1} ({2})", name, artist, formattedlength);
-
-                    var ytName = HttpUtility.UrlEncode(name);
-                    var ytArtist = HttpUtility.UrlEncode(artist);
-
-                    /*
-                     * Spotify2YT included with permission of glorious god-king Naarkie
-                     */
-                    string youtubeUrl = null;
                     try
                     {
-                        const string apiKey = "AIzaSyB2tZ7wquAcn3W78aqaaYKGVfIQWuuVNgg";
-                        var apiQuery = string.Format("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&order=relevance&q={0}%20%2B%20{1}&key={2}", ytName, ytArtist, apiKey);
-                        var ytResponse = DownloadPage(apiQuery, "UTF-8");
+                        var url = string.Format("http://ws.spotify.com/lookup/1/.json?uri={0}", HttpUtility.UrlEncode(match.Value));
+                        var spotifyResponse = DownloadPage(url, "UTF-8");
 
-                        var ytToken = JObject.Parse(ytResponse);
-                        youtubeUrl = ytToken["items"].First["id"]["videoId"].ToObject<string>();
+                        var token = JObject.Parse(spotifyResponse);
+                        var track = token["track"];
+
+                        var name = track["name"].ToObject<string>();
+                        var artist = track["artists"].First["name"].ToObject<string>();
+                        var length = track["length"].ToObject<double>();
+
+                        var formattedlength = FormatTime(TimeSpan.FromSeconds(length));
+
+                        var chatResponse = string.Format("{0} - {1} ({2})", name, artist, formattedlength);
+
+                        var ytName = HttpUtility.UrlEncode(name);
+                        var ytArtist = HttpUtility.UrlEncode(artist);
+
+                        /*
+                         * Spotify2YT included with permission of glorious god-king Naarkie
+                         */
+                        string youtubeUrl = null;
+                        try
+                        {
+                            const string apiKey = "AIzaSyB2tZ7wquAcn3W78aqaaYKGVfIQWuuVNgg";
+                            var apiQuery = string.Format("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&order=relevance&q={0}%20%2B%20{1}&key={2}", ytName, ytArtist, apiKey);
+                            var ytResponse = DownloadPage(apiQuery, "UTF-8");
+
+                            var ytToken = JObject.Parse(ytResponse);
+                            youtubeUrl = ytToken["items"].First["id"]["videoId"].ToObject<string>();
+                        }
+                        catch { }
+
+                        return string.Format("Spotify: {0}{1}{2}", chatResponse, youtubeUrl != null ? " -> http://youtu.be/" : "", youtubeUrl);
                     }
-                    catch { }
+                    catch (Exception e)
+                    {
+                        Program.Logger.Warn("LinkTitles Error", e);
+                    }
 
-                    response = string.Format("Spotify: {0}{1}{2}", chatResponse, youtubeUrl != null ? " -> http://youtu.be/" : "", youtubeUrl);
-                }
-                catch (Exception e)
-                {
-                    Program.Logger.Warn("LinkTitles Error", e);
-                    continue;
-                }
+                    return null;
+                });
 
                 yield return Tuple.Create(offset, response);
             }
@@ -92,48 +95,51 @@ namespace SteamMobile
 
         private static Regex _youtube = new Regex(@"youtube\.com/watch\S*?(?:&v|\?v)=([a-zA-Z0-9-_]+)", RegexOptions.Compiled);
         private static Regex _youtubeShort = new Regex(@"youtu\.be/([a-zA-Z0-9-_]+)", RegexOptions.Compiled);
-        private static IEnumerable<Tuple<int, string>> LookupYoutube(string message)
+        private static IEnumerable<Tuple<int, Lazy<string>>> LookupYoutube(string message)
         {
             var matches = _youtube.Matches(message).Cast<Match>();
             matches = matches.Concat(_youtubeShort.Matches(message).Cast<Match>());
 
-            foreach (Match match in matches.DistinctBy(m => m.Groups[1].Value))
+            foreach (Match m in matches.DistinctBy(m => m.Groups[1].Value))
             {
+                var match = m;
                 var offset = match.Index;
-                string response;
-
-                try
+                var response = new Lazy<string>(() =>
                 {
-                    var videoId = match.Groups[1].Value;
-
-                    // youtube video ids are 11 characters and will ignore extra characters
-                    // the api however does not
-                    if (videoId.Length > 11)
-                        videoId = videoId.Substring(0, 11);
-
-                    var apiRequestUrl = string.Format(@"http://gdata.youtube.com/feeds/api/videos/{0}?alt=json", videoId);
-                    var responseFromServer = DownloadPage(apiRequestUrl, "UTF-8");
-
-                    var token = JObject.Parse(responseFromServer);
-                    var name = token["entry"]["title"]["$t"].ToObject<string>();
-                    var length = token["entry"]["media$group"]["yt$duration"]["seconds"].ToObject<int>();
-                    var formattedlength = FormatTime(TimeSpan.FromSeconds(length));
-
-                    var stars = "";
                     try
                     {
-                        var numStars = Math.Round(token["entry"]["gd$rating"]["average"].ToObject<double>());
-                        stars = string.Format(" [{0}]", new string('★', (int)numStars).PadRight(5, '☆'));
-                    }
-                    catch { }
+                        var videoId = match.Groups[1].Value;
 
-                    response = string.Format("YouTube: {0} ({1}){2}", name, formattedlength, stars);
-                }
-                catch (Exception e)
-                {
-                    Program.Logger.Warn("LinkTitles Error", e);
-                    continue;
-                }
+                        // youtube video ids are 11 characters and will ignore extra characters
+                        // the api however does not
+                        if (videoId.Length > 11)
+                            videoId = videoId.Substring(0, 11);
+
+                        var apiRequestUrl = string.Format(@"http://gdata.youtube.com/feeds/api/videos/{0}?alt=json", videoId);
+                        var responseFromServer = DownloadPage(apiRequestUrl, "UTF-8");
+
+                        var token = JObject.Parse(responseFromServer);
+                        var name = token["entry"]["title"]["$t"].ToObject<string>();
+                        var length = token["entry"]["media$group"]["yt$duration"]["seconds"].ToObject<int>();
+                        var formattedlength = FormatTime(TimeSpan.FromSeconds(length));
+
+                        var stars = "";
+                        try
+                        {
+                            var numStars = Math.Round(token["entry"]["gd$rating"]["average"].ToObject<double>());
+                            stars = string.Format(" [{0}]", new string('★', (int)numStars).PadRight(5, '☆'));
+                        }
+                        catch { }
+
+                        return string.Format("YouTube: {0} ({1}){2}", name, formattedlength, stars);
+                    }
+                    catch (Exception e)
+                    {
+                        Program.Logger.Warn("LinkTitles Error", e);
+                    }
+
+                    return null;
+                });
 
                 yield return Tuple.Create(offset, response);
             }
@@ -141,30 +147,33 @@ namespace SteamMobile
 
         private static Regex _facepunch = new Regex(@"http://facepunch\.com/showthread\.php\S*?(?:&[tp]|\?[tp])=\d+", RegexOptions.Compiled);
         private static Regex _facepunchTitle = new Regex(@"<title\b[^>]*>(.*?)</title>", RegexOptions.Compiled);
-        private static IEnumerable<Tuple<int, string>> LookupFacepunch(string message)
+        private static IEnumerable<Tuple<int, Lazy<string>>> LookupFacepunch(string message)
         {
             var matches = _facepunch.Matches(message).Cast<Match>();
 
-            foreach (Match match in matches.DistinctBy(m => m.Value))
+            foreach (Match m in matches.DistinctBy(m => m.Value))
             {
+                var match = m;
                 var offset = match.Index;
-                string response;
-
-                try
+                var response = new Lazy<string>(() =>
                 {
-                    var page = DownloadPage(match.Value, "Windows-1252");
-                    var title = WebUtility.HtmlDecode(_facepunchTitle.Match(page).Groups[1].Value.Trim());
+                    try
+                    {
+                        var page = DownloadPage(match.Value, "Windows-1252");
+                        var title = WebUtility.HtmlDecode(_facepunchTitle.Match(page).Groups[1].Value.Trim());
 
-                    if (title == "Facepunch")
-                        continue;
+                        if (title == "Facepunch")
+                            return null;
 
-                    response = string.Format("Facepunch: {0}", title);
-                }
-                catch (Exception e)
-                {
-                    Program.Logger.Warn("LinkTitles Error", e);
-                    continue;
-                }
+                        return string.Format("Facepunch: {0}", title);
+                    }
+                    catch (Exception e)
+                    {
+                        Program.Logger.Warn("LinkTitles Error", e);
+                    }
+
+                    return null;
+                });
 
                 yield return Tuple.Create(offset, response);
             }
