@@ -34,29 +34,9 @@ namespace SteamMobile.Rooms
             }
 
             var stateLine = line as StateLine;
-            if (EchoWebStates && stateLine != null && Chat != null && stateLine.ForType == "RohBot")
+            if (EchoWebStates && stateLine != null && Chat != null && stateLine.ForType == "RohBot" && stateLine.State != "Action")
             {
-                string fmt;
-                switch (stateLine.State)
-                {
-                    case "Enter":
-                        fmt = "<{0}> entered chat.";
-                        break;
-                    case "Left":
-                        fmt = "<{0}> left chat.";
-                        break;
-                    case "Disconnected":
-                        fmt = "<{0}> disconnected.";
-                        break;
-                    default:
-                        fmt = null;
-                        break;
-                }
-
-                if (fmt != null)
-                {
-                    Chat.Send(string.Format(fmt, WebUtility.HtmlDecode(stateLine.For)));
-                }
+                Chat.Send("> " + WebUtility.HtmlDecode(stateLine.Content));
             }
 
             if (stateLine != null && Chat != null && stateLine.State == "Action")
