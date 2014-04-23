@@ -60,13 +60,7 @@ namespace SteamMobile
                 Steam.Update();
             });
 
-            _taskScheduler.Add(TimeSpan.FromSeconds(5), () =>
-            {
-                foreach (var session in SessionManager.List)
-                {
-                    session.Ping();
-                }
-            });
+            _taskScheduler.Add(TimeSpan.FromSeconds(5), () => SessionManager.Ping());
 
             _taskScheduler.Add(TimeSpan.FromHours(1), () =>
             {

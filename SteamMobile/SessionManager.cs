@@ -100,6 +100,17 @@ namespace SteamMobile
             return result;
         }
 
+        public void Ping()
+        {
+            var ping = new Packets.Ping();
+            var pingStr = Packet.WriteToMessage(ping);
+
+            foreach (var connection in _server.GetAllSessions())
+            {
+                connection.Send(pingStr);
+            }
+        }
+
         private void OnReceive(Connection connection, string message)
         {
             try
