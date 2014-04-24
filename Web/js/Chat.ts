@@ -6,10 +6,15 @@ class Chat {
     shortName: string;
     history: JQuery;
     tab: JQuery;
+    users: JQuery;
 
     private requestedHistory: boolean;
     private oldestLine: number;
     private unreadMessages: number;
+    private userList: any[];
+    private userListDirty: boolean;
+    private lastUserListChange: number;
+    private lastUserListRefresh: number;
 
     constructor(chatMgr: ChatManager, name: string, shortName: string) {
         this.chatMgr = chatMgr;
@@ -39,6 +44,14 @@ class Chat {
 
         this.tab.appendTo("#tabs");
 
+        this.users = $(templates.userlist.render({ ShortName: shortName }));
+        this.users.appendTo("#users").hide();
+
+        this.chatMgr.rohbot.sendMessage(shortName, "/users");
+        this.userList = null;
+        this.userListDirty = false;
+        this.lastUserListChange = Date.now();
+
         this.requestedHistory = false;
         this.oldestLine = 0;
         this.unreadMessages = 0;
@@ -50,6 +63,19 @@ class Chat {
         
         this.history.remove();
         this.tab.remove();
+        this.users.remove();
+    }
+
+    update() {
+        var updateAfter = 5 * 1000;
+        var refreshAfter = 60 * 1000; // forced
+        var now = Date.now();
+
+        if ((this.userListDirty && (now - this.lastUserListChange >= updateAfter)) || (now - this.lastUserListRefresh >= refreshAfter)) {
+            this.chatMgr.rohbot.sendMessage(this.shortName, "/users");
+            this.lastUserListChange = now;
+            this.lastUserListRefresh = now;
+        }
     }
 
     incrementUnreadCounter() {
@@ -207,6 +233,9 @@ class Chat {
     }
 
     addLine(line: any, prepend: boolean = false) {
+        if (!prepend && this.userList != null)
+            this.applyStateLine(line);
+
         this.addHtml(this.renderLine(line), prepend);
     }
 
@@ -221,6 +250,101 @@ class Chat {
 
         if (this.isActive && !prepend && atBottom)
             this.chatMgr.scrollToBottom();
+    }
+
+    setUserList(userList: any[]) {
+        var now = Date.now();
+
+        this.userList = userList;
+        this.userListDirty = false;
+        this.lastUserListChange = now;
+        this.lastUserListRefresh = now;
+
+        this.renderUserList();
+    }
+
+    private applyStateLine(line: any) {
+        if (line.Type != "state")
+            return;
+
+        switch (line.State) {
+            case "Enter":
+                this.userList.push({
+                    Name: line.For,
+                    UserId: line.ForId,
+                    Rank: "Member",
+                    Avatar: "0000000000000000000000000000000000000000",
+                    Status: line.ForType == "RohBot" ? "" : "Online",
+                    Playing: "",
+                    Web: line.ForType == "RohBot"
+                });
+                break;
+
+            case "Banned":
+                if (line.ForType == "RohBot")
+                    break;
+            case "Left":
+            case "Disconnected":
+                this.userList = this.userList.filter(e => {
+                    return e.Web != (line.ForType == "RohBot") || e.Name != line.For;
+                });
+                break;
+
+            default:
+                return;
+        }
+
+        this.userListDirty = true;
+        this.lastUserListChange = Date.now();
+
+        this.renderUserList();
+    }
+
+    private renderUserList() {
+        this.userList.sort((a, b) => {
+            var aLower = a.Name.toLowerCase();
+            var bLower = b.Name.toLowerCase();
+
+            if (aLower < bLower)
+                return -1;
+            if (aLower > bLower)
+                return 1;
+            return 0;
+        });
+
+        var userMap = u => {
+            if (u.Avatar == "0000000000000000000000000000000000000000")
+                u.Avatar = "fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb";
+
+            if (u.Web)
+                u.Avatar = false;
+            else
+                u.AvatarFolder = u.Avatar.substring(0, 2);
+
+            if (u.Playing === "")
+                u.Playing = false;
+
+            if (u.Status === "")
+                u.Status = "&nbsp;";
+
+            if (u.Playing)
+                u.Status = u.Playing;
+
+            if (u.Playing)
+                u.Color = "ingame";
+            else if (u.Web)
+                u.Color = "web";
+            else
+                u.Color = "";
+
+            return u;
+        };
+
+        var html = templates.users.render({
+            Users: this.userList.map(u => userMap(u))
+        });
+
+        this.users.html(html);
     }
 
     private updateUnreadCounter() {

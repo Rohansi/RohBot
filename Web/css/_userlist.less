@@ -2,57 +2,92 @@
 @ulHeight: 32px;
 @ulPadding: 4px;
 
-.user-list {
+#users {
     background-color: darken( @rohpod-background, 3% );
+    font-size: 0.9em;
+    width: (@ulWidth + @ulPadding * 2);
+    overflow-y: scroll;
 
-    > div {
-        display: inline-block;
-        width: @ulWidth;
-        height: @ulHeight;
-        padding: @ulPadding;
-        white-space: nowrap;
+    ol {
+        margin: 0;
+        padding: 0;
+        list-style: none;
 
         > div {
-            display: inline-block;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            width: ( @ulWidth - @ulHeight );
-            padding-left: @ulPadding;
-            color: #80B4DC;
+            height: @ulHeight;
+            padding: @ulPadding;
+            white-space: nowrap;
 
-            &[data-color=ingame] {
-                color: @rohpod-user-in-game;
+            > div {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                padding-left: @ulPadding;
+                color: #80B4DC;
+
+                &[data-color=ingame] {
+                    color: @rohpod-user-in-game;
+                }
+
+                &[data-color=web] {
+                    color: @rohpod-user-web;
+                }
+
+                &[data-rank=Administrator]:before {
+                    content: '\2605\00a0';
+                    color: #FECB00;
+                }
+
+                &[data-rank=Moderator]:before {
+                    content: '\2605\00a0';
+                    color: #CFCFCF;
+                }
             }
+        }
 
-            &[data-color=web] {
-                color: @rohpod-user-web;
-            }
+        img {
+            width: @ulHeight;
+            height: @ulHeight;
+            vertical-align: text-top;
+            float: left;
+        }
 
-            &[data-rank=Administrator]:before {
-                content: '\2605\00a0';
-                color: #FECB00;
-            }
+        a {
+            color: inherit;
+            text-decoration: none;
 
-            &[data-rank=Moderator]:before {
-                content: '\2605\00a0';
-                color: #CFCFCF;
+            &:hover {
+                text-decoration: underline;
             }
         }
     }
+}
 
-    img {
-        width: @ulHeight !important;
-        height: @ulHeight !important;
-        vertical-align: text-top;
-        float: left;
+@media all and (max-width: 900px) {
+    #users {
+        width: ((@ulWidth + @ulPadding * 2) / 2);
     }
+}
 
-    a {
-        color: inherit !important;
-        text-decoration: none !important;
+@media all and (max-width: 600px) {
+    #users {
+        width: ((@ulWidth + @ulPadding * 2) / 3);
 
-        &:hover {
-            text-decoration: underline !important;
+        > ol div {
+            height: 100%;
+
+            img {
+                display: none;
+            }
+
+            span {
+                display: none;
+            }
         }
+    }
+}
+
+@media all and (max-width: 400px) {
+    #users {
+        display: none;
     }
 }

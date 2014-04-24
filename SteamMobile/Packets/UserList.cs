@@ -29,6 +29,7 @@ namespace SteamMobile.Packets
         }
 
         public override string Type { get { return "userList"; } }
+        public string ShortName;
         public List<User> Users = new List<User>();
 
         public void AddUser(string name, string userId, string rank, string avatar, string status, string playing, bool web)

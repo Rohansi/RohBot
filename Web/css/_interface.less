@@ -77,10 +77,17 @@
     }
 }
 
-#history {
-    flex: 20 0 auto;
-    overflow-y: scroll;
+#room-area {
+    flex: 20 20 auto;
+
+    display: flex;
+    flex-direction: row;
     height: 0%;
+}
+
+#history {
+    flex: 20 20 auto;
+    overflow-y: scroll;
 }
 
 #footer {
@@ -107,7 +114,7 @@
 }
 
 ::-webkit-scrollbar {
-    width: 12px;
+    width: 10px;
 }
 
 ::-webkit-scrollbar-thumb {

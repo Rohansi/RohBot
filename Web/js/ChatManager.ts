@@ -28,6 +28,20 @@ class ChatManager {
 
             currentChat.requestHistory();
         });
+
+        window.setInterval(() => {
+            var chat = this.getCurrentChat();
+            if (chat != null)
+                chat.update();
+
+            /*for (var key in this.chats) {
+                var value = this.chats[key];
+                if (!value.hasOwnProperty(key))
+                    continue;
+
+                value.update();
+            }*/
+        }, 250);
     }
 
     switchTo(shortName: string) {
@@ -43,6 +57,15 @@ class ChatManager {
         target.resetUnreadCounter();
 
         $("#history > *").each((i, e) => {
+            var elem = $(e);
+
+            if (elem.attr("data-name") == shortName)
+                elem.show();
+            else
+                elem.hide();
+        });
+
+        $("#users > *").each((i, e) => {
             var elem = $(e);
 
             if (elem.attr("data-name") == shortName)
@@ -160,47 +183,13 @@ class ChatManager {
         });
 
         rohbot.userListReceived.add(packet => {
-            var chat = this.getCurrentChat();
+            var chat = this.getChat(packet.ShortName);
             if (chat == null) {
-                console.warn("userList without chat");
+                console.warn("userList without existing chat");
                 return;
             }
 
-            chat.statusMessage("In this room:");
-
-            var userMap = u => {
-                if (u.Avatar == "0000000000000000000000000000000000000000")
-                    u.Avatar = "fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb";
-
-                if (u.Web)
-                    u.Avatar = false;
-                else
-                    u.AvatarFolder = u.Avatar.substring(0, 2);
-
-                if (u.Playing === "")
-                    u.Playing = false;
-
-                if (u.Status === "")
-                    u.Status = "&nbsp;";
-
-                if (u.Playing)
-                    u.Status = "In-Game: " + u.Playing;
-
-                if (u.Playing)
-                    u.Color = "ingame";
-                else if (u.Web)
-                    u.Color = "web";
-                else
-                    u.Color = "";
-
-                return u;
-            };
-
-            var html = templates.users.render({
-                Users: packet.Users.map(u => userMap(u))
-            });
-
-            chat.addHtml(html);
+            chat.setUserList(packet.Users);
         });
     }
 

@@ -55,6 +55,7 @@ namespace SteamMobile.Commands
                     userList.AddUser(account.Name, userId, rank, "", "", "", true);
                 }
 
+                userList.ShortName = roomName;
                 userList.Users = userList.Users.OrderBy(u => u.Name).ToList();
                 target.Connection.Send(userList);
             }
