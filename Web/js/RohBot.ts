@@ -1,7 +1,6 @@
 
 declare var templates;
 declare var urlize;
-declare var Visibility;
 
 class RohBot {
 

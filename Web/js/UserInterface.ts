@@ -111,10 +111,12 @@ class UserInterface {
 
         this.unreadMessages = 0;
 
-        Visibility.change((e, state) => {
-            if (state == "visible") {
+        Visibility.changed.add(() => {
+            if (Visibility.visible()) {
                 this.unreadMessages = 0;
                 this.updateUnreadCounter();
+
+                $("#message-box").focus();
             }
         });
     }

@@ -200,7 +200,7 @@ namespace SteamMobile
         // Replacement HtmlEncode because Mono's is broken
         public static string HtmlEncode(string value)
         {
-            var result = new StringBuilder();
+            var result = new StringBuilder(value.Length);
             foreach (var cp in value.AsCodePoints())
             {
                 switch (cp)
@@ -245,6 +245,10 @@ namespace SteamMobile
                         result.Append("&#65310;");
                         break;
 
+                    case 0x200E: // Left-to-Right mark
+                    case 0x200F: // Right-to-Left mark
+                        break;
+
                     default:
                         if (cp <= 31 || (cp >= 127 && cp <= 159) || (cp >= 55296 && cp <= 57343))
                             break;
@@ -262,6 +266,7 @@ namespace SteamMobile
                         break;
                 }
             }
+
             return result.ToString();
         }
 
