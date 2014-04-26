@@ -40,8 +40,6 @@ class Chat {
                 this.chatMgr.rohbot.sendMessage(this.shortName, "/leave " + this.shortName);
                 return false;
             });
-
-            this.chatMgr.rohbot.sendMessage(shortName, "/users");
         }
 
         this.tab.appendTo("#tabs");
@@ -51,7 +49,8 @@ class Chat {
 
         this.userList = null;
         this.userListDirty = false;
-        this.lastUserListChange = Date.now();
+        this.lastUserListChange = 0;
+        this.lastUserListRefresh = 0;
 
         this.requestedHistory = false;
         this.oldestLine = 0;

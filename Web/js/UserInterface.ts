@@ -288,6 +288,9 @@ class UserInterface {
                         if (completionStr == null)
                             return false;
 
+                        if (wordStart == 0)
+                            completionStr += ":";
+
                         completionStr += " ";
 
                         var start = dom.selectionStart;
