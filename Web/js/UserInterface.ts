@@ -255,23 +255,45 @@ class UserInterface {
 
         messageBox.keydown(e => {
             var dom: any = messageBox[0];
+            var val = dom.value;
 
-            if (e.keyCode == 13) {
+            if (e.keyCode == 13) { // enter
                 if (e.ctrlKey) {
-                    var val = dom.value;
                     if (typeof dom.selectionStart == "number" && typeof dom.selectionEnd == "number") {
                         var start = dom.selectionStart;
                         dom.value = val.slice(0, start) + "\n" + val.slice(dom.selectionEnd);
                         dom.selectionStart = dom.selectionEnd = start + 1;
-                    } else if (document.selection && document.selection.createRange) {
-                        dom.focus();
-                        var range = document.selection.createRange();
-                        range.text = "\r\n";
-                        range.collapse(false);
-                        range.select();
                     }
                 } else {
                     send.click();
+                }
+
+                return false;
+            }
+
+            if (e.keyCode == 9) { // tab
+                if (typeof dom.selectionStart == "number" && typeof dom.selectionEnd == "number") {
+                    if (dom.selectionStart == dom.selectionEnd) {
+                        var chat = this.chatMgr.getCurrentChat();
+                        if (chat == null)
+                            return false;
+
+                        var wordStart = val.slice(0, dom.selectionStart).lastIndexOf(" ") + 1;
+
+                        var completionWord = val.slice(wordStart, dom.selectionStart);
+                        if (completionWord.length == 0)
+                            return false;
+
+                        var completionStr = chat.completeName(completionWord);
+                        if (completionStr == null)
+                            return false;
+
+                        completionStr += " ";
+
+                        var start = dom.selectionStart;
+                        dom.value = val.slice(0, wordStart) + completionStr + val.slice(dom.selectionEnd);
+                        dom.selectionStart = dom.selectionEnd = start + completionStr.length;
+                    }
                 }
 
                 return false;

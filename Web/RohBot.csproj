@@ -76,6 +76,7 @@
     <TypeScriptCompile Include="js\RohBot.ts" />
     <TypeScriptCompile Include="js\jquery.d.ts" />
     <TypeScriptCompile Include="js\ChatManager.ts" />
+    <TypeScriptCompile Include="js\Visibility.ts" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="js\Notifications.ts" />

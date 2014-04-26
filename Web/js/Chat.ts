@@ -68,8 +68,8 @@ class Chat {
     }
 
     update() {
-        var updateAfter = 5 * 1000;
-        var refreshAfter = 60 * 1000; // forced
+        var updateAfter = 2.5 * 1000;
+        var refreshAfter = 45 * 1000; // forced
         var now = Date.now();
 
         if ((this.userListDirty && (now - this.lastUserListChange >= updateAfter)) || (now - this.lastUserListRefresh >= refreshAfter)) {
@@ -95,6 +95,20 @@ class Chat {
 
         this.requestedHistory = true;
         this.chatMgr.rohbot.requestHistory(this.shortName, this.oldestLine);
+    }
+
+    completeName(word: string) {
+        word = word.toLowerCase();
+
+        for (var i = 0; i < this.userList.length; i++) {
+            var user = this.userList[i];
+            var name = $("<textarea/>").html(user.Name).text();
+
+            if (name.toLowerCase().indexOf(word) == 0)
+                return name;
+        }
+
+        return null;
     }
 
     addHistory(data: any) {
