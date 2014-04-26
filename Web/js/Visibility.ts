@@ -25,12 +25,20 @@ class Visibility {
         }
     })();
 
-    private static onFocus() {
+    private static onFocus(e: any) {
+        var target = e.target || e.srcTarget;
+        if (target != window)
+            return;
+
         Visibility.isHidden = false;
         Visibility.changed.dispatch();
     }
 
-    private static onBlur() {
+    private static onBlur(e: any) {
+        var target = e.target || e.srcTarget;
+        if (target != window)
+            return;
+
         Visibility.isHidden = true;
         Visibility.changed.dispatch();
     }
