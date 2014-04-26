@@ -49,7 +49,15 @@ namespace SteamMobile
                     if (task.Accumulator < task.Delay)
                         continue;
 
-                    task.Callback();
+                    try
+                    {
+                        task.Callback();
+                    }
+                    catch (Exception e)
+                    {
+                        Program.Logger.Error("Failed to run task", e);
+                    }
+                    
                     task.Accumulator -= task.Delay;
                 }
             }
