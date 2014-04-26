@@ -58,7 +58,7 @@ class UserInterface {
                 this.updateUnreadCounter();
             }
 
-            if (this.notificationRegex != null) {
+            if (this.notificationRegex != null && Visibility.hidden()) {
                 var isNotifiableChatLine = line.Type == "chat" && line.SenderId != "0" && !(line.UserType == "RohBot" && line.Sender == this.rohbot.getUsername());
                 var isNotifiableStateLine = line.Type == "state" && line.State == "Action" && !(line.ForType == "RohBot" && line.For == this.rohbot.getUsername());
 
