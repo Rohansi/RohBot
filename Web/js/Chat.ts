@@ -99,11 +99,10 @@ class Chat {
     getCompletionNames(word: string) {
         word = word.toLowerCase();
 
-        return this.userList.filter(user => {
-            var name = $("<textarea/>").html(user.Name).text();
+        return this.userList.map(user => {
+            return $("<textarea/>").html(user.Name).text();
+        }).filter(name => {
             return name.toLowerCase().indexOf(word) == 0;
-        }).map(user => {
-            return user.Name;
         });
     }
 
