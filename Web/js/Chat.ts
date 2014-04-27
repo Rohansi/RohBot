@@ -96,18 +96,15 @@ class Chat {
         this.chatMgr.rohbot.requestHistory(this.shortName, this.oldestLine);
     }
 
-    completeName(word: string) {
+    getCompletionNames(word: string) {
         word = word.toLowerCase();
 
-        for (var i = 0; i < this.userList.length; i++) {
-            var user = this.userList[i];
+        return this.userList.filter(user => {
             var name = $("<textarea/>").html(user.Name).text();
-
-            if (name.toLowerCase().indexOf(word) == 0)
-                return name;
-        }
-
-        return null;
+            return name.toLowerCase().indexOf(word) == 0;
+        }).map(user => {
+            return user.Name;
+        });
     }
 
     addHistory(data: any) {

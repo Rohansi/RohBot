@@ -269,43 +269,71 @@ class UserInterface {
                 }
 
                 return false;
-            }
-
-            if (e.keyCode == 9) { // tab
+            } else if (e.keyCode == 9) { // tab
                 if (typeof dom.selectionStart == "number" && typeof dom.selectionEnd == "number") {
                     if (dom.selectionStart == dom.selectionEnd) {
-                        var chat = this.chatMgr.getCurrentChat();
-                        if (chat == null)
-                            return false;
-
-                        var wordStart = val.slice(0, dom.selectionStart).lastIndexOf(" ") + 1;
-
-                        var completionWord = val.slice(wordStart, dom.selectionStart);
-                        if (completionWord.length == 0)
-                            return false;
-
-                        var completionStr = chat.completeName(completionWord);
-                        if (completionStr == null)
-                            return false;
-
-                        if (wordStart == 0)
-                            completionStr += ":";
-
-                        completionStr += " ";
-
-                        var start = dom.selectionStart;
-                        dom.value = val.slice(0, wordStart) + completionStr + val.slice(dom.selectionEnd);
-                        dom.selectionStart = dom.selectionEnd = start + completionStr.length;
+                        this.doNameCompletion(dom);
                     }
                 }
 
                 return false;
+            } else {
+                this.completionNames = null;
             }
         });
 
         $(window).resize(() => {
             this.chatMgr.scrollToBottom();
         });
+    }
+
+    private completionNames: any[] = null;
+    private completionIndex: number = 0;
+    private completionStart: number = 0;
+    private completionEnd: number = 0;
+
+    private doNameCompletion(dom: any) {
+        var val = dom.value;
+
+        var chat = this.chatMgr.getCurrentChat();
+        if (chat == null)
+            return;
+
+        if (this.completionNames == null) {
+            var wordStart = val.slice(0, dom.selectionStart).lastIndexOf(" ") + 1;
+
+            var completionWord = val.slice(wordStart, dom.selectionStart);
+            if (completionWord.length == 0)
+                return;
+
+            this.completionNames = chat.getCompletionNames(completionWord);
+            if (this.completionNames.length == 0) {
+                this.completionNames = null;
+                return;
+            }
+
+            this.completionNames.push(completionWord);
+
+            this.completionIndex = 0;
+            this.completionStart = wordStart;
+            this.completionEnd = dom.selectionEnd;
+        } else {
+            this.completionIndex++;
+            this.completionIndex %= this.completionNames.length;
+        }
+
+        var completionStr = this.completionNames[this.completionIndex];
+
+        if (this.completionIndex != this.completionNames.length - 1) {
+            if (this.completionStart == 0)
+                completionStr += ":";
+
+            completionStr += " ";
+        }
+
+        dom.value = val.slice(0, this.completionStart) + completionStr + val.slice(this.completionEnd);
+        dom.selectionStart = dom.selectionEnd = this.completionStart + completionStr.length;
+        this.completionEnd = dom.selectionEnd;
     }
 
     private setNotificationRegex(source: string) {
