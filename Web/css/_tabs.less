@@ -3,23 +3,24 @@
     margin: 0;
     padding: 6px;
     vertical-align: top;
-    color: @rohpod-text;
-    background-color: @rohpod-ui-background;
+    color: @rohbot-text;
+    background-color: @rohbot-ui-background;
     list-style: none;
     overflow: hidden;
 
     .selected {
-        background-color: lighten(@rohpod-ui-background, 8%);
+        background-color: lighten(@rohbot-ui-background, 8%);
     }
 
     > li {
         display: inline-block;
         padding: 6px;
-        background-color: @rohpod-ui-background;
+        background-color: @rohbot-ui-background;
         cursor: default;
+        transition: all 0.1s ease-in-out;
 
         &:hover {
-            background-color: lighten(@rohpod-ui-background, 16%);
+            background-color: lighten(@rohbot-ui-background, 16%);
         }
 
         > .tab-name {
@@ -28,14 +29,13 @@
             overflow: hidden;
             text-overflow: ellipsis;
             vertical-align: top;
-            max-width: 80px;
+            max-width: 150px;
             min-width: 50px;
         }
 
-        @media screen and (min-width: 512px) {
+        @media screen and (max-width: 599px) {
             > .tab-name {
-                max-width: 150px;
-                min-width: 50px;
+                max-width: 80px;
             }
         }
 
@@ -48,11 +48,12 @@
             font-size: 12px;
             font-weight: bold;
             text-align: center;
-            color: darken(@rohpod-text, 50%);
+            color: darken(@rohbot-text, 50%);
+            transition: all 0.1s ease-in-out;
 
             &:hover {
-                color: @rohpod-text;
-                background-color: @rohpod-buttons;
+                color: @rohbot-text;
+                background-color: @rohbot-buttons;
             }
         }
     }

@@ -3,19 +3,19 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    background-color: @rohpod-background;
+    background-color: @rohbot-background;
 }
 
 .fixed-bar {
     flex: 0 0 auto;
     display: flex;
-    color: darken(white, 10);
-    background-color: @rohpod-ui-background;
+    color: darken(white, 10%);
+    background-color: @rohbot-ui-background;
     padding: 6px;
 
     form {
         display: flex;
-        flex: 1 0 auto;
+        flex: 1 1 auto;
 
         label {
             display: none;
@@ -30,7 +30,7 @@
         padding: 6px;
         font-size: 10pt;
         outline: none;
-        transition: all 0.2s ease-in-out;
+        transition: all 0.1s ease-in-out;
         margin: 0px;
         margin-right: 6px;
 
@@ -43,27 +43,27 @@
         flex: 0 0 auto;
         box-sizing: content-box;
         text-align: center;
-        background-color: @rohpod-buttons;
+        background-color: @rohbot-buttons;
         color: white;
         font-weight: bold;
         text-decoration: none;
         cursor: pointer;
 
         &:hover {
-            background-color: lighten(@rohpod-buttons, 10);
+            background-color: lighten(@rohbot-buttons, 10%);
         }
     }
 
     input,
     textarea {
-        flex: 1 0 auto;
+        flex: 1 1 auto;
         color: lighten(black, 1);
-        background-color: darken(white, 10);
+        background-color: darken(white, 10%);
         border: none;
 
         &:focus {
             color: lighten(black, 20);
-            background-color: darken(white, 2);
+            background-color: darken(white, 3%);
         }
     }
 }
@@ -98,7 +98,7 @@
     }
 }
 
-@media all and (max-width: 600px) {
+@media all and (max-width: 599px) {
     div.container > #header {
         h1 {
             display: none;
@@ -111,12 +111,4 @@
         width: 100%;
         -moz-box-sizing: border-box;
     }
-}
-
-::-webkit-scrollbar {
-    width: 6px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: @rohpod-ui-background;
 }

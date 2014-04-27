@@ -1,11 +1,11 @@
-﻿@rohpod-background: #171614;
-@rohpod-text: #D1CFCD;
-@rohpod-user-steam: #80B4DC;
-@rohpod-user-in-game: #A0CC67;
-@rohpod-user-web: #B67FFF;
+﻿@rohbot-background: #171614;
+@rohbot-text: #D1CFCD;
+@rohbot-user-steam: #80B4DC;
+@rohbot-user-in-game: #A0CC67;
+@rohbot-user-web: #B67FFF;
 
-@rohpod-ui-background: darken( @rohpod-background, 8% );
-@rohpod-buttons: #693D99;
+@rohbot-ui-background: darken(@rohbot-background, 8%);
+@rohbot-buttons: #693D99;
 
 .noSpacing() {
 	margin:  0;
@@ -25,6 +25,14 @@ body {
 
 body, h1 {
 	.noSpacing;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: @rohbot-ui-background;
 }
 
 @import "_interface.less";

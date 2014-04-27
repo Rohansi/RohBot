@@ -1,11 +1,11 @@
-@ulWidth: 256px;
-@ulHeight: 32px;
-@ulPadding: 4px;
+@userlist-width: 256px;
+@userlist-height: 32px;
+@userlist-padding: 4px;
 
 #users {
-    background-color: darken( @rohpod-background, 3% );
+    background-color: darken(@rohbot-background, 3%);
     font-size: 0.9em;
-    width: (@ulWidth + @ulPadding * 2);
+    width: (@userlist-width + @userlist-padding * 2);
     overflow-y: scroll;
 
     ol {
@@ -14,23 +14,23 @@
         list-style: none;
 
         > div {
-            height: @ulHeight;
-            padding: @ulPadding;
-            padding-left: (@ulPadding * 2);
+            height: @userlist-height;
+            padding: @userlist-padding;
+            padding-left: (@userlist-padding * 2);
             white-space: nowrap;
 
             > div {
                 overflow: hidden;
                 text-overflow: ellipsis;
-                padding-left: @ulPadding;
+                padding-left: @userlist-padding;
                 color: #80B4DC;
 
                 &[data-color=ingame] {
-                    color: @rohpod-user-in-game;
+                    color: @rohbot-user-in-game;
                 }
 
                 &[data-color=web] {
-                    color: @rohpod-user-web;
+                    color: @rohbot-user-web;
                 }
 
                 &[data-rank=Administrator]:before {
@@ -46,8 +46,8 @@
         }
 
         img {
-            width: @ulHeight;
-            height: @ulHeight;
+            width: @userlist-height;
+            height: @userlist-height;
             vertical-align: text-top;
             float: left;
         }
@@ -65,20 +65,21 @@
 
 @media all and (max-width: 899px) {
     #users {
-        width: ((@ulWidth + @ulPadding * 2) / 2);
+        width: ((@userlist-width + @userlist-padding * 2) / 2);
     }
 }
 
 @media all and (max-width: 599px) {
     #users {
-        width: ((@ulWidth + @ulPadding * 2) / 3);
+        width: ((@userlist-width + @userlist-padding * 2) / 3);
 
         > ol div {
             height: 100%;
-            padding: (@ulPadding / 4);
+            padding: (@userlist-padding / 4);
             padding-left: 0;
             
-            img, span {
+            img,
+            span {
                 display: none;
             }
         }
