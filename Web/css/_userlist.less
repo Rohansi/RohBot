@@ -16,6 +16,7 @@
         > div {
             height: @ulHeight;
             padding: @ulPadding;
+            padding-left: (@ulPadding * 2);
             white-space: nowrap;
 
             > div {
@@ -74,12 +75,10 @@
 
         > ol div {
             height: 100%;
-
-            img {
-                display: none;
-            }
-
-            span {
+            padding: (@ulPadding / 4);
+            padding-left: 0;
+            
+            img, span {
                 display: none;
             }
         }
