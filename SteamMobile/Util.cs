@@ -282,19 +282,6 @@ namespace SteamMobile
         #endregion
     }
 
-    public class TimeoutWebClient : WebClient
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            WebRequest w = base.GetWebRequest(uri);
-
-            if (w != null)
-                w.Timeout = 5 * 1000;
-
-            return w;
-        }
-    }
-
     public class AsyncLazy<T> : Lazy<Task<T>>
     {
         public AsyncLazy(Func<T> valueFactory)

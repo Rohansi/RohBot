@@ -184,9 +184,20 @@ namespace SteamMobile
 
         private async static Task<string> DownloadPage(string uri, string encoding)
         {
-            var request = new TimeoutWebClient();
-            request.Encoding = Encoding.GetEncoding(encoding);
-            return await request.DownloadStringTaskAsync(uri);
+            var client = new WebClient();
+            client.Encoding = Encoding.GetEncoding(encoding);
+
+            var request = client.DownloadStringTaskAsync(uri);
+            var timeout = Task.Delay(TimeSpan.FromSeconds(5));
+            var completed = await Task.WhenAny(request, timeout);
+
+            if (completed == timeout)
+            {
+                client.CancelAsync();
+                throw new TimeoutException("DownloadPage timed out");
+            }
+
+            return request.Result;
         }
 
         private static string FormatTime(TimeSpan time)
