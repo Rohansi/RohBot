@@ -221,7 +221,7 @@ namespace SteamMobile.Rooms
 
             lock (_history)
             {
-                var chatHistory = new ChatHistory { ShortName = RoomInfo.ShortName, Requested = false, Lines = _history.ToList() };
+                var chatHistory = new ChatHistory { ShortName = RoomInfo.ShortName, Requested = false, Lines = _history };
                 connection.Send(chatHistory);
             }
         }
@@ -408,9 +408,12 @@ namespace SteamMobile.Rooms
 
         private void AddHistory(HistoryLine line)
         {
-            if (_history.Count >= 100)
-                _history.RemoveFirst();
-            _history.AddLast(line);
+            lock (_history)
+            {
+                if (_history.Count >= 100)
+                    _history.RemoveFirst();
+                _history.AddLast(line);
+            }
 
             if (IsLogging)
                 line.Insert();

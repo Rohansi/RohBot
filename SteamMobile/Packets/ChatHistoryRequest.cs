@@ -42,10 +42,12 @@ namespace SteamMobile.Packets
             var cmd = new SqlCommand("SELECT * FROM rohbot.chathistory WHERE chat=lower(:chat) AND date<:afterdate ORDER BY date DESC LIMIT 100;");
             cmd["chat"] = Target;
             cmd["afterdate"] = AfterDate;
-            var lines = cmd.Execute().Select(r => (HistoryLine)HistoryLine.Read(r)).Reverse().ToList();
+
+            var lines = cmd.Execute().Select(r => (HistoryLine)HistoryLine.Read(r)).ToList();
+            lines.Reverse();
 
             if (lines.Count == 0)
-                lines.Add(new ChatLine(0, Target, "Steam", "~", "0", "", "No additional history is available.", false));
+                lines.Add(new ChatLine(0, Target, "Steam", Program.Settings.PersonaName, "0", "", "No additional history is available.", false));
             
             var history = new ChatHistory
             {

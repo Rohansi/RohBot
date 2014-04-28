@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SteamMobile.Packets
 {
@@ -10,10 +11,10 @@ namespace SteamMobile.Packets
 
         public string ShortName;
         public bool Requested;
-        public List<HistoryLine> Lines;
+        public ICollection<HistoryLine> Lines;
         public long OldestLine
         {
-            get { return Lines != null && Lines.Count > 0 ? Lines[0].Date : 0; }
+            get { return Lines != null && Lines.Count > 0 ? Lines.First().Date : 0; }
             set { /* do nothing */ }
         }
 
