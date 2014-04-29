@@ -33,14 +33,6 @@ class ChatManager {
             var chat = this.getCurrentChat();
             if (chat != null)
                 chat.update();
-
-            /*for (var key in this.chats) {
-                var value = this.chats[key];
-                if (!value.hasOwnProperty(key))
-                    continue;
-
-                value.update();
-            }*/
         }, 250);
     }
 

@@ -48,7 +48,7 @@ class Chat {
         this.users.appendTo("#users").hide();
 
         this.userList = null;
-        this.userListDirty = false;
+        this.userListDirty = true;
         this.lastUserListChange = 0;
         this.lastUserListRefresh = 0;
 
@@ -274,6 +274,18 @@ class Chat {
     }
 
     private applyStateLine(line: any) {
+
+        // force refresh when an endpoint's status changes
+        if (line.Type == "chat" && line.SenderId == "0") {
+            if (line.Content.indexOf("Connected to") == 0 || line.Content.indexOf("Lost connection to") == 0) {
+                this.userListDirty = true;
+                this.lastUserListChange = 0;
+                this.lastUserListRefresh = 0;
+            }
+            
+            return;
+        }
+
         if (line.Type != "state")
             return;
 
