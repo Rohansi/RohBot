@@ -61,7 +61,6 @@
     <Content Include="css\_names.less" />
     <Content Include="css\_tabs.less" />
     <Content Include="css\_userlist.less" />
-    <Content Include="img\avatar.jpg" />
     <Content Include="img\icon.png" />
     <Content Include="img\rohbot.png" />
     <Content Include="index.htm" />
