@@ -168,7 +168,7 @@ var urlize = (function () {
   var word_split_re_django = /(\s+)/;
   var word_split_re_improved = /([\s<>"]+)/;
   var simple_url_2_re = /^www\./i;
-  var simple_url_re = /^(https?|ftp|steam):\/\/\w/i;
+  var simple_url_re = /^(https?|ftp|steam):\/\//i;
 
   function htmlescape(html, options) {
     var escaped = html
