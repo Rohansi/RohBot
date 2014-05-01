@@ -107,7 +107,11 @@ namespace SteamMobile
 
             foreach (var connection in _server.GetAllSessions())
             {
-                connection.Send(pingStr);
+                try
+                {
+                    connection.Send(pingStr);
+                }
+                catch { }
             }
         }
 
