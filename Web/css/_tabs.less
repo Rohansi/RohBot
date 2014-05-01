@@ -3,24 +3,24 @@
     margin: 0;
     padding: 6px;
     vertical-align: top;
-    color: @rohbot-text;
-    background-color: @rohbot-ui-background;
+    color: @color-chat-text;
+    background-color: @color-background;
     list-style: none;
     overflow: hidden;
 
     .selected {
-        background-color: lighten(@rohbot-ui-background, 8%);
+        background-color: @color-tab-selected;
     }
 
     > li {
         display: inline-block;
         padding: 6px;
-        background-color: @rohbot-ui-background;
+        background-color: @color-tab;
         cursor: default;
         transition: all 0.1s ease-in-out;
 
         &:hover {
-            background-color: lighten(@rohbot-ui-background, 16%);
+            background-color: @color-tab-hover;
         }
 
         > .tab-name {
@@ -48,12 +48,12 @@
             font-size: 12px;
             font-weight: bold;
             text-align: center;
-            color: darken(@rohbot-text, 50%);
+            color: darken(@color-chat-text, 50%);
             transition: all 0.1s ease-in-out;
 
             &:hover {
-                color: @rohbot-text;
-                background-color: @rohbot-buttons;
+                color: @color-chat-text;
+                background-color: @color-button;
             }
         }
     }

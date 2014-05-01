@@ -10,12 +10,12 @@
         > li {
             line-height: 1.2em;
             font-size: 0.9em;
-            color: @rohbot-text;
+            color: @color-chat-text;
             margin-left: 0;
         }
 
         time {
-            color: @rohbot-user-steam;
+            color: @color-user-steam;
             white-space: nowrap;
 
             &.hidden {
@@ -25,11 +25,11 @@
 
         a {
             text-decoration: underline;
-            color: lighten(@rohbot-text, 10%);
+            color: @color-chat-url;
 
             &:hover {
                 cursor: pointer;
-                color: @rohbot-text;
+                color: @color-chat-text;
             }
         }
 
@@ -45,7 +45,7 @@
         }
 
         .sender {
-            color: @rohbot-user-steam;
+            color: @color-user-steam;
             white-space: nowrap;
         }
     }

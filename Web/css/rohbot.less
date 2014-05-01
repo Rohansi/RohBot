@@ -1,11 +1,34 @@
-﻿@rohbot-background: #171614;
-@rohbot-text: #D1CFCD;
-@rohbot-user-steam: #80B4DC;
-@rohbot-user-in-game: #A0CC67;
-@rohbot-user-web: #B67FFF;
+﻿@color-1: #171614;
+@color-2: darken(@color-1, 8%);
+@color-highlight-1: #693D99;
+@color-highlight-2: lighten(@color-highlight-1, 10%);
 
-@rohbot-ui-background: darken(@rohbot-background, 8%);
-@rohbot-buttons: #693D99;
+@color-chat-text: #D1CFCD;
+@color-chat-url: lighten(@color-chat-text, 10%);
+@color-chat-background: @color-1;
+
+@color-user-steam: #80B4DC;
+@color-user-rohbot: #B67FFF;
+@color-user-ingame: #A0CC67;
+
+@color-background: @color-2;
+@color-userlist-background: darken(@color-1, 3%);
+
+@color-input: white;
+@color-input-text: black;
+
+@color-button: @color-highlight-1;
+@color-button-hover: @color-highlight-2;
+@color-button-focus: @color-input;
+@color-button-text: white;
+
+@color-tab: @color-background;
+@color-tab-selected: lighten(@color-background, 8%);
+@color-tab-hover: lighten(@color-background, 16%);
+
+@userlist-width: 256px;
+@userlist-height: 32px;
+@userlist-padding: 4px;
 
 .noSpacing() {
 	margin:  0;
@@ -32,7 +55,7 @@ body, h1 {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: @rohbot-ui-background;
+    background: @color-background;
 }
 
 @import "_interface.less";

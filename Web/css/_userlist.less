@@ -1,9 +1,6 @@
-@userlist-width: 256px;
-@userlist-height: 32px;
-@userlist-padding: 4px;
 
 #users {
-    background-color: darken(@rohbot-background, 3%);
+    background-color: @color-userlist-background;
     font-size: 0.9em;
     width: (@userlist-width + @userlist-padding * 2);
     overflow-y: scroll;
@@ -23,14 +20,14 @@
                 overflow: hidden;
                 text-overflow: ellipsis;
                 padding-left: @userlist-padding;
-                color: @rohbot-user-steam;
+                color: @color-user-steam;
 
                 &[data-color=ingame] {
-                    color: @rohbot-user-in-game;
+                    color: @color-user-ingame;
                 }
 
                 &[data-color=web] {
-                    color: @rohbot-user-web;
+                    color: @color-user-rohbot;
                 }
 
                 &[data-rank=Administrator]:before {

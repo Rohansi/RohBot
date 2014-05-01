@@ -3,14 +3,14 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    background-color: @rohbot-background;
+    background-color: @color-chat-background;
 }
 
 .fixed-bar {
     flex: 0 0 auto;
     display: flex;
-    color: darken(white, 10%);
-    background-color: @rohbot-ui-background;
+    color: @color-chat-text;
+    background-color: @color-background;
     padding: 6px;
 
     form {
@@ -43,27 +43,27 @@
         flex: 0 0 auto;
         box-sizing: content-box;
         text-align: center;
-        background-color: @rohbot-buttons;
-        color: white;
+        background-color: @color-button;
+        color: @color-button-text;
         font-weight: bold;
         text-decoration: none;
         cursor: pointer;
 
         &:hover {
-            background-color: lighten(@rohbot-buttons, 10%);
+            background-color: @color-button-hover;
         }
     }
 
     input,
     textarea {
         flex: 1 1 auto;
-        color: lighten(black, 1);
-        background-color: darken(white, 10%);
+        color: @color-input-text;
+        background-color: @color-input;
         border: none;
 
         &:focus {
-            color: lighten(black, 20);
-            background-color: darken(white, 3%);
+            color: @color-input-text;
+            background-color: @color-input;
         }
     }
 }
