@@ -21,10 +21,11 @@ class Chat {
         this.name = name;
         this.shortName = shortName;
 
-        this.history = $(templates.history.render({ ShortName: shortName }));
+        this.history = $(templates.history.render({ ShortName: this.shortName }));
         this.history.appendTo("#history").hide();
 
-        this.tab = $(templates.tab.render({ Name: name, ShortName: shortName }));
+        this.tab = $(templates.tab.render({ Name: name, ShortName: this.shortName }));
+        this.tab.appendTo("#tabs");
 
         this.tab.click(e => {
             this.chatMgr.switchTo(this.shortName);
@@ -33,7 +34,7 @@ class Chat {
 
         var tabClose = this.tab.find(".tab-close");
 
-        if (shortName == "home") {
+        if (this.shortName == "home") {
             tabClose.hide();
         } else {
             tabClose.click(e => {
@@ -42,9 +43,7 @@ class Chat {
             });
         }
 
-        this.tab.appendTo("#tabs");
-
-        this.users = $(templates.userlist.render({ ShortName: shortName }));
+        this.users = $(templates.userlist.render({ ShortName: this.shortName }));
         this.users.appendTo("#users").hide();
 
         this.userList = null;
@@ -67,6 +66,9 @@ class Chat {
     }
 
     update() {
+        if (this.shortName == "home")
+            return;
+
         var updateAfter = 2.5 * 1000;
         var refreshAfter = 45 * 1000; // forced
         var now = Date.now();
