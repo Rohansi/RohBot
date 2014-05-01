@@ -325,15 +325,17 @@ class Chat {
     }
 
     private renderUserList() {
-        this.userList.sort((a, b) => {
-            var aLower = a.Name.toLowerCase();
-            var bLower = b.Name.toLowerCase();
+        this.userList = _.sortBy(this.userList, e => {
+            /*var colorGroup;
 
-            if (aLower < bLower)
-                return -1;
-            if (aLower > bLower)
-                return 1;
-            return 0;
+            if (e.Web)
+                colorGroup = "1";
+            else if (e.Playing == "")
+                colorGroup = "2";
+            else
+                colorGroup = "3";*/
+
+            return e.Name.toLowerCase();
         });
 
         var userMap = u => {
