@@ -7,6 +7,7 @@ class RohBot {
     private address: string;
     private socket: WebSocket;
     private isConnecting: boolean;
+    private hasConnected: boolean;
     private username: string;
 
     private timeout: number;
@@ -22,7 +23,7 @@ class RohBot {
     userListReceived = new Signal();
 
     constructor(address: string) {
-        this.timeout = 10 * 1000;
+        this.timeout = 15 * 1000;
 
         this.address = address;
         this.username = null;
@@ -35,7 +36,7 @@ class RohBot {
             if (this.isConnected() && Date.now() - this.lastMessage >= this.timeout) {
                 this.disconnect();
             }
-        }, 2500);
+        }, 1000);
 
         this.manualSysMessage("Connecting to RohBot...");
         this.connect();
@@ -43,39 +44,27 @@ class RohBot {
 
     private connect() {
         this.disconnect();
+        this.hasConnected = false;
         this.isConnecting = true;
 
         this.socket = new WebSocket(this.address);
-        var connected = false;
 
-        this.socket.onopen = e => {
+        this.socket.onopen = () => {
             this.isConnecting = false;
             this.lastMessage = Date.now();
 
-            if (!connected)
+            if (!this.hasConnected)
                 this.manualSysMessage("Connected to RohBot!");
 
-            connected = true;
+            this.hasConnected = true;
 
             this.connected.dispatch();
         };
 
-        var wsClosed = e => {
-            this.isConnecting = false;
-
-            if (connected)
-                this.manualSysMessage("Lost connection to RohBot. Reconnecting...");
-
-            connected = false;
-
-            this.disconnect();
-            this.disconnected.dispatch();
-        };
-
-        this.socket.onclose = wsClosed;
+        this.socket.onclose = () => this.disconnect();
 
         this.socket.onerror = e => {
-            wsClosed(e);
+            this.disconnect();
             console.error("websocket error", e);
         };
 
@@ -123,17 +112,23 @@ class RohBot {
     }
 
     private disconnect() {
+        if (this.hasConnected)
+            this.manualSysMessage("Lost connection to RohBot. Reconnecting...");
+
+        this.isConnecting = false;
+        this.hasConnected = false;
         this.username = null;
 
-        if (this.socket == null)
-            return;
+        if (this.socket != null) {
+            this.socket.close();
+            this.socket.onopen = null;
+            this.socket.onclose = null;
+            this.socket.onerror = null;
+            this.socket.onmessage = null;
+            this.socket = null;
+        }
 
-        this.socket.close();
-        this.socket.onopen = null;
-        this.socket.onclose = null;
-        this.socket.onerror = null;
-        this.socket.onmessage = null;
-        this.socket = null;
+        this.disconnected.dispatch();
     }
 
     isConnected(): boolean {
