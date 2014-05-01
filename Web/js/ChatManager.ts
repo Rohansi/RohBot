@@ -30,6 +30,9 @@ class ChatManager {
         });
 
         window.setInterval(() => {
+            if (this.rohbot.getUsername() == null)
+                return;
+
             var chat = this.getCurrentChat();
             if (chat != null)
                 chat.update();
