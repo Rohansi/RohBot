@@ -282,6 +282,26 @@ class UserInterface {
             }
         });
 
+        $(document).keypress(e => {
+            // todo: this might have caused a weird bug with firefox and ctrl+a on textboxes
+
+            if (typeof e.which == "undefined"
+                || $(e.target).is('input, textarea')
+                || this.rohbot.getUsername() == null
+                || e.which <= 0
+                || e.which == 8
+                || e.ctrlKey
+                || e.metaKey
+                || e.altKey) {
+                return;
+            }
+
+            e.preventDefault();
+
+            messageBox.focus();
+            messageBox.val(messageBox.val() + String.fromCharCode(e.which));
+        });
+
         $(window).resize(() => {
             this.chatMgr.scrollToBottom();
         });

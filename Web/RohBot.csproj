@@ -61,6 +61,7 @@
     <Content Include="css\_names.less" />
     <Content Include="css\_tabs.less" />
     <Content Include="css\_userlist.less" />
+    <Content Include="img\avatar.png" />
     <Content Include="img\icon.png" />
     <Content Include="img\rohbot.png" />
     <Content Include="index.htm" />
@@ -68,12 +69,13 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="js\Chat.ts" />
+    <TypeScriptCompile Include="js\definitions\underscore.d.ts" />
     <TypeScriptCompile Include="js\RohStore.ts" />
     <TypeScriptCompile Include="js\Signal.ts" />
     <TypeScriptCompile Include="js\SignalBinding.ts" />
     <TypeScriptCompile Include="js\UserInterface.ts" />
     <TypeScriptCompile Include="js\RohBot.ts" />
-    <TypeScriptCompile Include="js\jquery.d.ts" />
+    <TypeScriptCompile Include="js\definitions\jquery.d.ts" />
     <TypeScriptCompile Include="js\ChatManager.ts" />
     <TypeScriptCompile Include="js\Visibility.ts" />
   </ItemGroup>
