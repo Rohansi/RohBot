@@ -9,9 +9,6 @@ Commands must be prefixed with the tilde character (~) to work. The website also
 ### join ###
 Allows you to join a room. `/join fp`
 
-### users ###
-Display a list of users in the room.
-
 ### me ###
 Does exactly what you think it does. `/me bites Brian.` will send `YourName bites Brian.` to the current room.
 
