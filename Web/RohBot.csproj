@@ -70,9 +70,9 @@
   <ItemGroup>
     <TypeScriptCompile Include="js\Chat.ts" />
     <TypeScriptCompile Include="js\definitions\underscore.d.ts" />
+    <TypeScriptCompile Include="js\Event.ts" />
+    <TypeScriptCompile Include="js\RohBot.d.ts" />
     <TypeScriptCompile Include="js\RohStore.ts" />
-    <TypeScriptCompile Include="js\Signal.ts" />
-    <TypeScriptCompile Include="js\SignalBinding.ts" />
     <TypeScriptCompile Include="js\UserInterface.ts" />
     <TypeScriptCompile Include="js\RohBot.ts" />
     <TypeScriptCompile Include="js\definitions\jquery.d.ts" />

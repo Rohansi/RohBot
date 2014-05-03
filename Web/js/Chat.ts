@@ -11,7 +11,7 @@ class Chat {
     private requestedHistory: boolean;
     private oldestLine: number;
     private unreadMessages: number;
-    private userList: any[];
+    private userList: UserListUser[];
     private userListDirty: boolean;
     private lastUserListChange: number;
     private lastUserListRefresh: number;
@@ -108,8 +108,8 @@ class Chat {
         });
     }
 
-    addHistory(data: any) {
-        var history: any[] = data.Lines;
+    addHistory(data: ChatHistoryPacket) {
+        var history = data.Lines;
 
         if (!data.Requested) {
             this.history.empty();
@@ -141,13 +141,14 @@ class Chat {
     statusMessage(message: string) {
         this.addLine({
             Type: "state",
-            State: "Client",
             Date: Date.now(),
+            Chat: this.shortName,
+            State: "Client",
             Content: message
         });
     }
 
-    renderLine(line: any) {
+    renderLine(line: HistoryLine) {
         var timeFmt = RohStore.get("time format");
         if (timeFmt == null) timeFmt = "12hr";
 
@@ -163,44 +164,46 @@ class Chat {
 
         switch (line.Type) {
             case "chat": {
+                var chatLine = <ChatLine>line;
                 var senderClasses = "";
 
-                if (line.UserType == "RohBot")
-                    senderClasses = "rohBot " + line.SenderStyle;
-                else if (line.InGame)
+                if (chatLine.UserType == "RohBot")
+                    senderClasses = "rohBot " + chatLine.SenderStyle;
+                else if (chatLine.InGame)
                     senderClasses = "inGame";
 
-                if (line.UserType == "Steam" && line.SenderId != "0")
-                    data.SteamId = line.SenderId;
+                if (chatLine.UserType == "Steam" && chatLine.SenderId != "0")
+                    data.SteamId = chatLine.SenderId;
 
-                data.Sender = line.Sender;
+                data.Sender = chatLine.Sender;
                 data.SenderClasses = senderClasses;
-                data.Message = this.linkify(line.Content);
+                data.Message = this.linkify(chatLine.Content);
                 break;
             }
 
-            case "state":
-                if (line.State == "Action" || line.State == "Client")
+            case "state": {
+                var stateLine = <StateLine>line;
+                if (stateLine.State == "Action" || stateLine.State == "Client")
                     break;
 
                 var style = t => t == "Steam" ? "steam" : "rohBot";
                 var stateData: any = {
-                    For: line.For,
-                    ForStyle: style(line.ForType),
+                    For: stateLine.For,
+                    ForStyle: style(stateLine.ForType),
                 };
 
-                if (line.ForType == "Steam" && line.ForId != "0")
-                    stateData.ForSteamId = line.ForId;
+                if (stateLine.ForType == "Steam" && stateLine.ForId != "0")
+                    stateData.ForSteamId = stateLine.ForId;
 
-                if (line.By != "") {
-                    stateData.By = line.By;
-                    stateData.ByStyle = style(line.ByType);
+                if (stateLine.By != "") {
+                    stateData.By = stateLine.By;
+                    stateData.ByStyle = style(stateLine.ByType);
 
-                    if (line.ByType == "Steam" && line.ById != "0")
-                        stateData.BySteamId = line.ById;
+                    if (stateLine.ByType == "Steam" && stateLine.ById != "0")
+                        stateData.BySteamId = stateLine.ById;
                 }
 
-                switch (line.State) {
+                switch (stateLine.State) {
                     case "Enter":
                         stateData.Content1 = " entered chat.";
                         break;
@@ -229,12 +232,13 @@ class Chat {
                         break;
 
                     default:
-                        console.warn("unhandled state type", line.State);
+                        console.warn("unhandled state type", stateLine.State);
                         break;
                 }
 
                 data.Message = templates.statemessage.render(stateData);
                 break;
+            }
 
             default:
                 console.error("unsupported line type", line);
@@ -244,7 +248,7 @@ class Chat {
         return templates.message.render(data);
     }
 
-    addLine(line: any, prepend: boolean = false) {
+    addLine(line: HistoryLine, prepend: boolean = false) {
         if (!prepend && this.userList != null)
             this.applyStateLine(line);
 
@@ -264,7 +268,7 @@ class Chat {
             this.chatMgr.scrollToBottom();
     }
 
-    setUserList(userList: any[]) {
+    setUserList(userList: UserListUser[]) {
         var now = Date.now();
 
         this.userList = userList;
@@ -275,11 +279,14 @@ class Chat {
         this.renderUserList();
     }
 
-    private applyStateLine(line: any) {
+    private applyStateLine(line: HistoryLine) {
+
+        var chatLine = <ChatLine>line;
+        var stateLine = <StateLine>line;
 
         // force refresh when an endpoint's status changes
-        if (line.Type == "chat" && line.SenderId == "0") {
-            if (line.Content.indexOf("Connected to") == 0 || line.Content.indexOf("Lost connection to") == 0) {
+        if (line.Type == "chat" && chatLine.SenderId == "0") {
+            if (chatLine.Content.indexOf("Connected to") == 0 || chatLine.Content.indexOf("Lost connection to") == 0) {
                 this.userListDirty = true;
                 this.lastUserListChange = 0;
                 this.lastUserListRefresh = 0;
@@ -291,26 +298,26 @@ class Chat {
         if (line.Type != "state")
             return;
 
-        switch (line.State) {
+        switch (stateLine.State) {
             case "Enter":
                 this.userList.push({
-                    Name: line.For,
-                    UserId: line.ForId,
+                    Name: stateLine.For,
+                    UserId: stateLine.ForId,
                     Rank: "Member",
                     Avatar: "0000000000000000000000000000000000000000",
-                    Status: line.ForType == "RohBot" ? "" : "Online",
+                    Status: stateLine.ForType == "RohBot" ? "" : "Online",
                     Playing: "",
-                    Web: line.ForType == "RohBot"
+                    Web: stateLine.ForType == "RohBot"
                 });
                 break;
 
             case "Banned":
-                if (line.ForType == "RohBot")
+                if (stateLine.ForType == "RohBot")
                     break;
             case "Left":
             case "Disconnected":
                 this.userList = this.userList.filter(e => {
-                    return e.Web != (line.ForType == "RohBot") || e.Name != line.For;
+                    return e.Web != (stateLine.ForType == "RohBot") || e.Name != stateLine.For;
                 });
                 break;
 

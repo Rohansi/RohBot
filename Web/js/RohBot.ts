@@ -13,14 +13,14 @@ class RohBot {
     private timeout: number;
     private lastMessage: number;
 
-    connected = new Signal();
-    disconnected = new Signal();
-    loggedIn = new Signal();
-    chatReceived = new Signal();
-    chatHistoryReceived = new Signal();
-    sysMessageReceived = new Signal();
-    messageReceived = new Signal();
-    userListReceived = new Signal();
+    connected: Event0 = new TypedEvent();
+    disconnected: Event0 = new TypedEvent();
+    loggedIn: Event1<AuthResponsePacket> = new TypedEvent();
+    chatReceived: Event1<ChatPacket> = new TypedEvent();
+    chatHistoryReceived: Event1<ChatHistoryPacket> = new TypedEvent();
+    sysMessageReceived: Event1<SysMessagePacket> = new TypedEvent();
+    messageReceived: Event1<MessagePacket> = new TypedEvent();
+    userListReceived: Event1<UserListPacket> = new TypedEvent();
 
     constructor(address: string) {
         this.timeout = 15 * 1000;
@@ -58,7 +58,7 @@ class RohBot {
 
             this.hasConnected = true;
 
-            this.connected.dispatch();
+            this.connected.trigger();
         };
 
         this.socket.onclose = () => this.disconnect();
@@ -79,32 +79,32 @@ class RohBot {
                     if (this.username != null && this.username.length == 0)
                         this.username = null;
 
-                    this.loggedIn.dispatch(packet);
+                    this.loggedIn.trigger(packet);
                     break;
                 }
 
                 case "chat": {
-                    this.chatReceived.dispatch(packet);
+                    this.chatReceived.trigger(packet);
                     break;
                 }
 
                 case "chatHistory": {
-                    this.chatHistoryReceived.dispatch(packet);
+                    this.chatHistoryReceived.trigger(packet);
                     break;
                 }
 
                 case "message": {
-                    this.messageReceived.dispatch(packet);
+                    this.messageReceived.trigger(packet);
                     break;
                 }
 
                 case "sysMessage": {
-                    this.sysMessageReceived.dispatch(packet);
+                    this.sysMessageReceived.trigger(packet);
                     break;
                 }
 
                 case "userList": {
-                    this.userListReceived.dispatch(packet);
+                    this.userListReceived.trigger(packet);
                     break;
                 }
             }
@@ -128,7 +128,7 @@ class RohBot {
             this.socket = null;
         }
 
-        this.disconnected.dispatch();
+        this.disconnected.trigger();
     }
 
     isConnected(): boolean {
@@ -184,7 +184,7 @@ class RohBot {
     }
 
     private manualSysMessage(message: string) {
-        this.sysMessageReceived.dispatch({
+        this.sysMessageReceived.trigger({
             Type: "sysMessage",
             Date: Date.now(),
             Content: message

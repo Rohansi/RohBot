@@ -159,9 +159,15 @@ class ChatManager {
                     this.switchTo(lastChat);
             }
 
-            packet.Type = "state";
-            packet.State = "Client";
-            chat.addLine(packet, false);
+            var sysMsgLine = {
+                Type: "state",
+                Date: packet.Date,
+                Chat: chat.shortName,
+                Content: packet.Content,
+                State: "Client"
+            }
+
+            chat.addLine(sysMsgLine, false);
         });
 
         rohbot.messageReceived.add(packet => {

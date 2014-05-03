@@ -7,10 +7,10 @@ class UserInterface {
     private notificationRegex: RegExp;
     private unreadMessages: number;
 
-    loginPressed = new Signal();
-    registerPressed = new Signal();
-    sendPressed = new Signal();
-
+    loginPressed: Event2<string, string> = new TypedEvent();
+    registerPressed: Event2<string, string> = new TypedEvent();
+    sendPressed: Event2<string, string> = new TypedEvent();
+    
     constructor(rohbot: RohBot, chatMgr: ChatManager) {
         this.rohbot = rohbot;
         this.chatMgr = chatMgr;
@@ -52,6 +52,8 @@ class UserInterface {
 
         this.rohbot.messageReceived.add(packet => {
             var line = packet.Line;
+            var chatLine = <ChatLine>line;
+            var stateLine = <StateLine>line;
 
             if (line.Type == "chat") {
                 this.unreadMessages++;
@@ -59,8 +61,8 @@ class UserInterface {
             }
 
             if (this.notificationRegex != null && Visibility.hidden()) {
-                var isNotifiableChatLine = line.Type == "chat" && line.SenderId != "0" && !(line.UserType == "RohBot" && line.Sender == this.rohbot.getUsername());
-                var isNotifiableStateLine = line.Type == "state" && line.State == "Action" && !(line.ForType == "RohBot" && line.For == this.rohbot.getUsername());
+                var isNotifiableChatLine = line.Type == "chat" && chatLine.SenderId != "0" && !(chatLine.UserType == "RohBot" && chatLine.Sender == this.rohbot.getUsername());
+                var isNotifiableStateLine = line.Type == "state" && stateLine.State == "Action" && !(stateLine.ForType == "RohBot" && stateLine.For == this.rohbot.getUsername());
 
                 if ((isNotifiableChatLine || isNotifiableStateLine) && this.notificationRegex.test(line.Content)) {
                     var chat = this.chatMgr.getChat(line.Chat);
@@ -71,12 +73,12 @@ class UserInterface {
 
                     switch (line.Type) {
                         case "chat":
-                            var sender = $("<textarea/>").html(line.Sender).text();
-                            var content = $("<textarea/>").html(line.Content).text();
+                            var sender = $("<textarea/>").html(chatLine.Sender).text();
+                            var content = $("<textarea/>").html(chatLine.Content).text();
                             notificationText = sender + ": " + content;
                             break;
                         case "state":
-                            notificationText = $("<textarea/>").html(line.Content).text();
+                            notificationText = $("<textarea/>").html(stateLine.Content).text();
                             break;
                         default:
                             notificationText = "error";
@@ -232,12 +234,12 @@ class UserInterface {
 
         loginBtn.click(e => {
             e.preventDefault();
-            this.loginPressed.dispatch(username.val(), password.val());
+            this.loginPressed.trigger(username.val(), password.val());
         });
 
         registerBtn.click(e => {
             e.preventDefault();
-            this.registerPressed.dispatch(username.val(), password.val());
+            this.registerPressed.trigger(username.val(), password.val());
         });
 
         var send = $("#send");
@@ -249,7 +251,7 @@ class UserInterface {
             if (currentChat == null)
                 return;
 
-            this.sendPressed.dispatch(currentChat.shortName, messageBox.val());
+            this.sendPressed.trigger(currentChat.shortName, messageBox.val());
             messageBox.val("");
         });
 
@@ -307,7 +309,7 @@ class UserInterface {
         });
     }
 
-    private completionNames: any[] = null;
+    private completionNames: string[] = null;
     private completionIndex: number = 0;
     private completionStart: number = 0;
     private completionEnd: number = 0;

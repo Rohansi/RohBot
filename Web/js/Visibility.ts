@@ -3,7 +3,7 @@ class Visibility {
 
     private static isHidden: boolean;
 
-    static changed = new Signal();
+    static changed: Event0 = new TypedEvent();
 
     static visible() {
         return !Visibility.isHidden;
@@ -31,7 +31,7 @@ class Visibility {
             return;
 
         Visibility.isHidden = false;
-        Visibility.changed.dispatch();
+        Visibility.changed.trigger();
     }
 
     private static onBlur(e: any) {
@@ -40,7 +40,7 @@ class Visibility {
             return;
 
         Visibility.isHidden = true;
-        Visibility.changed.dispatch();
+        Visibility.changed.trigger();
     }
 
 }
