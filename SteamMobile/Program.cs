@@ -62,6 +62,8 @@ namespace SteamMobile
 
             _taskScheduler.Add(TimeSpan.FromSeconds(5), () => SessionManager.Ping());
 
+            _taskScheduler.Add(TimeSpan.FromMinutes(1), GC.Collect);
+
             _taskScheduler.Add(TimeSpan.FromHours(1), () =>
             {
                 var t = Util.GetTimestamp(DateTime.UtcNow - TimeSpan.FromDays(30));
