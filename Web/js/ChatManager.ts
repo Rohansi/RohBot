@@ -73,6 +73,8 @@ class ChatManager {
         target.tab.addClass("selected");
 
         this.scrollToBottom();
+
+        $("#message-box").focus();
     }
 
     getChat(shortName: string) {
