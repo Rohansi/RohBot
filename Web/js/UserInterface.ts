@@ -247,12 +247,14 @@ class UserInterface {
 
         send.click(e => {
             e.preventDefault();
+
             var currentChat = this.chatMgr.getCurrentChat();
             if (currentChat == null)
                 return;
 
             this.sendPressed.trigger(currentChat.shortName, messageBox.val());
             messageBox.val("");
+            messageBox.focus();
         });
 
         messageBox.keydown(e => {
