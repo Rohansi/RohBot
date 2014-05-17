@@ -4,7 +4,7 @@ var chatMgr = new ChatManager(rohbot);
 var ui = new UserInterface(rohbot, chatMgr);
 
 function send(room, message) {
-    ui.sendPressed.dispatch(room, message);
+    ui.sendPressed.trigger(room, message);
 }
 
 function join(room) {
