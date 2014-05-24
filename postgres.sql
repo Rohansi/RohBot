@@ -92,17 +92,11 @@ COMMENT ON COLUMN rohbot.chathistory.byid IS 'StateLine';
 COMMENT ON COLUMN rohbot.chathistory.fortype IS 'StateLine';
 COMMENT ON COLUMN rohbot.chathistory.bytype IS 'StateLine';
 
--- Index: rohbot.chathistory_date_idx
-CREATE INDEX chathistory_date_idx
+-- Index: rohbot.chathistory_chat_date_idx
+CREATE INDEX chathistory_chat_date_idx
   ON rohbot.chathistory
   USING btree
-  (date DESC);
-
--- Index: rohbot.chathistory_lower_idx
-CREATE INDEX chathistory_lower_idx
-  ON rohbot.chathistory
-  USING btree
-  (lower(chat) COLLATE pg_catalog."default");
+  (chat COLLATE pg_catalog."default", date DESC);
 
 -- Table: rohbot.logintokens
 CREATE TABLE rohbot.logintokens
