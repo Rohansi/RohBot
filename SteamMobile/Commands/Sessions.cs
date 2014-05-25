@@ -10,7 +10,7 @@ namespace SteamMobile.Commands
 
         public override void Handle(CommandTarget target, string type, string[] parameters)
         {
-            if (!Util.IsSuperAdmin(target))
+            if (!target.IsWeb || !Util.IsSuperAdmin(target))
                 return;
 
             var sessions = Program.SessionManager.List.Select(s => string.Format("{0} ({1})", s.Account.Name, s.ConnectionCount));

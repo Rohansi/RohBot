@@ -56,12 +56,15 @@ namespace SteamMobile.Commands
                 }
 
                 userList.ShortName = roomName;
-                userList.Users = userList.Users.OrderBy(u => u.Name).ToList();
+                userList.Users = userList.Users.OrderBy(u => u.Name, StringComparer.InvariantCultureIgnoreCase).ToList();
                 target.Connection.Send(userList);
             }
             else
             {
-                target.Send("In this room: " + string.Join(", ", accounts.Select(a => a.Name)));
+                var names = accounts.OrderBy(a => a.Name, StringComparer.InvariantCultureIgnoreCase)
+                                    .Select(a => a.Name);
+
+                target.Send("In this room: " + string.Join(", ", names));
             }
         }
 
