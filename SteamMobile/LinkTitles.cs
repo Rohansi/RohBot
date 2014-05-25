@@ -188,7 +188,7 @@ namespace SteamMobile
             client.Encoding = Encoding.GetEncoding(encoding);
 
             var request = client.DownloadStringTaskAsync(uri);
-            var timeout = Task.Delay(TimeSpan.FromSeconds(5));
+            var timeout = Task.Delay(TimeSpan.FromSeconds(10));
             var completed = await Task.WhenAny(request, timeout);
 
             if (completed == timeout)

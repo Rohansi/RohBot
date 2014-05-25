@@ -7,6 +7,7 @@ namespace SteamMobile
 {
     public class Program
     {
+        public static readonly DateTime StartTime = DateTime.Now;
         public static readonly ILog Logger = LogManager.GetLogger("Steam");
         public static Settings Settings;
         public static SessionManager SessionManager;

@@ -264,6 +264,9 @@ namespace SteamMobile.Rooms
             if (!ShowWebStates || session.Account == null || IsBanned(session.Account.Name))
                 return;
 
+            if (DateTime.Now - Program.StartTime <= TimeSpan.FromSeconds(20))
+                return;
+
             var account = session.Account;
             var line = new StateLine(
                 Util.GetCurrentTimestamp(),
