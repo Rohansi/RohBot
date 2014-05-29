@@ -216,7 +216,11 @@ namespace SteamMobile
             {
                 foreach (var conn in _connections)
                 {
-                    conn.Send(data);
+                    try
+                    {
+                        conn.Send(data);
+                    }
+                    catch { }
                 }
             }
         }
