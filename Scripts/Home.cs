@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using SteamMobile;
-using SteamMobile.Packets;
-using SteamMobile.Rooms;
-using SteamMobile.Rooms.Script;
+using RohBot;
+using RohBot.Packets;
+using RohBot.Rooms;
+using RohBot.Rooms.Script;
 
 public class Script : IScript
 {
@@ -64,7 +64,7 @@ public class Script : IScript
         }
 
         lines.Add(Message(""));
-        lines.Add(Message("need help with commands? " + Link("https://github.com/Rohansi/SteamMobile#commands", "read this")));
+        lines.Add(Message("need help with commands? " + Link("https://github.com/Rohansi/RohBot#commands", "read this")));
         lines.Add(Message("want me in your group? " + Link("http://steamcommunity.com/id/rohans/", "talk to this guy")));
     
         connection.Send(new ChatHistory
