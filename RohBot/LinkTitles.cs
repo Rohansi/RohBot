@@ -148,13 +148,12 @@ namespace RohBot
             }
         }
 
-        private static Regex _facepunch = new Regex(@"http://facepunch\.com/showthread\.php\S*?(?:&[tp]|\?[tp])=\d+", RegexOptions.Compiled);
-        private static Regex _facepunchTitle = new Regex(@"<title\b[^>]*>(.*?)</title>", RegexOptions.Compiled);
+        private static Regex _facepunch = new Regex(@"facepunch\.com/showthread\.php\S*?(?:&[tp]|\?[tp])=(\d+)", RegexOptions.Compiled);
         private static IEnumerable<Tuple<int, AsyncLazy<string>>> LookupFacepunch(string message)
         {
             var matches = _facepunch.Matches(message).Cast<Match>();
 
-            foreach (Match m in matches.DistinctBy(m => m.Value))
+            foreach (Match m in matches.DistinctBy(m => m.Groups[1].Value))
             {
                 var match = m;
                 var offset = match.Index;
@@ -162,13 +161,19 @@ namespace RohBot
                 {
                     try
                     {
-                        var page = await DownloadPage(match.Value, "Windows-1252");
-                        var title = WebUtility.HtmlDecode(_facepunchTitle.Match(page).Groups[1].Value.Trim());
+                        var threadId = match.Groups[1].Value;
 
-                        if (title == "Facepunch")
+                        var apiRequestUrl = string.Format(@"http://lab.facepunch.com/api/post/list/?threadid={0}", threadId);
+                        var responseFromServer = await DownloadPage(apiRequestUrl, "UTF-8");
+
+                        var token = JObject.Parse(responseFromServer);
+
+                        if (token["status"].ToObject<string>() != "ok")
                             return null;
 
-                        return string.Format("Facepunch: {0}", title);
+                        var name = WebUtility.HtmlDecode(token["data"]["thread"]["title"].ToObject<string>());
+
+                        return string.Format("Facepunch: {0}", name);
                     }
                     catch (Exception e)
                     {
