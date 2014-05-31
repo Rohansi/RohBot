@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -51,7 +52,7 @@ namespace RohBot
                     try
                     {
                         var url = string.Format("http://ws.spotify.com/lookup/1/.json?uri={0}", HttpUtility.UrlEncode(match.Value));
-                        var spotifyResponse = await DownloadPage(url, "UTF-8");
+                        var spotifyResponse = await DownloadPage(url, Encoding.UTF8);
 
                         var token = JObject.Parse(spotifyResponse);
                         var track = token["track"];
@@ -75,7 +76,7 @@ namespace RohBot
                         {
                             const string apiKey = "AIzaSyB2tZ7wquAcn3W78aqaaYKGVfIQWuuVNgg";
                             var apiQuery = string.Format("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&order=relevance&q={0}%20%2B%20{1}&key={2}", ytName, ytArtist, apiKey);
-                            var ytResponse = await DownloadPage(apiQuery, "UTF-8");
+                            var ytResponse = await DownloadPage(apiQuery, Encoding.UTF8);
 
                             var ytToken = JObject.Parse(ytResponse);
                             youtubeUrl = ytToken["items"].First["id"]["videoId"].ToObject<string>();
@@ -119,7 +120,7 @@ namespace RohBot
                             videoId = videoId.Substring(0, 11);
 
                         var apiRequestUrl = string.Format(@"http://gdata.youtube.com/feeds/api/videos/{0}?alt=json", videoId);
-                        var responseFromServer = await DownloadPage(apiRequestUrl, "UTF-8");
+                        var responseFromServer = await DownloadPage(apiRequestUrl, Encoding.UTF8);
 
                         var token = JObject.Parse(responseFromServer);
                         var name = token["entry"]["title"]["$t"].ToObject<string>();
@@ -148,7 +149,7 @@ namespace RohBot
             }
         }
 
-        private static Regex _facepunch = new Regex(@"facepunch\.com/showthread\.php\S*?(?:&[tp]|\?[tp])=(\d+)", RegexOptions.Compiled);
+        private static Regex _facepunch = new Regex(@"facepunch\.com/showthread\.php\S*?[\?&]t=(\d+)", RegexOptions.Compiled);
         private static IEnumerable<Tuple<int, AsyncLazy<string>>> LookupFacepunch(string message)
         {
             var matches = _facepunch.Matches(message).Cast<Match>();
@@ -164,7 +165,7 @@ namespace RohBot
                         var threadId = match.Groups[1].Value;
 
                         var apiRequestUrl = string.Format(@"http://lab.facepunch.com/api/post/list/?threadid={0}", threadId);
-                        var responseFromServer = await DownloadPage(apiRequestUrl, "UTF-8");
+                        var responseFromServer = await DownloadPage(apiRequestUrl, Encoding.UTF8);
 
                         var token = JObject.Parse(responseFromServer);
 
@@ -187,12 +188,11 @@ namespace RohBot
             }
         }
 
-        private async static Task<string> DownloadPage(string uri, string encoding)
+        private async static Task<string> DownloadPage(string uri, Encoding encoding)
         {
             var client = new WebClient();
-            client.Encoding = Encoding.GetEncoding(encoding);
 
-            var request = client.DownloadStringTaskAsync(uri);
+            var request = client.DownloadDataTaskAsync(uri);
             var timeout = Task.Delay(TimeSpan.FromSeconds(10));
             var completed = await Task.WhenAny(request, timeout);
 
@@ -202,7 +202,10 @@ namespace RohBot
                 throw new TimeoutException("DownloadPage timed out");
             }
 
-            return request.Result;
+            using (var reader = new StreamReader(new MemoryStream(request.Result), encoding))
+            {
+                return await reader.ReadToEndAsync();
+            }
         }
 
         private static string FormatTime(TimeSpan time)
