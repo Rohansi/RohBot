@@ -399,10 +399,11 @@ class Chat {
     }
 
     private linkify(text: string) {
-        // Put spaces infront of <s to stop urlize seizing them as urls
+        // Put spaces infront of emoticons to terminate urls
         text = text.replace(/ː(\w+?)ː/g, ' ː<img src="/economy/emoticon/$1" alt=":$1:" class="emote">');
-        text = urlize(text, { target: "_blank" });
-        text = text.replace('\n', ' <br>'); // whitespace infront of a <br> isn't noticable
+        text = text.replace(/((?:https?|ftps?|steam):\/\/\S+)/g, '<a href=\"$1\" target=\"_blank\">$1</a>');
+        text = text.replace(/(^|\s)(www\.\S+)/g, '$1<a href=\"http://$2\" target=\"_blank\">$2</a>');
+        text = text.replace('\n', '<br>');
         text = text.replace(/\ ː/g, ''); // Get rid of the sentinel chars. (triangle colons are guaranteed to never appear in normal text)
         return text;
     }
