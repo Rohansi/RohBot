@@ -4,7 +4,7 @@ using System.Net;
 using EzSteam;
 using SteamKit2;
 
-namespace RohBot.Rooms
+namespace RohBot.Rooms.Steam
 {
     public class SteamRoom : Room
     {

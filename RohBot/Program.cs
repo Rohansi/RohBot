@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using RohBot.Rooms.Steam;
 using SteamKit2;
 using log4net;
 

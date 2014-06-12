@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using RohBot.Rooms.Steam;
 using SteamKit2;
 using RohBot.Rooms;
 

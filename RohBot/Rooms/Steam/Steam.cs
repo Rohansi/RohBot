@@ -2,7 +2,7 @@
 using EzSteam;
 using SteamKit2;
 
-namespace RohBot
+namespace RohBot.Rooms.Steam
 {
     public class Steam
     {

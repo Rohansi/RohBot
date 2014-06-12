@@ -1,4 +1,5 @@
-﻿
+﻿using RohBot.Rooms.Steam;
+
 namespace RohBot.Commands
 {
     public class Status : Command

@@ -128,16 +128,16 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rooms\Room.cs" />
     <Compile Include="RoomManager.cs" />
-    <Compile Include="Rooms\ScriptRoom.cs" />
+    <Compile Include="Rooms\Script\ScriptRoom.cs" />
     <Compile Include="Rooms\Script\Commands\Default.cs" />
     <Compile Include="Rooms\Script\IScript.cs" />
     <Compile Include="Rooms\Script\Commands\Compile.cs" />
     <Compile Include="Rooms\Script\ScriptHost.cs" />
-    <Compile Include="Rooms\SteamRoom.cs" />
+    <Compile Include="Rooms\Steam\SteamRoom.cs" />
     <Compile Include="Session.cs" />
     <Compile Include="SessionManager.cs" />
     <Compile Include="Settings.cs" />
-    <Compile Include="Steam.cs" />
+    <Compile Include="Rooms\Steam\Steam.cs" />
     <Compile Include="TaskScheduler.cs" />
     <Compile Include="Util.cs" />
   </ItemGroup>

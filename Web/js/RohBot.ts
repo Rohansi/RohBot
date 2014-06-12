@@ -1,6 +1,5 @@
 
 declare var templates;
-declare var urlize;
 
 class RohBot {
 

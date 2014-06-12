@@ -6,10 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using CSScriptLibrary;
-using RohBot.Rooms.Script;
 using csscript;
 
-namespace RohBot.Rooms
+namespace RohBot.Rooms.Script
 {
     public class ScriptRoom : Room
     {
