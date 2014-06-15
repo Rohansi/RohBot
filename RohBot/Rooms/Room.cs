@@ -171,12 +171,20 @@ namespace RohBot.Rooms
                         return false;
                 }
 
-                return session.IsInRoom(RoomInfo.ShortName);
+                return session.IsInRoom(RoomInfo.ShortName) && SendLineFilter(line, session);
             };
 
             Program.SessionManager.Broadcast(message, filter);
 
             AddHistory(line);
+        }
+
+        /// <summary>
+        /// Filter sessions which receive lines from SendLine.
+        /// </summary>
+        public virtual bool SendLineFilter(HistoryLine line, Session session)
+        {
+            return true;
         }
 
         /// <summary>
@@ -218,12 +226,19 @@ namespace RohBot.Rooms
                 }
             }
 
-            lock (_history)
-            {
-                var chatHistory = new ChatHistory { ShortName = RoomInfo.ShortName, Requested = false, Lines = _history };
-                connection.Send(chatHistory);
-            }
+            var lines = GetHistoryLines(connection);
+            var chatHistory = new ChatHistory { ShortName = RoomInfo.ShortName, Requested = false, Lines = lines };
+            connection.Send(chatHistory);
         }
+
+        /// <summary>
+        /// Called by SendHistory.
+        /// </summary>
+        public virtual List<HistoryLine> GetHistoryLines(Connection connection)
+        {
+            lock (_history)
+                return _history.ToList();
+        } 
 
         /// <summary>
         /// Called when somebody sends a message.
