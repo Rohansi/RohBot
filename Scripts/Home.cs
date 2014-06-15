@@ -4,6 +4,7 @@ using System.Linq;
 using RohBot;
 using RohBot.Packets;
 using RohBot.Rooms;
+using RohBot.Rooms.Steam;
 using RohBot.Rooms.Script;
 
 public class Script : IScript
