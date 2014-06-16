@@ -165,16 +165,19 @@ namespace RohBot.Rooms
 
             Func<Session, bool> filter = session =>
             {
-                if (IsPrivate)
-                {
-                    if (session.Account == null || IsBanned(session.Account.Name))
-                        return false;
-                }
+                if (session.Account == null)
+                    return false;
 
-                return session.IsInRoom(RoomInfo.ShortName) && SendLineFilter(line, session);
+                if (IsPrivate && IsBanned(session.Account.Name))
+                    return false;
+
+                return session.IsInRoom(RoomInfo.ShortName);
             };
 
-            Program.SessionManager.Broadcast(message, filter);
+            var sessions = Program.SessionManager.List.Where(filter);
+            sessions = SendLineFilter(line, sessions);
+
+            Program.SessionManager.Send(message, sessions);
 
             AddHistory(line);
         }
@@ -182,9 +185,9 @@ namespace RohBot.Rooms
         /// <summary>
         /// Filter sessions which receive lines from SendLine.
         /// </summary>
-        public virtual bool SendLineFilter(HistoryLine line, Session session)
+        public virtual IEnumerable<Session> SendLineFilter(HistoryLine line, IEnumerable<Session> sessions)
         {
-            return true;
+            return sessions;
         }
 
         /// <summary>
@@ -238,7 +241,7 @@ namespace RohBot.Rooms
         {
             lock (_history)
                 return _history.ToList();
-        } 
+        }
 
         /// <summary>
         /// Called when somebody sends a message.

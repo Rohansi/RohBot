@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Rohmote;
 
@@ -27,8 +28,9 @@ namespace RohBot.Rooms.Remote
             if (!IsActive)
             {
                 if (_client != null)
-                    _client.Disconnect();
+                    _client.Dispose();
 
+                _client = null;
                 return;
             }
 
@@ -39,7 +41,7 @@ namespace RohBot.Rooms.Remote
             var port = int.Parse(RoomInfo["Port"]);
 
             _client = new RpcClient(ip, port);
-            _client.CallTimeOut = TimeSpan.FromSeconds(1);
+            _client.CallTimeOut = TimeSpan.FromSeconds(5);
             _client.DetailedErrorMessages = true;
 
             _client.Connected += () =>
@@ -51,6 +53,7 @@ namespace RohBot.Rooms.Remote
 
             _client.Disconnected += () =>
             {
+                _client.Dispose();
                 _client = null;
                 _ready = false;
                 Commands = null;
@@ -112,28 +115,38 @@ namespace RohBot.Rooms.Remote
             }
         }
 
-        public override bool SendLineFilter(HistoryLine line, Session session)
+        public override IEnumerable<Session> SendLineFilter(HistoryLine line, IEnumerable<Session> sessions)
         {
+            if (!_ready)
+                return sessions;
+
+            var sessionsList = sessions.ToList();
+
             try
             {
-                var account = session.Account;
-
-                if (account == null)
-                    return false;
-
-                if (_ready)
+                Func<Task<IEnumerable<Session>>> parallel = async () =>
                 {
-                    var accountData = Tuple.Create(account.Id, account.Name);
-                    return _client.Call<HistoryLine, Tuple<long, string>, bool>("SendLineFilter", line, accountData).Result;
-                }
+                    var tasks = sessionsList.Select(async session =>
+                    {
+                        var account = session.Account;
+                        var accountData = Tuple.Create(account.Id, account.Name);
+                        return await _client.Call<HistoryLine, Tuple<long, string>, bool>("SendLineFilter", line, accountData);
+                    }).ToList();
+
+                    await Task.WhenAll(tasks);
+
+                    return tasks.Select(t => t.Result)
+                                .Zip(sessionsList, (include, session) => include ? session : null)
+                                .Where(s => s != null);
+                };
+
+                return parallel().Result;
             }
             catch (Exception e)
             {
                 Program.Logger.ErrorFormat("Remote SendLineFilter: {0}", e);
-                return true;
+                return sessionsList;
             }
-
-            return true;
         }
 
         public override List<HistoryLine> GetHistoryLines(Connection connection)

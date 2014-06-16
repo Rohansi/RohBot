@@ -12,9 +12,9 @@ namespace RohBot
     {
         private class Server : WebSocketServer<Connection>
         {
-            
+
         }
-       
+
         private Server _server;
         private ConcurrentDictionary<string, Session> _sessions;
         private Stopwatch _timer;
@@ -52,6 +52,16 @@ namespace RohBot
                 {
                     session.Send(packetStr);
                 }
+            }
+        }
+
+        public void Send(Packet packet, IEnumerable<Session> sessions)
+        {
+            var packetStr = Packet.WriteToMessage(packet);
+
+            foreach (var session in sessions)
+            {
+                session.Send(packetStr);
             }
         }
 
@@ -115,7 +125,7 @@ namespace RohBot
             }
         }
 
-        private void OnReceive(Connection connection, string message)
+        private static void OnReceive(Connection connection, string message)
         {
             try
             {
