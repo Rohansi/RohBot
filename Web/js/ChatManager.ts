@@ -54,7 +54,7 @@ class ChatManager {
         $("#history > *").each((i, e) => {
             var elem = $(e);
 
-            if (elem.attr("data-name") == shortName)
+            if (elem.data("name") == shortName)
                 elem.show();
             else
                 elem.hide();
@@ -63,7 +63,7 @@ class ChatManager {
         $("#users > *").each((i, e) => {
             var elem = $(e);
 
-            if (elem.attr("data-name") == shortName)
+            if (elem.data("name") == shortName)
                 elem.show();
             else
                 elem.hide();
@@ -91,7 +91,7 @@ class ChatManager {
         if (visible.length >= 2)
             console.error("multiple chat histories are visible!");
 
-        return this.chats[visible.attr("data-name")];
+        return this.chats[visible.data("name")];
     }
 
     scrollToBottom() {
@@ -217,7 +217,7 @@ class ChatManager {
         delete this.chats[shortName];
 
         if (this.getCurrentChat() == null) {
-            var last = $("#tabs > *").last().attr("data-name");
+            var last = $("#tabs > *").last().data("name");
             if (last != null)
                 this.switchTo(last);
         }
