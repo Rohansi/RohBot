@@ -97,7 +97,7 @@ namespace RohBot
             }
         }
 
-        private static Regex _youtube = new Regex(@"youtube\.com/watch\S*?(?:&amp;v|\?v)=([a-zA-Z0-9-_]+)", RegexOptions.Compiled);
+        private static Regex _youtube = new Regex(@"youtube\.com/watch\S*?(?:&amp;|\?)v=([a-zA-Z0-9-_]+)", RegexOptions.Compiled);
         private static Regex _youtubeShort = new Regex(@"youtu\.be/([a-zA-Z0-9-_]+)", RegexOptions.Compiled);
         private static IEnumerable<Tuple<int, AsyncLazy<string>>> LookupYoutube(string message)
         {
@@ -149,7 +149,7 @@ namespace RohBot
             }
         }
 
-        private static Regex _facepunch = new Regex(@"facepunch\.com/showthread\.php\S*?[\?&]t=(\d+)", RegexOptions.Compiled);
+        private static Regex _facepunch = new Regex(@"facepunch\.com/showthread\.php\S*?(?:&amp;|\?)t=(\d+)", RegexOptions.Compiled);
         private static IEnumerable<Tuple<int, AsyncLazy<string>>> LookupFacepunch(string message)
         {
             var matches = _facepunch.Matches(message).Cast<Match>();
