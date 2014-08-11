@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
+using System.Threading;
 using EzSteam;
 using SteamKit2;
 
@@ -59,9 +61,12 @@ namespace RohBot.Rooms.Steam
 
             _bot.OnDisconnected += (sender, reason) =>
             {
+                if (reason == SteamBotDisconnectReason.SteamGuard)
+                    Thread.Sleep(TimeSpan.FromMinutes(2)); // TODO: need a better way of entering steamguard auth
+
                 if (_hasConnected)
                 {
-                    Program.Logger.Info("Disconnected");
+                    Program.Logger.InfoFormat("Disconnected {0}", reason);
                     _hasConnected = false;
                 }
 
