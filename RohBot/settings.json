@@ -1,7 +1,10 @@
 {
     "Username": "",
     "Password": "",
+    "AuthCode": "",
+
     "PersonaName": "~",
+
     "Host": "http://localhost/",
 
     "SuperAdminSteam": 76561198002164049,
