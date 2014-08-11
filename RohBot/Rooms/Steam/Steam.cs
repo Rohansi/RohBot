@@ -44,7 +44,7 @@ namespace RohBot.Rooms.Steam
             _connectStarted.Restart();
             Program.Logger.Info("Connecting");
 
-            _bot = new SteamBot(Program.Settings.Username, Program.Settings.Password);
+            _bot = new SteamBot(Program.Settings.Username, Program.Settings.Password, Program.Settings.AuthCode);
             _bot.OnConnected += sender =>
             {
                 _hasConnected = true;

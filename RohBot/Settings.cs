@@ -6,9 +6,27 @@ namespace RohBot
 {
     public class Settings
     {
+        /// <summary>
+        /// Steam username
+        /// </summary>
         public string Username;
+
+        /// <summary>
+        /// Steam password
+        /// </summary>
         public string Password;
+
+        /// <summary>
+        /// Steam Guard authorization code
+        /// </summary>
+        public string AuthCode;
+
+        /// <summary>
+        /// Steam display name
+        /// </summary>
         public string PersonaName;
+
+
         public string Host;
 
         public ulong SuperAdminSteam;
