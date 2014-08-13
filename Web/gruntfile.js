@@ -54,7 +54,7 @@ module.exports = function(grunt) {
 		},
 
         // HTML (including Templates)
-        htmlmin: {
+        html_minify: {
             options: {
                 removeComments: true,
                 collapseWhitespace: true
@@ -109,7 +109,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-htmlmin');
+    grunt.loadNpmTasks('grunt-html-minify');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-myth');
@@ -146,7 +146,7 @@ module.exports = function(grunt) {
 
     grunt.registerTask('html', [
         'copy:index',
-        'htmlmin:templates',
+        'html_minify:templates',
         'hogan:templates'
     ]);
 
@@ -156,7 +156,7 @@ module.exports = function(grunt) {
 
     grunt.registerTask('dist', [
         'copy:dist',
-        'htmlmin:index',
+        'html_minify:index',
         'uglify:js',
         'cssmin:css'
     ]);
