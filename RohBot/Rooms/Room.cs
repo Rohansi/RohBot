@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Mono.CSharp;
 using RohBot.Packets;
 
 namespace RohBot.Rooms
@@ -267,6 +268,17 @@ namespace RohBot.Rooms
             {
                 connection.SendSysMessage("You are banned from this room.");
                 return;
+            }
+
+            try
+            {
+                var regex = Program.Settings.EmoticonRegex;
+                if (regex != null)
+                    message = regex.Replace(message, match => string.Format("ː{0}ː", match.Groups[1]));
+            }
+            catch (Exception e)
+            {
+                Program.Logger.Error("Emoticon replace failed", e);
             }
 
             var userName = account.Name;

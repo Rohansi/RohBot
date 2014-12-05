@@ -1314,6 +1314,11 @@
             The CDNClient class is used for downloading game content from the Steam servers.
             </summary>
         </member>
+        <member name="F:SteamKit2.CDNClient.RequestTimeout">
+            <summary>
+            Default timeout to use when making requests
+            </summary>
+        </member>
         <member name="M:SteamKit2.CDNClient.#ctor(SteamKit2.SteamClient,System.Byte[])">
             <summary>
             Initializes a new instance of the <see cref="T:SteamKit2.CDNClient"/> class.
@@ -1401,6 +1406,28 @@
             <returns>A <see cref="T:SteamKit2.CDNClient.DepotChunk"/> instance that contains the data for the given chunk.</returns>
             <exception cref="T:System.ArgumentNullException">chunk's <see cref="P:SteamKit2.DepotManifest.ChunkData.ChunkID"/> was null.</exception>
         </member>
+        <member name="M:SteamKit2.CDNClient.DownloadDepotChunk(System.UInt32,SteamKit2.DepotManifest.ChunkData,System.String,System.String,System.Byte[])">
+            <summary>
+            Downloads the specified depot chunk, and optionally processes the chunk and verifies the checksum if the depot decryption key has been provided.
+            </summary>
+            <remarks>
+            This function will also validate the length of the downloaded chunk with the value of <see cref="P:SteamKit2.DepotManifest.ChunkData.CompressedLength"/>,
+            if it has been assigned a value.
+            </remarks>
+            <param name="depotId">The id of the depot being accessed.</param>
+            <param name="chunk">
+            A <see cref="T:SteamKit2.DepotManifest.ChunkData"/> instance that represents the chunk to download.
+            This value should come from a manifest downloaded with <see cref="M:SteamKit2.CDNClient.DownloadManifest(System.UInt32,System.UInt64)"/>.
+            </param>
+            <returns>A <see cref="T:SteamKit2.CDNClient.DepotChunk"/> instance that contains the data for the given chunk.</returns>
+            <param name="host">CDN hostname.</param>
+            <param name="cdnAuthToken">CDN auth token for CDN content server endpoints.</param>
+            <param name="depotKey">
+            The depot decryption key for the depot that will be downloaded.
+            This is used for decrypting filenames (if needed) in depot manifests, and processing depot chunks.
+            </param>
+            <exception cref="T:System.ArgumentNullException">chunk's <see cref="P:SteamKit2.DepotManifest.ChunkData.ChunkID"/> was null.</exception>
+        </member>
         <member name="T:SteamKit2.CDNClient.Server">
             <summary>
             Represents a single Steam3 'Steampipe' content server.
@@ -1460,6 +1487,11 @@
         <member name="P:SteamKit2.CDNClient.Server.WeightedLoad">
             <summary>
             Gets the weighted load.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.CDNClient.Server.NumEntries">
+            <summary>
+            Gets the number of entries this server is worth.
             </summary>
         </member>
         <member name="T:SteamKit2.CDNClient.DepotChunk">
@@ -3437,6 +3469,130 @@
             The result of the operator.
             </returns>
         </member>
+        <member name="M:SevenZip.ICoder.Code(System.IO.Stream,System.IO.Stream,System.Int64,System.Int64,SevenZip.ICodeProgress)">
+            <summary>
+            Codes streams.
+            </summary>
+            <param name="inStream">
+            input Stream.
+            </param>
+            <param name="outStream">
+            output Stream.
+            </param>
+            <param name="inSize">
+            input Size. -1 if unknown.
+            </param>
+            <param name="outSize">
+            output Size. -1 if unknown.
+            </param>
+            <param name="progress">
+            callback progress reference.
+            </param>
+            <exception cref="T:SevenZip.DataErrorException">
+            if input stream is not valid
+            </exception>
+        </member>
+        <member name="T:SevenZip.DataErrorException">
+            <summary>
+            The exception that is thrown when an error in input stream occurs during decoding.
+            </summary>
+        </member>
+        <member name="T:SevenZip.InvalidParamException">
+            <summary>
+            The exception that is thrown when the value of an argument is outside the allowable range.
+            </summary>
+        </member>
+        <member name="M:SevenZip.ICodeProgress.SetProgress(System.Int64,System.Int64)">
+            <summary>
+            Callback progress.
+            </summary>
+            <param name="inSize">
+            input size. -1 if unknown.
+            </param>
+            <param name="outSize">
+            output size. -1 if unknown.
+            </param>
+        </member>
+        <member name="T:SevenZip.CoderPropID">
+            <summary>
+            Provides the fields that represent properties idenitifiers for compressing.
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.DefaultProp">
+            <summary>
+            Specifies default property.
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.DictionarySize">
+            <summary>
+            Specifies size of dictionary.
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.UsedMemorySize">
+            <summary>
+            Specifies size of memory for PPM*.
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.Order">
+            <summary>
+            Specifies order for PPM methods.
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.BlockSize">
+            <summary>
+            Specifies Block Size.
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.PosStateBits">
+            <summary>
+            Specifies number of postion state bits for LZMA (0 &lt;= x &lt;= 4).
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.LitContextBits">
+            <summary>
+            Specifies number of literal context bits for LZMA (0 &lt;= x &lt;= 8).
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.LitPosBits">
+            <summary>
+            Specifies number of literal position bits for LZMA (0 &lt;= x &lt;= 4).
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.NumFastBytes">
+            <summary>
+            Specifies number of fast bytes for LZ*.
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.MatchFinder">
+            <summary>
+            Specifies match finder. LZMA: "BT2", "BT4" or "BT4B".
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.MatchFinderCycles">
+            <summary>
+            Specifies the number of match finder cyckes.
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.NumPasses">
+            <summary>
+            Specifies number of passes.
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.Algorithm">
+            <summary>
+            Specifies number of algorithm.
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.NumThreads">
+            <summary>
+            Specifies the number of threads.
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.EndMarker">
+            <summary>
+            Specifies mode with end marker.
+            </summary>
+        </member>
         <member name="M:SteamKit2.UdpPacket.#ctor(System.IO.MemoryStream)">
             <summary>
             Initializes a new instance of the <see cref="T:SteamKit2.UdpPacket"/> class with
@@ -4730,6 +4886,35 @@
             </summary>
             <value>The message.</value>
         </member>
+        <member name="T:SteamKit2.SteamFriends.FriendMsgEchoCallback">
+            <summary>
+            This callback is fired in response to receiving an echo message from another instance.
+            </summary>
+        </member>
+        <member name="P:SteamKit2.SteamFriends.FriendMsgEchoCallback.Recipient">
+            <summary>
+            Gets or sets the recipient
+            </summary>
+            <value>The recipient.</value>
+        </member>
+        <member name="P:SteamKit2.SteamFriends.FriendMsgEchoCallback.EntryType">
+            <summary>
+            Gets the chat entry type.
+            </summary>
+            <value>The chat entry type.</value>
+        </member>
+        <member name="P:SteamKit2.SteamFriends.FriendMsgEchoCallback.FromLimitedAccount">
+            <summary>
+            Gets a value indicating whether this message is from a limited account.
+            </summary>
+            <value><c>true</c> if this message is from a limited account; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="P:SteamKit2.SteamFriends.FriendMsgEchoCallback.Message">
+            <summary>
+            Gets the message.
+            </summary>
+            <value>The message.</value>
+        </member>
         <member name="T:SteamKit2.SteamFriends.FriendAddedCallback">
             <summary>
             This callback is fired in response to adding a user to your friends list.
@@ -5395,6 +5580,12 @@
             </summary>
             <value>The auth code.</value>
         </member>
+        <member name="P:SteamKit2.SteamUser.LogOnDetails.TwoFactorCode">
+            <summary>
+            Gets or sets the 2-factor auth code used to login. This is the code that can be received from the authenticator apps.
+            </summary>
+            <value>The two factor auth code.</value>
+        </member>
         <member name="P:SteamKit2.SteamUser.LogOnDetails.SentryFileHash">
             <summary>
             Gets or sets the sentry file hash for this logon attempt, or null if no sentry file is available.
@@ -5536,6 +5727,9 @@
             <typeparam name="T">The type to check against.</typeparam>
             <param name="msg">The callback in question.</param>
             <param name="handler">The handler to invoke.</param>
+            <returns>
+            	<c>true</c> if the callback matches and the handler was called; otherwise, <c>false</c>.
+            </returns>
             <exception cref="T:System.ArgumentNullException">
             	<c>msg</c> is null or <c>handler</c> is null.
             </exception>
@@ -6339,11 +6533,11 @@
             </summary>
             <returns>The local IP.</returns>
         </member>
-        <member name="P:SteamKit2.Connection.NetFilter">
+        <member name="M:SteamKit2.Connection.SetNetEncryptionFilter(SteamKit2.NetFilterEncryption)">
             <summary>
-            Gets or sets the net filter for this connection.
+            Sets the network encryption filter for this connection
             </summary>
-            <value>The net filter.</value>
+            <param name="filter">filter implementing <see cref="T:SteamKit2.NetFilterEncryption"/></param>
         </member>
         <member name="E:SteamKit2.Connection.NetMsgReceived">
             <summary>
@@ -6378,7 +6572,7 @@
             </summary>
             <param name="clientMsg">The client net message.</param>
         </member>
-        <member name="M:SteamKit2.TcpConnection.NetLoop">
+        <member name="M:SteamKit2.TcpConnection.NetLoop(System.Object)">
             <summary>
             Nets the loop.
             </summary>
@@ -6388,6 +6582,12 @@
             Gets the local IP.
             </summary>
             <returns>The local IP.</returns>
+        </member>
+        <member name="M:SteamKit2.TcpConnection.SetNetEncryptionFilter(SteamKit2.NetFilterEncryption)">
+            <summary>
+            Sets the network encryption filter for this connection
+            </summary>
+            <param name="filter">filter implementing <see cref="T:SteamKit2.NetFilterEncryption"/></param>
         </member>
         <member name="F:SteamKit2.UdpConnection.RESEND_DELAY">
             <summary>
@@ -6541,6 +6741,12 @@
             Receives typical data packets before dispatching them for consumption by the rest of SteamKit
             </summary>
             <param name="packet">The packet.</param>
+        </member>
+        <member name="M:SteamKit2.UdpConnection.SetNetEncryptionFilter(SteamKit2.NetFilterEncryption)">
+            <summary>
+            Sets the network encryption filter for this connection
+            </summary>
+            <param name="filter">filter implementing <see cref="T:SteamKit2.NetFilterEncryption"/></param>
         </member>
         <member name="T:SteamKit2.NetMsgEventArgs">
             <summary>

@@ -16,6 +16,8 @@
     "DbUser": "server",
     "DbPass": "",
     
+    "EmoticonRegex": "/:(box):/i",
+    
     "DefaultRoom": "fpp",
     "Rooms": [
 		{

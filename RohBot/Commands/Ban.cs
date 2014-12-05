@@ -37,8 +37,6 @@ namespace RohBot.Commands
                 target.Send("Account is already banned.");
                 return;
             }
-            
-            target.Room.Ban(parameters[0]);
 
             var line = new StateLine
             {
@@ -67,6 +65,8 @@ namespace RohBot.Commands
             line.Content = string.Format("{0} was banned by {1}.", line.For, line.By);
 
             target.Room.SendLine(line);
+
+            target.Room.Ban(parameters[0]);
         }
     }
 }

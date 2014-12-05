@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace RohBot
 {
@@ -26,7 +28,6 @@ namespace RohBot
         /// </summary>
         public string PersonaName;
 
-
         public string Host;
 
         public ulong SuperAdminSteam;
@@ -40,6 +41,9 @@ namespace RohBot
 
         public string DefaultRoom;
         public List<Dictionary<string, string>> Rooms;
+
+        [JsonConverter(typeof(RegexConverter))]
+        public Regex EmoticonRegex;
 
         public static Settings Load(string fileName)
         {
