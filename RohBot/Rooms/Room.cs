@@ -148,6 +148,8 @@ namespace RohBot.Rooms
         /// </summary>
         public virtual void SendLine(HistoryLine line)
         {
+            line = Util.EmoticonReplace(line);
+
             var chatLine = line as ChatLine;
             if (chatLine != null && _showLinkTitles && chatLine.SenderId != "0")
             {
@@ -268,17 +270,6 @@ namespace RohBot.Rooms
             {
                 connection.SendSysMessage("You are banned from this room.");
                 return;
-            }
-
-            try
-            {
-                var regex = Program.Settings.EmoticonRegex;
-                if (regex != null)
-                    message = regex.Replace(message, match => string.Format("ː{0}ː", match.Groups[1]));
-            }
-            catch (Exception e)
-            {
-                Program.Logger.Error("Emoticon replace failed", e);
             }
 
             var userName = account.Name;

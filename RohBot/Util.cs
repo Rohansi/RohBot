@@ -280,6 +280,44 @@ namespace RohBot
             }
         }
         #endregion
+
+        /// <summary>
+        /// Used to display supported emoticons on messages sent from RohBot.
+        /// </summary>
+        public static HistoryLine EmoticonReplace(HistoryLine line)
+        {
+            var chatLine = line as ChatLine;
+            if (chatLine != null && chatLine.UserType == "RohBot")
+            {
+                chatLine.Content = EmoticonReplace(chatLine.Content);
+                return line;
+            }
+
+            var stateLine = line as StateLine;
+            if (stateLine != null && stateLine.State == "Action" && stateLine.ForType == "RohBot")
+            {
+                stateLine.Content = EmoticonReplace(stateLine.Content);
+                return line;
+            }
+
+            return line;
+        }
+
+        private static string EmoticonReplace(string message)
+        {
+            try
+            {
+                var regex = Program.Settings.EmoticonRegex;
+                if (regex != null)
+                    message = regex.Replace(message, match => string.Format("ː{0}ː", match.Groups[1]));
+            }
+            catch (Exception e)
+            {
+                Program.Logger.Error("Emoticon replace failed", e);
+            }
+
+            return message;
+        }
     }
 
     public class AsyncLazy<T> : Lazy<Task<T>>

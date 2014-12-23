@@ -183,9 +183,11 @@ class Chat {
 
             case "state": {
                 var stateLine = <StateLine>line;
-                if (stateLine.State == "Action" || stateLine.State == "Client")
+                if (stateLine.State == "Action" || stateLine.State == "Client") {
+                    if (stateLine.Chat != "home")
+                        data.Message = this.linkify(stateLine.Content);
                     break;
-
+                }
                 var style = t => t == "Steam" ? "steam" : "rohBot";
                 var stateData: any = {
                     For: stateLine.For,
