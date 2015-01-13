@@ -1,5 +1,8 @@
+var server = "wss://fpp.literallybrian.com/ws/";
+if (window.location.protocol != "https:")
+    server = "ws://107.191.98.153:12000/";
 
-var rohbot = new RohBot("wss://fpp.literallybrian.com/ws/");
+var rohbot = new RohBot(server);
 var chatMgr = new ChatManager(rohbot);
 var ui = new UserInterface(rohbot, chatMgr);
 
