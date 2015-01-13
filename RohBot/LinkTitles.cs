@@ -19,7 +19,7 @@ namespace RohBot
             var sb = new StringBuilder();
             var titles = LookupYoutube(message)
                         .Concat(LookupSpotify(message))
-                        .Concat(LookupFacepunch(message))
+                        //.Concat(LookupFacepunch(message))
                         .OrderBy(i => i.Item1)
                         .Take(5)
                         .ToList();
@@ -150,11 +150,12 @@ namespace RohBot
         }
 
         private static Regex _facepunch = new Regex(@"facepunch\.com/showthread\.php\S*?(?:&amp;|\?)t=(\d+)", RegexOptions.Compiled);
+        private static Regex _facepunchTitle = new Regex(@"<title\b[^>]*>(.*?)</title>", RegexOptions.Compiled);
         private static IEnumerable<Tuple<int, AsyncLazy<string>>> LookupFacepunch(string message)
         {
             var matches = _facepunch.Matches(message).Cast<Match>();
 
-            foreach (Match m in matches.DistinctBy(m => m.Groups[1].Value))
+            foreach (Match m in matches.DistinctBy(m => m.Value))
             {
                 var match = m;
                 var offset = match.Index;
@@ -162,19 +163,13 @@ namespace RohBot
                 {
                     try
                     {
-                        var threadId = match.Groups[1].Value;
+                        var page = await DownloadPage("http://" + match.Value, Encoding.GetEncoding("Windows-1252"));
+                        var title = WebUtility.HtmlDecode(_facepunchTitle.Match(page).Groups[1].Value.Trim());
 
-                        var apiRequestUrl = string.Format(@"http://lab.facepunch.com/api/post/list/?threadid={0}", threadId);
-                        var responseFromServer = await DownloadPage(apiRequestUrl, Encoding.UTF8);
-
-                        var token = JObject.Parse(responseFromServer);
-
-                        if (token["status"].ToObject<string>() != "ok")
+                        if (title == "Facepunch")
                             return null;
 
-                        var name = WebUtility.HtmlDecode(token["data"]["thread"]["title"].ToObject<string>());
-
-                        return string.Format("Facepunch: {0}", name);
+                        return string.Format("Facepunch: {0}", title);
                     }
                     catch (Exception e)
                     {
