@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Mono.CSharp;
 using RohBot.Packets;
 
 namespace RohBot.Rooms
@@ -98,6 +97,7 @@ namespace RohBot.Rooms
         public readonly bool IsPrivate;
         public readonly bool IsLogging;
         public readonly bool ShowWebStates;
+        public readonly bool DisableBanning;
 
         /// <summary>
         /// If not empty, commands used in this room will potentially resolve to commands that use the prefix.
@@ -141,6 +141,7 @@ namespace RohBot.Rooms
             IsPrivate = (RoomInfo["Private"] ?? "").ToLower() == "true";
             IsLogging = (RoomInfo["Logging"] ?? "true").ToLower() == "true";
             ShowWebStates = (RoomInfo["WebStates"] ?? "true").ToLower() == "true";
+            DisableBanning = (RoomInfo["DisableBanning"] ?? "").ToLower() == "true";
         }
 
         /// <summary>

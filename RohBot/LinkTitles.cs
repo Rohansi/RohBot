@@ -19,7 +19,7 @@ namespace RohBot
             var sb = new StringBuilder();
             var titles = LookupYoutube(message)
                         .Concat(LookupSpotify(message))
-                        //.Concat(LookupFacepunch(message))
+                        .Concat(LookupFacepunch(message))
                         .OrderBy(i => i.Item1)
                         .Take(5)
                         .ToList();
