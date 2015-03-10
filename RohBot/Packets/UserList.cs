@@ -13,7 +13,7 @@ namespace RohBot.Packets
             public readonly string Rank;        // Owner/Officer/Moderator/Member/Guest
             public readonly string Avatar;      // Empty if using web
             public readonly string Status;      // Online/Busy/Away/Snooze/Looking to Trade/Looking to Play/Offline OR empty if using web
-            public readonly string Playing;     // Empty if not playing OR using web
+            public readonly string Playing;     // Null if not playing OR using web
             public readonly bool Web;           // True if the account is using the RohBot client
 
             internal User(string name, string userId, string rank, string avatar, string status, string playing, bool web)

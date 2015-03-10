@@ -53,7 +53,7 @@ namespace RohBot.Commands
                 {
                     var userId = account.Id.ToString("D");
                     var rank = GetRankString(target.Room, account.Name);
-                    userList.AddUser(account.Name, userId, rank, "", "", "", true);
+                    userList.AddUser(account.Name, userId, rank, "", "", null, true);
                 }
 
                 userList.ShortName = roomName;

@@ -308,7 +308,7 @@ class Chat {
                     Rank: "Member",
                     Avatar: "0000000000000000000000000000000000000000",
                     Status: stateLine.ForType == "RohBot" ? "" : "Online",
-                    Playing: "",
+                    Playing: null,
                     Web: stateLine.ForType == "RohBot"
                 });
                 break;
@@ -319,7 +319,7 @@ class Chat {
             case "Left":
             case "Disconnected":
                 this.userList = this.userList.filter(e => {
-                    return e.Web != (stateLine.ForType == "RohBot") || e.Name != stateLine.For;
+                    return e.UserId != stateLine.ForId;
                 });
                 break;
 
@@ -356,8 +356,11 @@ class Chat {
             else
                 u.AvatarFolder = u.Avatar.substring(0, 2);
 
-            if (u.Playing === "")
+            if (u.Playing === null)
                 u.Playing = false;
+
+            if (u.Playing === "")
+                u.Playing = "&nbsp;";
 
             if (u.Status === "")
                 u.Status = "&nbsp;";
