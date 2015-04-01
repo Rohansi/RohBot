@@ -50,3 +50,28 @@
         }
     }
 }
+
+.inline-users {
+    padding: 4px 4px 1px 4px !important;
+    background-color: @color-userlist-background;
+
+    > li {
+        display: inline-block;
+        width: (@userlist-width / 1.5);
+        padding-right: @userlist-padding;
+
+        img {
+            width: @userlist-height !important;
+            height: @userlist-height !important;
+        }
+
+        a {
+            color: inherit !important;
+            text-decoration: none !important;
+        }
+
+        a:hover {
+            text-decoration: underline !important;
+        }
+    }
+}

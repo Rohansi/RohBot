@@ -219,6 +219,9 @@ class UserInterface {
                     j.html(Chat.formatTime(new Date(j.attr("datetime")), newFmt));
                 });
             }
+        } else if (command.indexOf("users") == 0) {
+            chat.history.find("> ol.inline-users").remove();
+            chat.addHtml('<ol class="user-list inline-users">' + chat.users.html() + '</ol>');
         } else {
             return false;
         }

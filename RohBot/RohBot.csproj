@@ -67,26 +67,15 @@
     <Reference Include="SteamKit2">
       <HintPath>..\Libraries\SteamKit2.dll</HintPath>
     </Reference>
-    <Reference Include="SuperSocket.Common">
-      <HintPath>..\packages\SuperWebSocketNETServer.0.8\lib\net45\SuperSocket.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="SuperSocket.Facility">
-      <HintPath>..\packages\SuperWebSocketNETServer.0.8\lib\net45\SuperSocket.Facility.dll</HintPath>
-    </Reference>
-    <Reference Include="SuperSocket.SocketBase">
-      <HintPath>..\packages\SuperWebSocketNETServer.0.8\lib\net45\SuperSocket.SocketBase.dll</HintPath>
-    </Reference>
-    <Reference Include="SuperSocket.SocketEngine">
-      <HintPath>..\packages\SuperWebSocketNETServer.0.8\lib\net45\SuperSocket.SocketEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="SuperWebSocket">
-      <HintPath>..\packages\SuperWebSocketNETServer.0.8\lib\net45\SuperWebSocket.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Web" />
+    <Reference Include="websocket-sharp, Version=1.0.2.42043, Culture=neutral, PublicKeyToken=5660b08a1845a91e, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Libraries\websocket-sharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Account.cs" />

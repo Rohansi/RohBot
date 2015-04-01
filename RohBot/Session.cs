@@ -137,7 +137,7 @@ namespace RohBot
             {
                 foreach (var conn in _connections)
                 {
-                    conn.CloseWithHandshake("kick");
+                    Program.SessionManager.Close(conn);
                 }
 
                 _connections.Clear();

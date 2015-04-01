@@ -3,19 +3,14 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using SuperSocket.SocketBase.Config;
-using SuperWebSocket;
+using System.Net;
+using WebSocketSharp.Server;
 
 namespace RohBot
 {
     public class SessionManager
     {
-        private class Server : WebSocketServer<Connection>
-        {
-
-        }
-
-        private Server _server;
+        private WebSocketServer _server;
         private ConcurrentDictionary<string, Session> _sessions;
         private Stopwatch _timer;
 
@@ -23,23 +18,18 @@ namespace RohBot
         {
             _sessions = new ConcurrentDictionary<string, Session>();
             _timer = Stopwatch.StartNew();
-            _server = new Server();
         }
 
         public void Start()
         {
-            var config = new ServerConfig
+            _server = new WebSocketServer(IPAddress.Any, 12000)
             {
-                Ip = "0.0.0.0",
-                Port = 12000,
-                MaxConnectionNumber = 256,
-                MaxRequestLength = 8192
+                KeepClean = true
             };
 
-            _server.Setup(config);
-            _server.Start();
+            _server.AddWebSocketService<Connection>("/");
 
-            _server.NewMessageReceived += OnReceive;
+            _server.Start();
         }
 
         public void Broadcast(Packet packet, Func<Session, bool> filter = null)
@@ -115,26 +105,16 @@ namespace RohBot
             var ping = new Packets.Ping();
             var pingStr = Packet.WriteToMessage(ping);
 
-            foreach (var connection in _server.GetAllSessions())
-            {
-                try
-                {
-                    connection.Send(pingStr);
-                }
-                catch { }
-            }
-        }
-
-        private static void OnReceive(Connection connection, string message)
-        {
             try
             {
-                Packet.ReadFromMessage(message).Handle(connection);
+                _server.WebSocketServices["/"].Sessions.Broadcast(pingStr);
             }
-            catch (Exception e)
-            {
-                Program.Logger.Error(string.Format("Bad packet from {0}: {1}", connection.Address, message), e);
-            }
+            catch { }
+        }
+
+        public void Close(Connection connection)
+        {
+            _server.WebSocketServices["/"].Sessions.CloseSession(connection.ID);
         }
     }
 }

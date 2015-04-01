@@ -5,15 +5,21 @@ using System.Text.RegularExpressions;
 using Npgsql;
 using RohBot.Packets;
 using RohBot.Rooms;
-using SuperWebSocket;
+using WebSocketSharp;
+using WebSocketSharp.Server;
 
 namespace RohBot
 {
-    public class Connection : WebSocketSession<Connection>
+    public class Connection : WebSocketBehavior
     {
         public string Address { get; private set; }
         public bool IsMobile { get; private set; }
         public Session Session { get; set; }
+
+        public bool Connected
+        {
+            get { return State == WebSocketState.Open; }
+        }
 
         public void SendJoinRoom(Room room)
         {
@@ -205,16 +211,23 @@ namespace RohBot
             Send(Packet.WriteToMessage(packet));
         }
 
+        public new void Send(string data)
+        {
+            base.Send(data);
+        }
+
         private static readonly Regex MobileUserAgent = new Regex(@"Android|iPhone|iPad|iPod|Windows Phone", RegexOptions.Compiled);
 
-        protected override void OnSessionStarted()
+        protected override void OnOpen()
         {
             Session = null;
 
             try
             {
-                var isLocal = RemoteEndPoint.Address.ToString() == "127.0.0.1";
-                Address = isLocal ? Items["X-Real-IP"].ToString() : RemoteEndPoint.Address.ToString();
+                if (Context.IsLocal)
+                    Address = Context.Headers["X-Real-IP"] ?? "127.0.0.1";
+                else
+                    Address = Context.UserEndPoint.Address.ToString();
             }
             catch
             {
@@ -223,11 +236,26 @@ namespace RohBot
 
             try
             {
-                IsMobile = MobileUserAgent.IsMatch(Items["User-Agent"].ToString());
+                IsMobile = MobileUserAgent.IsMatch(Context.Headers["User-Agent"]);
             }
             catch
             {
                 IsMobile = false;
+            }
+        }
+
+        protected override void OnMessage(MessageEventArgs e)
+        {
+            if (e.Type != Opcode.Text)
+                return;
+
+            try
+            {
+                Packet.ReadFromMessage(e.Data).Handle(this);
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Error(string.Format("Bad packet from {0}: {1}", Address, e.Data), ex);
             }
         }
     }

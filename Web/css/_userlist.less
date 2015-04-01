@@ -1,62 +1,65 @@
 
+ol.user-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.9em;
+
+    > li {
+        height: @userlist-height;
+        white-space: nowrap;
+
+        > div {
+            padding-left: @userlist-padding;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: @color-user-steam;
+            
+            &[data-color=ingame] {
+                color: @color-user-ingame;
+            }
+
+            &[data-color=web] {
+                color: @color-user-rohbot;
+            }
+
+            &[data-rank=Administrator]:before {
+                content: '\2605\00a0';
+                color: #FECB00;
+            }
+
+            &[data-rank=Moderator]:before {
+                content: '\2605\00a0';
+                color: #CFCFCF;
+            }
+        }
+    }
+
+    img {
+        width: @userlist-height;
+        height: @userlist-height;
+        vertical-align: text-top;
+        float: left;
+    }
+
+    a {
+        color: inherit;
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
 #users {
     background-color: @color-userlist-background;
-    font-size: 0.9em;
     width: (@userlist-width + @userlist-padding * 2);
     overflow-y: scroll;
 
-    ol {
-        margin: 0;
-        padding: 0;
-        list-style: none;
-
-        > div {
-            height: @userlist-height;
-            padding: @userlist-padding;
-            padding-left: (@userlist-padding * 2);
-            white-space: nowrap;
-
-            > div {
-                overflow: hidden;
-                text-overflow: ellipsis;
-                padding-left: @userlist-padding;
-                color: @color-user-steam;
-
-                &[data-color=ingame] {
-                    color: @color-user-ingame;
-                }
-
-                &[data-color=web] {
-                    color: @color-user-rohbot;
-                }
-
-                &[data-rank=Administrator]:before {
-                    content: '\2605\00a0';
-                    color: #FECB00;
-                }
-
-                &[data-rank=Moderator]:before {
-                    content: '\2605\00a0';
-                    color: #CFCFCF;
-                }
-            }
-        }
-
-        img {
-            width: @userlist-height;
-            height: @userlist-height;
-            vertical-align: text-top;
-            float: left;
-        }
-
-        a {
-            color: inherit;
-            text-decoration: none;
-
-            &:hover {
-                text-decoration: underline;
-            }
-        }
+    ol > li {
+        padding: @userlist-padding;
+        padding-left: (@userlist-padding * 2);
     }
 }
 
@@ -70,10 +73,14 @@
     #users {
         width: ((@userlist-width + @userlist-padding * 2) / 3);
 
-        > ol div {
+        > ol li {
             height: 100%;
             padding: (@userlist-padding / 4);
             padding-left: 0;
+
+            div {
+                height: inherit;
+            }
             
             img,
             span {
@@ -83,7 +90,7 @@
     }
 }
 
-@media all and (max-width: 399px) {
+@media all and (max-width: 349px) {
     #users {
         display: none;
     }
