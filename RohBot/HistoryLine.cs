@@ -20,7 +20,7 @@ namespace RohBot
         {
             Date = date;
             Chat = chat;
-            Content = Util.HtmlEncode(content);
+            Content = Util.HtmlEncode(Util.TrimZalgoCharacters(content));
         }
 
         public static HistoryLine Read(dynamic row)
@@ -81,7 +81,7 @@ namespace RohBot
             : base(date, chat, content)
         {
             UserType = userType;
-            Sender = Util.HtmlEncode(sender);
+            Sender = Util.HtmlEncode(Util.TrimZalgoCharacters(sender));
             SenderId = senderId;
             SenderStyle = senderStyle;
             InGame = inGame;
@@ -125,10 +125,10 @@ namespace RohBot
             : base(date, chat, content)
         {
             State = state;
-            For = Util.HtmlEncode(@for);
+            For = Util.HtmlEncode(Util.TrimZalgoCharacters(@for));
             ForId = forId;
             ForType = forType;
-            By = Util.HtmlEncode(by);
+            By = Util.HtmlEncode(Util.TrimZalgoCharacters(by));
             ById = byId;
             ByType = byType;
         }

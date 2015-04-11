@@ -29,8 +29,8 @@ namespace RohBot.Packets
             Content = Content.Replace('ː', ':');
 
             // steam discards long messages
-            if (Content.Length > 1000)
-                Content = Content.Substring(0, 1000) + "...";
+            if (Content.Length > 2000)
+                Content = Content.Substring(0, 2000) + "...";
 
             var room = Program.RoomManager.Get(Target);
             if (room == null)

@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using RohBot.Rooms.Steam;
 using SteamKit2;
@@ -281,6 +284,7 @@ namespace RohBot
         }
         #endregion
 
+        #region Emoticons
         /// <summary>
         /// Used to display supported emoticons on messages sent from RohBot.
         /// </summary>
@@ -318,6 +322,52 @@ namespace RohBot
 
             return message;
         }
+        #endregion
+
+        #region Zalgo
+        private static ThreadLocal<StringBuilder> _zalgoStringBuilder =
+            new ThreadLocal<StringBuilder>(() => new StringBuilder(1000));
+
+        public static string TrimZalgoCharacters(string value)
+        {
+            const int maxCombiningCharacters = 3;
+
+            var sb = _zalgoStringBuilder.Value;
+            sb.Clear();
+
+            var combiningCharacters = 0;
+
+            for (var i = 0; i < value.Length; i++)
+            {
+                if (IsCombiningCharacter(value, i))
+                    combiningCharacters++;
+                else
+                    combiningCharacters = 0;
+
+                if (combiningCharacters > maxCombiningCharacters)
+                    continue;
+
+                if (char.IsHighSurrogate(value, i))
+                {
+                    sb.Append(value[i + 0]);
+                    sb.Append(value[i + 1]);
+                    i++;
+                }
+                else
+                {
+                    sb.Append(value[i]);
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        private static bool IsCombiningCharacter(string s, int index)
+        {
+            var category = char.GetUnicodeCategory(s, index);
+            return category == UnicodeCategory.NonSpacingMark || category == UnicodeCategory.EnclosingMark;
+        }
+        #endregion
     }
 
     public class AsyncLazy<T> : Lazy<Task<T>>
