@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace RohBot
@@ -220,7 +221,10 @@ namespace RohBot
                     {
                         conn.Send(data);
                     }
-                    catch { }
+                    catch (Exception e)
+                    {
+                        Program.Logger.Warn("send failed", e);
+                    }
                 }
             }
         }

@@ -28,6 +28,7 @@ namespace RohBot
             };
 
             _server.AddWebSocketService<Connection>("/");
+            _server.AddWebSocketService<Connection>("/ws");
 
             _server.Start();
         }
@@ -107,14 +108,23 @@ namespace RohBot
 
             try
             {
-                _server.WebSocketServices["/"].Sessions.Broadcast(pingStr);
+                foreach (var host in _server.WebSocketServices.Hosts)
+                {
+                    host.Sessions.Broadcast(pingStr);
+                }
             }
-            catch { }
+            catch (Exception e)
+            {
+                Program.Logger.Warn("ping failed", e);
+            }
         }
 
         public void Close(Connection connection)
         {
-            _server.WebSocketServices["/"].Sessions.CloseSession(connection.ID);
+            foreach (var host in _server.WebSocketServices.Hosts)
+            {
+                host.Sessions.CloseSession(connection.ID);
+            }
         }
     }
 }

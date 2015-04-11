@@ -33,6 +33,7 @@ class RohBot {
             }
 
             if (this.isConnected() && Date.now() - this.lastMessage >= this.timeout) {
+                console.log("timed out");
                 this.disconnect();
             }
         }, 1000);
