@@ -14,6 +14,8 @@ namespace RohBot
 {
     public static class LinkTitles
     {
+        const string ApiKey = "AIzaSyB2tZ7wquAcn3W78aqaaYKGVfIQWuuVNgg";
+
         public static async Task<string> Lookup(string message)
         {
             var sb = new StringBuilder();
@@ -74,8 +76,7 @@ namespace RohBot
                         string youtubeUrl = null;
                         try
                         {
-                            const string apiKey = "AIzaSyB2tZ7wquAcn3W78aqaaYKGVfIQWuuVNgg";
-                            var apiQuery = string.Format("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&order=relevance&q={0}%20%2B%20{1}&key={2}", ytName, ytArtist, apiKey);
+                            var apiQuery = string.Format("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&order=relevance&q={0}%20%2B%20{1}&key={2}", ytName, ytArtist, ApiKey);
                             var ytResponse = await DownloadPage(apiQuery, Encoding.UTF8);
 
                             var ytToken = JObject.Parse(ytResponse);
@@ -119,19 +120,23 @@ namespace RohBot
                         if (videoId.Length > 11)
                             videoId = videoId.Substring(0, 11);
 
-                        var apiRequestUrl = string.Format(@"http://gdata.youtube.com/feeds/api/videos/{0}?alt=json", videoId);
+                        var apiRequestUrl = string.Format(@"https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id={0}&key={1}", videoId, ApiKey);
                         var responseFromServer = await DownloadPage(apiRequestUrl, Encoding.UTF8);
 
                         var token = JObject.Parse(responseFromServer);
-                        var name = token["entry"]["title"]["$t"].ToObject<string>();
-                        var length = token["entry"]["media$group"]["yt$duration"]["seconds"].ToObject<int>();
+                        var item = token["items"].First;
+                        var name = item["snippet"]["title"].ToObject<string>();
+                        var length = ParseDuration(item["contentDetails"]["duration"].ToObject<string>());
                         var formattedlength = FormatTime(TimeSpan.FromSeconds(length));
 
                         var stars = "";
                         try
                         {
-                            var numStars = Math.Round(token["entry"]["gd$rating"]["average"].ToObject<double>());
-                            stars = string.Format(" [{0}]", new string('★', (int)numStars).PadRight(5, '☆'));
+                            var likes = item["statistics"]["likeCount"].ToObject<float>();
+                            var dislikes = item["statistics"]["dislikeCount"].ToObject<float>();
+                            var total = likes + dislikes;
+                            var numStars = (int)Math.Round((likes / total) * 5);
+                            stars = string.Format(" [{0}]", new string('★', numStars).PadRight(5, '☆'));
                         }
                         catch { }
 
@@ -209,6 +214,34 @@ namespace RohBot
             if (time.Hours > 0)
                 format = @"h\:m" + format;
             return time.ToString(format);
+        }
+
+        private static Regex _duration = new Regex(@"[0-9]+[HMS]", RegexOptions.Compiled);
+        private static int ParseDuration(string duration)
+        {
+            var seconds = 0;
+
+            foreach (var match in _duration.Matches(duration).Cast<Match>())
+            {
+                var value = match.Value;
+                var unit = value[value.Length - 1];
+                var amount = int.Parse(value.Substring(0, value.Length - 1));
+
+                switch (unit)
+                {
+                    case 'H':
+                        seconds += amount * 60 * 60;
+                        break;
+                    case 'M':
+                        seconds += amount * 60;
+                        break;
+                    case 'S':
+                        seconds += amount;
+                        break;
+                }
+            }
+
+            return seconds;
         }
 
         static LinkTitles()

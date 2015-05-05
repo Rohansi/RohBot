@@ -12,7 +12,7 @@ namespace RohBot.Commands
             if (!target.IsRoom || !Util.IsMod(target) || parameters.Length == 0)
                 return;
 
-            if (target.Room.DisableBanning)
+            if (target.Room.DisableBanning && !Util.IsAdmin(target))
                 return;
 
             if (!Util.IsValidUsername(parameters[0]))
