@@ -171,16 +171,19 @@ class ChatManager {
         });
 
         rohbot.messageReceived.add(packet => {
-            var chat = this.getChat(packet.Line.Chat);
+            var line = packet.Line;
+            var chat = this.getChat(line.Chat);
+
             if (chat == null) {
-                console.warn("message without existing chat:", packet.Line.Chat);
+                console.warn("message without existing chat:", line.Chat);
                 return;
             }
 
-            if (packet.Line.Type === "chat")
+            if (line.Type === "chat" && (<ChatLine>line).SenderId !== "0") {
                 chat.incrementUnreadCounter();
+            }
 
-            chat.addLine(packet.Line, false);
+            chat.addLine(line, false);
         });
 
         rohbot.userListReceived.add(packet => {
