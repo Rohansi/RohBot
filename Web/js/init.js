@@ -1,5 +1,5 @@
 var server = "wss://fpp.literallybrian.com/ws/";
-if (window.location.protocol != "https:")
+if (window.location.protocol !== "https:")
     server = "ws://107.191.98.153:12000/";
 
 var rohbot = new RohBot(server);
@@ -11,7 +11,7 @@ function send(room, message) {
 }
 
 function join(room) {
-    if (chatMgr.getChat(room) == null)
+    if (chatMgr.getChat(room) === null)
         send("home", "/join " + room);
     else
         chatMgr.switchTo(room);

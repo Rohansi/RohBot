@@ -9,7 +9,7 @@ class RohStore {
         RohStore.storage[key] = value;
     }
 
-    static delete(key: string) {
+    static remove(key: string) {
         delete RohStore.storage[key];
     }
 
@@ -21,7 +21,7 @@ class RohStore {
             try {
                 var data = Date.now() + "a";
                 store[key] = data;
-                if (data != store[key])
+                if (data !== store[key])
                     store = null;
                 if (store != null)
                     delete store[key];

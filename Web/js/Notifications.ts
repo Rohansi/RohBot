@@ -8,7 +8,7 @@ class Notifications {
 
     private static construct = (() => {
         Notifications.supported = "Notification" in window;
-        Notifications.enabled = RohStore.get("notifications-enabled") == "true";
+        Notifications.enabled = RohStore.get("notifications-enabled") === "true";
     })();
 
     static enable() {
@@ -23,7 +23,7 @@ class Notifications {
     }
 
     static areEnabled() {
-        return RohStore.get("notifications-enabled") == "true";
+        return RohStore.get("notifications-enabled") === "true";
     }
 
     static areSupported() {
@@ -31,14 +31,14 @@ class Notifications {
     }
 
     static hasPermission() {
-        return Notification.permission == "granted";
+        return Notification.permission === "granted";
     }
 
     static requestPermission() {
-        if (!Notifications.areSupported() || Notification.permission == "denied")
+        if (!Notifications.areSupported() || Notification.permission === "denied")
             return;
 
-        Notification.requestPermission((permission) => {
+        Notification.requestPermission(permission => {
             if (!("permission" in Notification)) {
                 Notification.permission = permission;
             }

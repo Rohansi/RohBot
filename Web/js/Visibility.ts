@@ -13,21 +13,21 @@ class Visibility {
         return Visibility.isHidden;
     }
 
-    private static _ctor = (() => {
+    private static ctor = (() => {
         Visibility.isHidden = false;
 
         if (document.addEventListener) {
-            window.addEventListener('focus', Visibility.onFocus, true);
-            window.addEventListener('blur', Visibility.onBlur, true);
+            window.addEventListener("focus", Visibility.onFocus, true);
+            window.addEventListener("blur", Visibility.onBlur, true);
         } else {
-            document.attachEvent('onfocusin', Visibility.onFocus);
-            document.attachEvent('onfocusout', Visibility.onBlur);
+            document.attachEvent("onfocusin", Visibility.onFocus);
+            document.attachEvent("onfocusout", Visibility.onBlur);
         }
     })();
 
     private static onFocus(e: any) {
         var target = e.target || e.srcTarget;
-        if (target != window)
+        if (target !== window)
             return;
 
         Visibility.isHidden = false;
@@ -36,7 +36,7 @@ class Visibility {
 
     private static onBlur(e: any) {
         var target = e.target || e.srcTarget;
-        if (target != window)
+        if (target !== window)
             return;
 
         Visibility.isHidden = true;

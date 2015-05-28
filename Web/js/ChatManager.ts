@@ -18,7 +18,7 @@ class ChatManager {
 
         var history = $("#history");
         var historyElem = history[0];
-        history.scroll(e => {
+        history.scroll(() => {
             if (historyElem.scrollTop > 0 || historyElem.scrollHeight <= historyElem.clientHeight)
                 return;
 
@@ -46,7 +46,7 @@ class ChatManager {
             return;
         }
 
-        if (shortName != "home")
+        if (shortName !== "home")
             RohStore.set("last-chat", shortName);
 
         target.resetUnreadCounter();
@@ -54,7 +54,7 @@ class ChatManager {
         $("#history > *").each((i, e) => {
             var elem = $(e);
 
-            if (elem.data("name") == shortName)
+            if (elem.data("name") === shortName)
                 elem.show();
             else
                 elem.hide();
@@ -63,7 +63,7 @@ class ChatManager {
         $("#users > *").each((i, e) => {
             var elem = $(e);
 
-            if (elem.data("name") == shortName)
+            if (elem.data("name") === shortName)
                 elem.show();
             else
                 elem.hide();
@@ -76,7 +76,7 @@ class ChatManager {
     }
 
     getChat(shortName: string) {
-        if (!(shortName in this.chats))
+        if (!this.chats.hasOwnProperty(shortName))
             return null;
 
         return this.chats[shortName];
@@ -85,7 +85,7 @@ class ChatManager {
     getCurrentChat() {
         var visible = $("#history > *").filter(":visible");
 
-        if (visible.length == 0)
+        if (visible.length === 0)
             return null;
 
         if (visible.length >= 2)
@@ -110,11 +110,11 @@ class ChatManager {
     }
 
     private setupRohBot(rohbot: RohBot) {
-        rohbot.loggedIn.add(packet => {
+        rohbot.loggedIn.add(() => {
             this.loggingIn = true;
 
             for (var k in this.chats) {
-                if (k == "home")
+                if (!this.chats.hasOwnProperty(k) || k === "home")
                     continue;
 
                 var chat = this.chats[k];
@@ -126,9 +126,9 @@ class ChatManager {
         });
 
         rohbot.chatReceived.add(packet => {
-            if (packet.Method == "join") {
+            if (packet.Method === "join") {
                 this.joinChat(packet.Name, packet.ShortName);
-            } else if (packet.Method == "leave") {
+            } else if (packet.Method === "leave") {
                 this.leaveChat(packet.ShortName);
             }
         });
@@ -151,7 +151,7 @@ class ChatManager {
             }
 
             var loginMsg = "Logged in as";
-            if (this.loggingIn && packet.Content.substring(0, loginMsg.length) == loginMsg) {
+            if (this.loggingIn && packet.Content.substring(0, loginMsg.length) === loginMsg) {
                 this.loggingIn = false;
 
                 var lastChat = RohStore.get("last-chat");
@@ -177,7 +177,7 @@ class ChatManager {
                 return;
             }
 
-            if (packet.Line.Type == "chat")
+            if (packet.Line.Type === "chat")
                 chat.incrementUnreadCounter();
 
             chat.addLine(packet.Line, false);
@@ -195,7 +195,7 @@ class ChatManager {
     }
 
     private joinChat(name: string, shortName: string) {
-        if (shortName in this.chats) {
+        if (this.chats.hasOwnProperty(shortName)) {
             console.warn("joinChat on existing chat:", shortName);
             return;
         }
@@ -207,10 +207,10 @@ class ChatManager {
     }
 
     private leaveChat(shortName: string) {
-        if (!(shortName in this.chats))
+        if (!this.chats.hasOwnProperty(shortName))
             return;
 
-        if (shortName == "home")
+        if (shortName === "home")
             return;
 
         this.chats[shortName].destroy();

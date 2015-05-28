@@ -22,7 +22,7 @@ class RohBot {
     userListReceived: Event1<UserListPacket> = new TypedEvent();
 
     constructor(address: string) {
-        this.timeout = 15 * 1000;
+        this.timeout = 45 * 1000;
 
         this.address = address;
         this.username = null;
@@ -76,7 +76,7 @@ class RohBot {
             switch (packet.Type) {
                 case "authResponse": {
                     this.username = packet.Name;
-                    if (this.username != null && this.username.length == 0)
+                    if (this.username != null && this.username.length === 0)
                         this.username = null;
 
                     this.loggedIn.trigger(packet);
@@ -134,7 +134,7 @@ class RohBot {
     isConnected(): boolean {
         if (this.socket == null)
             return false;
-        return this.socket.readyState == WebSocket.OPEN;
+        return this.socket.readyState === WebSocket.OPEN;
     }
 
     getUsername(): string {

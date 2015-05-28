@@ -27,17 +27,17 @@ class Chat {
         this.tab = $(templates.tab.render({ Name: name, ShortName: this.shortName }));
         this.tab.appendTo("#tabs");
 
-        this.tab.click(e => {
+        this.tab.click(() => {
             this.chatMgr.switchTo(this.shortName);
             return false;
         });
 
         var tabClose = this.tab.find(".tab-close");
 
-        if (this.shortName == "home") {
+        if (this.shortName === "home") {
             tabClose.hide();
         } else {
-            tabClose.click(e => {
+            tabClose.click(() => {
                 this.chatMgr.rohbot.sendMessage(this.shortName, "/leave " + this.shortName);
                 return false;
             });
@@ -57,16 +57,16 @@ class Chat {
     }
 
     destroy() {
-        if (this.shortName == "home")
+        if (this.shortName === "home")
             return;
-        
+
         this.history.remove();
         this.tab.remove();
         this.users.remove();
     }
 
     update() {
-        if (this.shortName == "home")
+        if (this.shortName === "home")
             return;
 
         var updateAfter = 2.5 * 1000;
@@ -104,17 +104,18 @@ class Chat {
         return this.userList.map(user => {
             return $("<textarea/>").html(user.Name).text();
         }).filter(name => {
-            return name.toLowerCase().indexOf(word) == 0;
-        });
+                return name.toLowerCase().indexOf(word) === 0;
+            });
     }
 
     addHistory(data: ChatHistoryPacket) {
         var history = data.Lines;
+        var i: number;
 
         if (!data.Requested) {
             this.history.empty();
 
-            for (var i = 0; i < history.length; i++) {
+            for (i = 0; i < history.length; i++) {
                 this.addLine(history[i], false);
             }
 
@@ -123,7 +124,7 @@ class Chat {
         } else {
             var prevHeight = this.history[0].clientHeight;
 
-            for (var i = history.length - 1; i >= 0; i--) {
+            for (i = history.length - 1; i >= 0; i--) {
                 this.addLine(history[i], true);
             }
 
@@ -159,7 +160,7 @@ class Chat {
             Message: line.Content
         };
 
-        if (timeFmt != "off")
+        if (timeFmt !== "off")
             data.Time = Chat.formatTime(date, timeFmt);
 
         switch (line.Type) {
@@ -167,12 +168,12 @@ class Chat {
                 var chatLine = <ChatLine>line;
                 var senderClasses = "";
 
-                if (chatLine.UserType == "RohBot")
+                if (chatLine.UserType === "RohBot")
                     senderClasses = "rohBot " + chatLine.SenderStyle;
                 else if (chatLine.InGame)
                     senderClasses = "inGame";
 
-                if (chatLine.UserType == "Steam" && chatLine.SenderId != "0")
+                if (chatLine.UserType === "Steam" && chatLine.SenderId !== "0")
                     data.SteamId = chatLine.SenderId;
 
                 data.Sender = chatLine.Sender;
@@ -183,25 +184,25 @@ class Chat {
 
             case "state": {
                 var stateLine = <StateLine>line;
-                if (stateLine.State == "Action" || stateLine.State == "Client") {
-                    if (stateLine.Chat != "home")
+                if (stateLine.State === "Action" || stateLine.State === "Client") {
+                    if (stateLine.Chat !== "home")
                         data.Message = this.linkify(stateLine.Content);
                     break;
                 }
-                var style = t => t == "Steam" ? "steam" : "rohBot";
+                var style = t => t === "Steam" ? "steam" : "rohBot";
                 var stateData: any = {
                     For: stateLine.For,
-                    ForStyle: style(stateLine.ForType),
+                    ForStyle: style(stateLine.ForType)
                 };
 
-                if (stateLine.ForType == "Steam" && stateLine.ForId != "0")
+                if (stateLine.ForType === "Steam" && stateLine.ForId !== "0")
                     stateData.ForSteamId = stateLine.ForId;
 
-                if (stateLine.By != "") {
+                if (stateLine.By !== "") {
                     stateData.By = stateLine.By;
                     stateData.ByStyle = style(stateLine.ByType);
 
-                    if (stateLine.ByType == "Steam" && stateLine.ById != "0")
+                    if (stateLine.ByType === "Steam" && stateLine.ById !== "0")
                         stateData.BySteamId = stateLine.ById;
                 }
 
@@ -287,17 +288,17 @@ class Chat {
         var stateLine = <StateLine>line;
 
         // force refresh when an endpoint's status changes
-        if (line.Type == "chat" && chatLine.SenderId == "0") {
-            if (chatLine.Content.indexOf("Connected to") == 0 || chatLine.Content.indexOf("Lost connection to") == 0) {
+        if (line.Type === "chat" && chatLine.SenderId === "0") {
+            if (chatLine.Content.indexOf("Connected to") === 0 || chatLine.Content.indexOf("Lost connection to") === 0) {
                 this.userListDirty = true;
                 this.lastUserListChange = 0;
                 this.lastUserListRefresh = 0;
             }
-            
+
             return;
         }
 
-        if (line.Type != "state")
+        if (line.Type !== "state")
             return;
 
         switch (stateLine.State) {
@@ -307,19 +308,19 @@ class Chat {
                     UserId: stateLine.ForId,
                     Rank: "Member",
                     Avatar: "0000000000000000000000000000000000000000",
-                    Status: stateLine.ForType == "RohBot" ? "" : "Online",
+                    Status: stateLine.ForType === "RohBot" ? "" : "Online",
                     Playing: null,
-                    Web: stateLine.ForType == "RohBot"
+                    Web: stateLine.ForType === "RohBot"
                 });
                 break;
 
             case "Banned":
-                if (stateLine.ForType == "RohBot")
+                if (stateLine.ForType === "RohBot")
                     break;
             case "Left":
             case "Disconnected":
                 this.userList = this.userList.filter(e => {
-                    return e.UserId != stateLine.ForId;
+                    return e.UserId !== stateLine.ForId;
                 });
                 break;
 
@@ -348,7 +349,7 @@ class Chat {
         });
 
         var userMap = u => {
-            if (u.Avatar == "0000000000000000000000000000000000000000")
+            if (u.Avatar === "0000000000000000000000000000000000000000")
                 u.Avatar = "fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb";
 
             if (u.Web)
@@ -400,31 +401,31 @@ class Chat {
 
     private isActive() {
         var currentChat = this.chatMgr.getCurrentChat();
-        return currentChat != null && currentChat.shortName == this.shortName;
+        return currentChat != null && currentChat.shortName === this.shortName;
     }
 
     private linkify(text: string) {
         // Put spaces infront of emoticons to terminate urls
-        text = text.replace(/ː(\w+?)ː/g, ' ː<img src="/economy/emoticon/$1" alt=":$1:" class="emote">');
-        text = text.replace(/((?:https?|ftps?|steam):\/\/\S+)/gi, '<a href=\"$1\" target=\"_blank\">$1</a>');
-        text = text.replace(/(^|[\s,;"'])([A-Za-z0-9\-.:]+?\.(?:com|net|org|uk|edu|gov|biz|me|ch|tv)(?:[\/:]\S*|\b))/gi, '$1<a href=\"http://$2\" target=\"_blank\">$2</a>');
-        text = text.replace('\n', '<br>');
-        text = text.replace(/\ ː/g, ''); // Get rid of the sentinel chars. (triangle colons are guaranteed to never appear in normal text)
+        text = text.replace(/ː(\w+?)ː/g, " ː<img src=\"/economy/emoticon/$1\" alt=\":$1:\" class=\"emote\">");
+        text = text.replace(/((?:https?|ftps?|steam):\/\/\S+)/gi, "<a href=\"$1\" target=\"_blank\">$1</a>");
+        text = text.replace(/(^|[\s,;"'])([A-Za-z0-9\-.:]+?\.(?:com|net|org|uk|edu|gov|biz|me|ch|tv)(?:[\/:]\S*|\b))/gi, "$1<a href=\"http://$2\" target=\"_blank\">$2</a>");
+        text = text.replace("\n", "<br>");
+        text = text.replace(/\ ː/g, ""); // Get rid of the sentinel chars. (triangle colons are guaranteed to never appear in normal text)
         return text;
     }
 
     static formatTime(date: Date, timeFmt: string) {
-        if (timeFmt == "off")
+        if (timeFmt === "off")
             return "";
 
         var hours: any = date.getHours();
         var minutes: any = date.getMinutes();
-        var military = timeFmt == "24hr";
+        var military = timeFmt === "24hr";
         var suffix = "";
 
         if (military) {
             if (hours < 10)
-                hours = '0' + hours;
+                hours = "0" + hours;
         } else {
             suffix = " AM";
             if (hours >= 12) {
@@ -432,7 +433,7 @@ class Chat {
                 hours -= 12;
             }
 
-            if (hours == 0)
+            if (hours === 0)
                 hours = 12;
         }
 
