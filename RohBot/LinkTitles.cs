@@ -129,7 +129,7 @@ namespace RohBot
                         var length = ParseDuration(item["contentDetails"]["duration"].ToObject<string>());
                         var formattedlength = FormatTime(TimeSpan.FromSeconds(length));
 
-                        return string.Format("YouTube: {0} ({1}) ({3} views, {4} 👍, {5} 👎)",
+                        return string.Format("YouTube: {0} ({1}) ({2} views, {3} 👍, {4} 👎)",
                             name,
                             formattedlength,
                             item["statistics"]["viewCount"],
