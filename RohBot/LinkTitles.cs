@@ -63,9 +63,9 @@ namespace RohBot
                         var artist = track["artists"].First["name"].ToObject<string>();
                         var length = track["length"].ToObject<double>();
 
-                        var formattedlength = FormatTime(TimeSpan.FromSeconds(length));
+                        var formattedLength = FormatTime(TimeSpan.FromSeconds(length));
 
-                        var chatResponse = string.Format("{0} - {1} ({2})", name, artist, formattedlength);
+                        var chatResponse = string.Format("{0} - {1} ({2})", name, artist, formattedLength);
 
                         var ytName = HttpUtility.UrlEncode(name);
                         var ytArtist = HttpUtility.UrlEncode(artist);
@@ -127,14 +127,14 @@ namespace RohBot
                         var item = token["items"].First;
                         var title = item["snippet"]["title"].ToObject<string>();
                         var length = ParseDuration(item["contentDetails"]["duration"].ToObject<string>());
-                        var formattedlength = FormatTime(TimeSpan.FromSeconds(length));
+                        var formattedLength = FormatTime(TimeSpan.FromSeconds(length));
 
-                        return string.Format("YouTube: {0} ({1}) ({2} views, {3} 👍, {4} 👎)",
-                            name,
-                            formattedlength,
-                            item["statistics"]["viewCount"],
-                            item["statistics"]["likeCount"],
-                            item["statistics"]["dislikeCount"]
+                        return string.Format("YouTube: {0} ({1} • {2:n0} views • {3:n0} 👍 {4:n0} 👎)",
+                            title,
+                            formattedLength,
+                            item["statistics"]["viewCount"].ToObject<int>(),
+                            item["statistics"]["likeCount"].ToObject<int>(),
+                            item["statistics"]["dislikeCount"].ToObject<int>()
                         );
                     }
                     catch (Exception e)
