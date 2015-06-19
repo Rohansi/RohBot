@@ -125,22 +125,17 @@ namespace RohBot
 
                         var token = JObject.Parse(responseFromServer);
                         var item = token["items"].First;
-                        var name = item["snippet"]["title"].ToObject<string>();
+                        var title = item["snippet"]["title"].ToObject<string>();
                         var length = ParseDuration(item["contentDetails"]["duration"].ToObject<string>());
                         var formattedlength = FormatTime(TimeSpan.FromSeconds(length));
 
-                        var stars = "";
-                        try
-                        {
-                            var likes = item["statistics"]["likeCount"].ToObject<float>();
-                            var dislikes = item["statistics"]["dislikeCount"].ToObject<float>();
-                            var total = likes + dislikes;
-                            var numStars = (int)Math.Round((likes / total) * 5);
-                            stars = string.Format(" [{0}]", new string('★', numStars).PadRight(5, '☆'));
-                        }
-                        catch { }
-
-                        return string.Format("YouTube: {0} ({1}){2}", name, formattedlength, stars);
+                        return string.Format("YouTube: {0} ({1}) ({2} views, {3} 👍, {4} 👎)",
+                            name,
+                            formattedlength,
+                            item["statistics"]["viewCount"],
+                            item["statistics"]["likeCount"],
+                            item["statistics"]["dislikeCount"]
+                        );
                     }
                     catch (Exception e)
                     {
