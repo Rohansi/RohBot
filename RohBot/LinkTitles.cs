@@ -126,14 +126,12 @@ namespace RohBot
                         var token = JObject.Parse(responseFromServer);
                         var item = token["items"].First;
                         var title = item["snippet"]["title"].ToObject<string>();
-                        var channelTitle = item["snippet"]["channelTitle"].ToObject<string>();
                         var length = ParseDuration(item["contentDetails"]["duration"].ToObject<string>());
                         var formattedlength = FormatTime(TimeSpan.FromSeconds(length));
 
-                        return string.Format("{0} ({1}) by {2} ({3} views, {4} 👍, {5} 👎)",
+                        return string.Format("YouTube: {0} ({1}) ({3} views, {4} 👍, {5} 👎)",
                             name,
                             formattedlength,
-                            channelTitle,
                             item["statistics"]["viewCount"],
                             item["statistics"]["likeCount"],
                             item["statistics"]["dislikeCount"]
