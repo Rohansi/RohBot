@@ -53,17 +53,16 @@ namespace RohBot
                 {
                     try
                     {
-                        var url = string.Format("http://ws.spotify.com/lookup/1/.json?uri={0}", HttpUtility.UrlEncode(match.Value));
+                        var url = string.Format("https://api.spotify.com/v1/tracks/{0}", HttpUtility.UrlEncode(match.Value));
                         var spotifyResponse = await DownloadPage(url, Encoding.UTF8);
 
                         var token = JObject.Parse(spotifyResponse);
-                        var track = token["track"];
 
-                        var name = track["name"].ToObject<string>();
-                        var artist = track["artists"].First["name"].ToObject<string>();
-                        var length = track["length"].ToObject<double>();
+                        var name = token["name"].ToObject<string>();
+                        var artist = token["artists"].First["name"].ToObject<string>();
+                        var length = token["duration_ms"].ToObject<double>();
 
-                        var formattedLength = FormatTime(TimeSpan.FromSeconds(length));
+                        var formattedLength = FormatTime(TimeSpan.FromMilliseconds(length));
 
                         var chatResponse = string.Format("{0} - {1} ({2})", name, artist, formattedLength);
 
