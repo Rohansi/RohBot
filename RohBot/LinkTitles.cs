@@ -41,11 +41,13 @@ namespace RohBot
         }
 
         private static Regex _spotify = new Regex(@"https?://\w*?.spotify.com/track/([\w]+)", RegexOptions.Compiled);
+        private static Regex _spotifyShort = new Regex(@"spotify:track:([\w]+)", RegexOptions.Compiled);
         private static IEnumerable<Tuple<int, AsyncLazy<string>>> LookupSpotify(string message)
         {
             var matches = _spotify.Matches(message).Cast<Match>();
+            matches = matches.Concat(_spotifyShort.Matches(message).Cast<Match>());
 
-            foreach (Match m in matches.DistinctBy(m => m.Value))
+            foreach (var m in matches.DistinctBy(m => m.Value))
             {
                 var match = m;
                 var offset = match.Index;
@@ -53,26 +55,24 @@ namespace RohBot
                 {
                     try
                     {
-                        var url = string.Format("http://ws.spotify.com/lookup/1/.json?uri={0}", HttpUtility.UrlEncode(match.Value));
+                        var url = string.Format("https://api.spotify.com/v1/tracks/{0}", HttpUtility.UrlEncode(match.Groups[1].Value));
                         var spotifyResponse = await DownloadPage(url, Encoding.UTF8);
 
-                        var token = JObject.Parse(spotifyResponse);
-                        var track = token["track"];
+                        var track = JObject.Parse(spotifyResponse);
 
                         var name = track["name"].ToObject<string>();
                         var artist = track["artists"].First["name"].ToObject<string>();
-                        var length = track["length"].ToObject<double>();
+                        var length = track["duration_ms"].ToObject<int>();
 
-                        var formattedLength = FormatTime(TimeSpan.FromSeconds(length));
+                        var formattedLength = FormatTime(TimeSpan.FromMilliseconds(length));
 
                         var chatResponse = string.Format("{0} - {1} ({2})", name, artist, formattedLength);
-
-                        var ytName = HttpUtility.UrlEncode(name);
-                        var ytArtist = HttpUtility.UrlEncode(artist);
 
                         /*
                          * Spotify2YT included with permission of glorious god-king Naarkie
                          */
+                        var ytName = HttpUtility.UrlEncode(name);
+                        var ytArtist = HttpUtility.UrlEncode(artist);
                         string youtubeUrl = null;
                         try
                         {
@@ -105,7 +105,7 @@ namespace RohBot
             var matches = _youtube.Matches(message).Cast<Match>();
             matches = matches.Concat(_youtubeShort.Matches(message).Cast<Match>());
 
-            foreach (Match m in matches.DistinctBy(m => m.Groups[1].Value))
+            foreach (var m in matches.DistinctBy(m => m.Groups[1].Value))
             {
                 var match = m;
                 var offset = match.Index;
@@ -155,7 +155,7 @@ namespace RohBot
         {
             var matches = _facepunch.Matches(message).Cast<Match>();
 
-            foreach (Match m in matches.DistinctBy(m => m.Value))
+            foreach (var m in matches.DistinctBy(m => m.Value))
             {
                 var match = m;
                 var offset = match.Index;
