@@ -55,7 +55,7 @@ class UserInterface {
             var chatLine = <ChatLine>line;
             var stateLine = <StateLine>line;
 
-            if (line.Type === "chat" && stateLine.State != "Disconnected" && stateLine.State != "Enter") {
+            if (line.Type === "chat" && chatLine.SenderId !== "0") {
                 this.unreadMessages++;
                 this.updateUnreadCounter();
             }
