@@ -1,6 +1,6 @@
 RohBot
 ===========
-RohBot is a web interface for Steam group chats. Try it live here: https://fpp.literallybrian.com/
+RohBot is a web interface for Steam group chats. Try it live here: https://fpp.rohbot.net/
 
 Commands
 --------------
