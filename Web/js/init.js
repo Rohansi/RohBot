@@ -1,4 +1,4 @@
-var server = "wss://fpp.literallybrian.com/ws/";
+var server = "wss://" + window.location.host + "/ws/";
 if (window.location.protocol !== "https:")
     server = "ws://107.191.98.153:12000/";
 
