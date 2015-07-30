@@ -126,10 +126,10 @@ class UserInterface {
     setChatEnabled(enabled: boolean) {
         if (enabled) {
             $("#header").hide();
-            $("#message-box").removeAttr("disabled").val("");
+            $("#message-box").removeAttr("disabled").attr("placeholder", "enter message ...");
         } else {
             $("#header").show();
-            $("#message-box").attr("disabled", "true").val("guests can't speak");
+            $("#message-box").attr("disabled", "true").attr("placeholder", "guests can't speak");
         }
     }
 
