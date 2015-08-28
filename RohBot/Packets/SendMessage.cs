@@ -11,7 +11,7 @@ namespace RohBot.Packets
 
         public override void Handle(Connection connection)
         {
-            if (Program.DelayManager.AddAndCheck(connection, 2.5))
+            if (Program.DelayManager.AddAndCheck(connection, DelayManager.Message))
                 return;
 
             if (connection.Session == null)

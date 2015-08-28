@@ -12,7 +12,7 @@ namespace RohBot.Commands
             if (!target.IsWeb || parameters.Length == 0)
                 return;
 
-            if (Program.DelayManager.AddAndCheck(target.Connection, 10))
+            if (Program.DelayManager.AddAndCheck(target.Connection, DelayManager.Database))
                 return;
 
             if (!target.Connection.Session.Join(parameters[0]))

@@ -12,7 +12,7 @@ namespace RohBot.Commands
             if (!target.IsWeb || !target.IsRoom || parameters.Length == 0)
                 return;
 
-            if (Program.DelayManager.AddAndCheck(target.Connection, 2.5))
+            if (Program.DelayManager.AddAndCheck(target.Connection, DelayManager.Message))
                 return;
 
             var username = target.Connection.Session.Account.Name;

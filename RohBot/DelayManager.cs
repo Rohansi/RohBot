@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -7,7 +8,12 @@ namespace RohBot
     public class DelayManager
     {
         private const double DelayThreshold = 100;
-        private const double DecayRate = 2;
+        private const double DelayLimit = 200;
+        private const double DecayRate = 3;
+
+        public const double Authenticate = DecayRate * 5;
+        public const double Database = DecayRate * 2.5;
+        public const double Message = DecayRate * 1;
 
         private Dictionary<string, double> _delays;
         private Stopwatch _timer;
@@ -42,11 +48,11 @@ namespace RohBot
                 if (!_delays.TryGetValue(connection.Address, out delay))
                 {
                     if (cost > 0)
-                        _delays.Add(connection.Address, cost);
+                        _delays.Add(connection.Address, Math.Min(cost, DelayLimit));
                 }
                 else
                 {
-                    _delays[connection.Address] += cost;
+                    _delays[connection.Address] = Math.Min(delay + cost, DelayLimit);
                 }
 
                 var shouldDelay = (delay + cost) >= DelayThreshold;
