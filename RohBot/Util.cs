@@ -131,7 +131,7 @@ namespace RohBot
             return Convert.ToBase64String(GenerateSalt());
         }
 
-        public const string InvalidUsernameMessage = "Usernames must be between 2 and 24 characters long and may only contain letters, digits or spaces.";
+        public const string InvalidUsernameMessage = "Usernames must be between 2 and 24 characters long and may only contain ASCII letters, digits or spaces.";
         public static bool IsValidUsername(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -140,7 +140,7 @@ namespace RohBot
                 return false;
             if (value.ToLower() == "guest" || value.ToLower() == "broadcast")
                 return false;
-            return value.All(c => char.IsLetterOrDigit(c) || c == ' ');
+            return value.All(c => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == ' ');
         }
 
         public const string InvalidPasswordMessage = "Passwords must be at least 6 characters long.";
