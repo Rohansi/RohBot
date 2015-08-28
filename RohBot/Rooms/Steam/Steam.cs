@@ -42,6 +42,12 @@ namespace RohBot.Rooms.Steam
             if (Status != ConnectionStatus.Disconnected)
                 return;
 
+            if (string.IsNullOrWhiteSpace(Program.Settings.Username) ||
+                string.IsNullOrWhiteSpace(Program.Settings.Password))
+            {
+                return;
+            }
+
             _hasConnected = false;
             _connectStarted.Restart();
             Program.Logger.Info("Connecting");
