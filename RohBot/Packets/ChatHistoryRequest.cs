@@ -36,6 +36,12 @@ namespace RohBot.Packets
                 return;
             }
 
+            if (AfterDate - Util.GetCurrentTimestamp() > Util.MaximumHistoryRequest)
+            {
+                connection.SendSysMessage("Can't retrieve messages over a month old.");
+                return;
+            } 
+
             if (room.IsPrivate && room.IsBanned(connection.Session.Account.Name))
                 return;
 
