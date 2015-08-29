@@ -153,6 +153,10 @@ namespace RohBot
         #endregion
 
         #region Time
+
+        //31 days
+        public static readonly long MaximumHistoryRequest = (long)(new TimeSpan(31, 0, 0, 0).TotalMilliseconds);
+
         // http://stackoverflow.com/a/7983514
         private static readonly DateTime UnixEpoch =
             new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
