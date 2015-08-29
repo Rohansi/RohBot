@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace RohBot.Packets
 {
@@ -36,21 +38,23 @@ namespace RohBot.Packets
                 return;
             }
 
-            if (AfterDate - Util.GetCurrentTimestamp() > Util.MaximumHistoryRequest)
-            {
-                connection.SendSysMessage("Can't retrieve messages over a month old.");
-                return;
-            } 
-
             if (room.IsPrivate && room.IsBanned(connection.Session.Account.Name))
                 return;
+            
+            List<HistoryLine> lines;
+            if (Util.DateTimeFromTimestamp(AfterDate) < (DateTime.UtcNow - Util.MaximumHistoryRequest))
+            {
+                lines = new List<HistoryLine>();
+            }
+            else
+            {
+                var cmd = new SqlCommand("SELECT * FROM rohbot.chathistory WHERE chat=lower(:chat) AND date<:afterdate ORDER BY date DESC LIMIT 100;");
+                cmd["chat"] = Target;
+                cmd["afterdate"] = AfterDate;
 
-            var cmd = new SqlCommand("SELECT * FROM rohbot.chathistory WHERE chat=lower(:chat) AND date<:afterdate ORDER BY date DESC LIMIT 100;");
-            cmd["chat"] = Target;
-            cmd["afterdate"] = AfterDate;
-
-            var lines = cmd.Execute().Select(r => (HistoryLine)HistoryLine.Read(r)).ToList();
-            lines.Reverse();
+                lines = cmd.Execute().Select(r => (HistoryLine)HistoryLine.Read(r)).ToList();
+                lines.Reverse();
+            }
 
             if (lines.Count == 0)
                 lines.Add(new ChatLine(0, Target, "Steam", Program.Settings.PersonaName, "0", "", "No additional history is available.", false));
