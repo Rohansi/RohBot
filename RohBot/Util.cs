@@ -157,6 +157,9 @@ namespace RohBot
         private static readonly DateTime UnixEpoch =
             new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
+        //31 days
+        public static readonly long MaximumHistoryRequest = (long)(new TimeSpan(31, 0, 0, 0).TotalMilliseconds);
+
         public static long GetCurrentTimestamp()
         {
             return GetTimestamp(DateTime.UtcNow);
