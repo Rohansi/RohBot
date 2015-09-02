@@ -19,7 +19,7 @@ class UserInterface {
 
         var audio = document.createElement("audio");
         var supportsOgg = !!(audio.canPlayType && audio.canPlayType('audio/ogg; codecs="vorbis"').replace(/no/, ''));
-        this.audioExt = supportsOgg ? ".mp3" : ".ogg";
+        this.audioExt = supportsOgg ? ".ogg" : ".mp3";
 
         this.setupHandlers();
         this.setChatEnabled(false);
