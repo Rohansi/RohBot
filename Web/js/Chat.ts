@@ -74,7 +74,7 @@ class Chat {
         var now = Date.now();
 
         if ((this.userListDirty && (now - this.lastUserListChange >= updateAfter)) || (now - this.lastUserListRefresh >= refreshAfter)) {
-            this.chatMgr.rohbot.sendMessage(this.shortName, "/users");
+            this.chatMgr.rohbot.requestUserList(this.shortName);
             this.lastUserListChange = now;
             this.lastUserListRefresh = now;
         }

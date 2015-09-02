@@ -167,6 +167,13 @@ class RohBot {
         });
     }
 
+    requestUserList(roomName: string) {
+        this.send({
+            Type: "userListRequest",
+            Target: roomName
+        });
+    }
+
     requestHistory(roomName: string, afterDate: number) {
         this.send({
             Type: "chatHistoryRequest",

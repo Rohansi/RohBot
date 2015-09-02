@@ -116,6 +116,7 @@
     <Compile Include="Packets\SendMessage.cs" />
     <Compile Include="Packets\SysMessage.cs" />
     <Compile Include="Packets\UserList.cs" />
+    <Compile Include="Packets\UserListRequest.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rooms\Room.cs" />
