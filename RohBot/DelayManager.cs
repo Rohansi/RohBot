@@ -8,12 +8,12 @@ namespace RohBot
     public class DelayManager
     {
         private const double DelayThreshold = 100;
-        private const double DelayLimit = 200;
+        private const double DelayLimit = 500;
         private const double DecayRate = 3;
 
-        public const double Authenticate = DecayRate * 5;
-        public const double Database = DecayRate * 2.5;
-        public const double Message = DecayRate * 1;
+        public const double Authenticate = DecayRate * 6;
+        public const double Database = DecayRate * 4;
+        public const double Message = DecayRate * 2;
 
         private Dictionary<string, double> _delays;
         private Stopwatch _timer;
