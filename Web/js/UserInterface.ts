@@ -4,8 +4,6 @@ class UserInterface {
     rohbot: RohBot;
     chatMgr: ChatManager;
 
-    private audioExt: string;
-
     private notificationRegex: RegExp;
     private unreadMessages: number;
 
@@ -16,10 +14,6 @@ class UserInterface {
     constructor(rohbot: RohBot, chatMgr: ChatManager) {
         this.rohbot = rohbot;
         this.chatMgr = chatMgr;
-
-        var audio = document.createElement("audio");
-        var supportsOgg = !!(audio.canPlayType && audio.canPlayType('audio/ogg; codecs="vorbis"').replace(/no/, ''));
-        this.audioExt = supportsOgg ? ".ogg" : ".mp3";
 
         this.setupHandlers();
         this.setChatEnabled(false);
@@ -64,13 +58,6 @@ class UserInterface {
             if (line.Type === "chat" && chatLine.SenderId !== "0") {
                 this.unreadMessages++;
                 this.updateUnreadCounter();
-
-                if (Audio !== undefined && RohStore.get("taunts") === "true") {
-                    var tauntResult = chatLine.Content.match(/^\d+/);
-                    if (tauntResult !== null) {
-                        new Audio("taunt/" + tauntResult[0] + this.audioExt).play();
-                    }
-                }
             }
 
             if (this.notificationRegex != null && Visibility.hidden()) {
@@ -82,7 +69,7 @@ class UserInterface {
                     if (chat == null)
                         return;
 
-                    var notificationText;
+                    var notificationText: string;
 
                     switch (line.Type) {
                         case "chat":
@@ -235,14 +222,6 @@ class UserInterface {
         } else if (command.indexOf("users") === 0) {
             chat.history.find("> ol.inline-users").remove();
             chat.addHtml("<ol class=\"user-list inline-users\">" + chat.users.html() + "</ol>");
-        } else if (command.indexOf("taunts") === 0) {
-            if (RohStore.get("taunts") === "true") {
-                RohStore.remove("taunts");
-                chat.statusMessage("Taunts disabled.");
-            } else {
-                RohStore.set("taunts", "true");
-                chat.statusMessage("Taunts enabled.");
-            }
         } else {
             return false;
         }
