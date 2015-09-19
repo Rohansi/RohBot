@@ -1,4 +1,10 @@
 ﻿
+interface Event3<T1, T2, T3> extends IEvent {
+    add(listener: (arg1: T1, arg2: T2, arg3: T3) => void): void;
+    remove(listener: (arg1: T1, arg2: T2, arg3: T3) => void): void;
+    trigger(arg1: T1, arg2: T2, arg3: T3): void;
+}
+
 interface Event2<T1, T2> extends IEvent {
     add(listener: (arg1: T1, arg2: T2) => void): void;
     remove(listener: (arg1: T1, arg2: T2) => void): void;
@@ -30,7 +36,7 @@ class TypedEvent implements IEvent {
         this.listeners.push(listener);
     }
     public remove(listener?: () => void) {
-        if (typeof listener === 'function') {
+        if (typeof listener === "function") {
             for (var i = 0, l = this.listeners.length; i < l; l++) {
                 if (this.listeners[i] === listener) {
                     this.listeners.splice(i, 1);

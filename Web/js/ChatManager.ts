@@ -6,6 +6,8 @@ class ChatManager {
 
     private loggingIn: boolean;
 
+    lineFilter: Event3<HistoryLine, boolean, { filtered: boolean }> = new TypedEvent();
+
     constructor(rohbot: RohBot) {
         this.chats = {};
         this.rohbot = rohbot;
