@@ -142,6 +142,12 @@ class ChatManager {
                 return;
             }
 
+            packet.Lines = packet.Lines.filter(line => {
+                var result = { filtered: false };
+                this.lineFilter.trigger(line, true, result);
+                return !result.filtered;
+            });
+
             chat.addHistory(packet);
         });
 
@@ -178,14 +184,20 @@ class ChatManager {
 
             if (chat == null) {
                 console.warn("message without existing chat:", line.Chat);
-                return;
+                return true;
             }
+            
+            var result = { filtered: false };
+            this.lineFilter.trigger(line, false, result);
+            if (result.filtered)
+                return false;
 
             if (line.Type === "chat" && (<ChatLine>line).SenderId !== "0") {
                 chat.incrementUnreadCounter();
             }
 
             chat.addLine(line, false);
+            return true;
         });
 
         rohbot.userListReceived.add(packet => {

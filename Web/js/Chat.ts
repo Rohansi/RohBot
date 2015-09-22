@@ -255,11 +255,6 @@ class Chat {
         if (!prepend && this.userList != null)
             this.applyStateLine(line);
 
-        var result = { filtered: false };
-        this.chatMgr.lineFilter.trigger(line, prepend, result);
-        if (result.filtered)
-            return;
-
         this.addHtml(this.renderLine(line), prepend);
     }
 

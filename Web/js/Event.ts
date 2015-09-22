@@ -30,12 +30,13 @@ interface IEvent {
 }
 
 class TypedEvent implements IEvent {
-    private listeners: any[] = [];
+    private listeners: Function[] = [];
 
-    public add(listener: () => void) {
+    add(listener: () => void) {
         this.listeners.push(listener);
     }
-    public remove(listener?: () => void) {
+
+    remove(listener?: () => void) {
         if (typeof listener === "function") {
             for (var i = 0, l = this.listeners.length; i < l; l++) {
                 if (this.listeners[i] === listener) {
@@ -48,11 +49,12 @@ class TypedEvent implements IEvent {
         }
     }
 
-    public trigger(...a: any[]) {
+    trigger(...a: any[]) {
         var context = {};
         var listeners = this.listeners.slice(0);
         for (var i = 0, l = listeners.length; i < l; i++) {
-            listeners[i].apply(context, a || []);
+            if (listeners[i].apply(context, a || []) === false)
+                return;
         }
     }
 }

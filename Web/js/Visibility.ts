@@ -15,14 +15,9 @@ class Visibility {
 
     private static ctor = (() => {
         Visibility.isHidden = false;
-
-        if (document.addEventListener) {
-            window.addEventListener("focus", Visibility.onFocus, true);
-            window.addEventListener("blur", Visibility.onBlur, true);
-        } else {
-            document.attachEvent("onfocusin", Visibility.onFocus);
-            document.attachEvent("onfocusout", Visibility.onBlur);
-        }
+        
+        window.addEventListener("focus", Visibility.onFocus, true);
+        window.addEventListener("blur", Visibility.onBlur, true);
     })();
 
     private static onFocus(e: any) {
