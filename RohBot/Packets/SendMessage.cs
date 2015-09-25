@@ -1,4 +1,7 @@
 ﻿
+using System;
+using System.Runtime.InteropServices;
+
 namespace RohBot.Packets
 {
     // C -> S
@@ -11,9 +14,6 @@ namespace RohBot.Packets
 
         public override void Handle(Connection connection)
         {
-            if (Program.DelayManager.AddAndCheck(connection, DelayManager.Message))
-                return;
-
             if (connection.Session == null)
             {
                 connection.SendSysMessage("Guests can not speak.");
@@ -32,6 +32,9 @@ namespace RohBot.Packets
             if (Content.Length > 2000)
                 Content = Content.Substring(0, 2000) + "...";
 
+            if (Program.DelayManager.AddAndCheck(connection, CalculateMessageCost(Content)))
+                return;
+
             var room = Program.RoomManager.Get(Target);
             if (room == null)
             {
@@ -46,6 +49,16 @@ namespace RohBot.Packets
             }
 
             room.SendMessage(connection, Content);
+        }
+
+        private double CalculateMessageCost(string message)
+        {
+            var newlines = Util.CountNewlines(message);
+            var cost = Math.Round(((message.Length / 80f) + newlines), 2); //~80 characters is 1 "line"
+            if (cost > 2.5f) //if there's more than 2.5 lines add the amount of lines to the cost
+                return cost + 2.5f;
+            else
+                return 5.0f; 
         }
     }
 }
