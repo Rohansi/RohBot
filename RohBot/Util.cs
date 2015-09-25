@@ -371,6 +371,16 @@ namespace RohBot
             return category == UnicodeCategory.NonSpacingMark || category == UnicodeCategory.EnclosingMark;
         }
         #endregion
+
+        public static int CountNewlines(string s)
+        {
+            int n = 0;
+            foreach (var c in s)
+            {
+                if (c == '\n') n++;
+            }
+            return n;
+        }
     }
 
     public class AsyncLazy<T> : Lazy<Task<T>>
