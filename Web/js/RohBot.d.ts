@@ -76,6 +76,7 @@ interface ChatLine extends HistoryLine {
     UserType: string;
     Sender: string;
     SenderId: string;
+    SenderAvatar: string;
     SenderStyle: string;
     InGame: boolean;
 }

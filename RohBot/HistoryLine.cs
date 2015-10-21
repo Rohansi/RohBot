@@ -37,6 +37,7 @@ namespace RohBot
                         UserType = row.usertype,
                         Sender = row.sender,
                         SenderId = row.senderid,
+                        SenderAvatar = row.senderavatar,
                         SenderStyle = row.senderstyle,
                         InGame = row.ingame
                     };
@@ -72,17 +73,19 @@ namespace RohBot
         public string UserType;
         public string Sender;
         public string SenderId;
+        public string SenderAvatar;
         public string SenderStyle;
         public bool InGame;
 
         public ChatLine() { }
 
-        public ChatLine(long date, string chat, string userType, string sender, string senderId, string senderStyle, string content, bool inGame)
+        public ChatLine(long date, string chat, string userType, string sender, string senderId, string senderAvatar, string senderStyle, string content, bool inGame)
             : base(date, chat, content)
         {
             UserType = userType;
             Sender = Util.HtmlEncode(Util.TrimZalgoCharacters(sender));
             SenderId = senderId;
+            SenderAvatar = senderAvatar;
             SenderStyle = senderStyle;
             InGame = inGame;
         }

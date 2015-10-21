@@ -178,6 +178,7 @@ class Chat {
 
                 data.Sender = chatLine.Sender;
                 data.SenderClasses = senderClasses;
+                data.SenderAvatar = chatLine.SenderAvatar;
                 data.Message = this.linkify(chatLine.Content);
                 break;
             }
