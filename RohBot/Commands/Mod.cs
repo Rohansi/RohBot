@@ -3,9 +3,9 @@ namespace RohBot.Commands
 {
     public class Mod : Command
     {
-        public override string Type { get { return "mod"; } }
+        public override string Type => "mod";
 
-        public override string Format(CommandTarget target, string type) { return "]"; }
+        public override string Format(CommandTarget target, string type) => "]";
 
         public override void Handle(CommandTarget target, string type, string[] parameters)
         {

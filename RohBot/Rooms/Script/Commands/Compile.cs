@@ -3,9 +3,9 @@ namespace RohBot.Rooms.Script.Commands
 {
     public class Compile : Command
     {
-        public override string Type { get { return "script_compile"; } }
+        public override string Type => "script_compile";
 
-        public override string Format(CommandTarget target, string type) { return ""; }
+        public override string Format(CommandTarget target, string type) => "";
 
         public override void Handle(CommandTarget target, string type, string[] parameters)
         {

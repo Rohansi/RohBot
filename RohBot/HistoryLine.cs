@@ -67,7 +67,7 @@ namespace RohBot
 
     public class ChatLine : HistoryLine
     {
-        public override string Type { get { return "chat"; } }
+        public override string Type => "chat";
 
         public string UserType;
         public string Sender;
@@ -109,7 +109,7 @@ namespace RohBot
 
     public class StateLine : HistoryLine
     {
-        public override string Type { get { return "state"; } }
+        public override string Type => "state";
 
         public string State;
         public string For;

@@ -29,21 +29,9 @@ namespace RohBot
             }
         }
 
-        public int Count
-        {
-            get
-            {
-                return _dictionary.Count;
-            }
-        }
+        public int Count => _dictionary.Count;
 
-        public virtual bool IsReadOnly
-        {
-            get
-            {
-                return _dictionary.IsReadOnly;
-            }
-        }
+        public virtual bool IsReadOnly => _dictionary.IsReadOnly;
 
         void ICollection<T>.Add(T item)
         {

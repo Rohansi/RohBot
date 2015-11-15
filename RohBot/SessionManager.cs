@@ -81,13 +81,7 @@ namespace RohBot
             _timer.Restart();
         }
 
-        public ICollection<Session> List
-        {
-            get
-            {
-                return _sessions.Values;
-            }
-        }
+        public ICollection<Session> List => _sessions.Values;
 
         public Session GetOrCreate(Account account)
         {

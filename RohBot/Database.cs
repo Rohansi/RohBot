@@ -67,7 +67,7 @@ namespace RohBot
 
                 while (reader.Read())
                 {
-                    var no = reader.GetValues(values);
+                    reader.GetValues(values);
                     yield return new SqlResult(names, values);
                 }
             }

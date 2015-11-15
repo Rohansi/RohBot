@@ -4,9 +4,9 @@ namespace RohBot.Commands
 {
     public class Banned : Command
     {
-        public override string Type { get { return "banned"; } }
+        public override string Type => "banned";
 
-        public override string Format(CommandTarget target, string type) { return ""; }
+        public override string Format(CommandTarget target, string type) => "";
 
         public override void Handle(CommandTarget target, string type, string[] parameters)
         {
@@ -26,9 +26,9 @@ namespace RohBot.Commands
             else
             {
                 if (!target.Room.IsWhitelisted)
-                    target.Send(string.Format("Banned: {0}", string.Join(", ", banned)));
+                    target.Send($"Banned: {string.Join(", ", banned)}");
                 else
-                    target.Send(string.Format("Whitelisted: {0}", string.Join(", ", banned)));
+                    target.Send($"Whitelisted: {string.Join(", ", banned)}");
             }
         }
     }

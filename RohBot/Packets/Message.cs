@@ -5,7 +5,7 @@ namespace RohBot.Packets
     // S -> C
     public class Message : Packet
     {
-        public override string Type { get { return "message"; } }
+        public override string Type => "message";
 
         public HistoryLine Line;
 

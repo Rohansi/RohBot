@@ -4,9 +4,9 @@ namespace RohBot.Commands
 {
     public class Status : Command
     {
-        public override string Type { get { return "status"; } }
+        public override string Type => "status";
 
-        public override string Format(CommandTarget target, string type) { return ""; }
+        public override string Format(CommandTarget target, string type) => "";
 
         public override void Handle(CommandTarget target, string type, string[] parameters)
         {

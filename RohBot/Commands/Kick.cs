@@ -3,9 +3,9 @@ namespace RohBot.Commands
 {
     public class Kick : Command
     {
-        public override string Type { get { return "kick"; } }
+        public override string Type => "kick";
 
-        public override string Format(CommandTarget target, string type) { return "]"; }
+        public override string Format(CommandTarget target, string type) => "]";
 
         public override void Handle(CommandTarget target, string type, string[] parameters)
         {
@@ -28,7 +28,7 @@ namespace RohBot.Commands
             var connectionCount = session.ConnectionCount;
             session.Destroy();
 
-            target.Send(string.Format("Kicked session ({0} connections).", connectionCount));
+            target.Send($"Kicked session ({connectionCount} connections).");
         }
     }
 }

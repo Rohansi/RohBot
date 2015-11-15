@@ -7,7 +7,7 @@ namespace RohBot.Packets
     // S -> C
     public class ChatHistory : Packet
     {
-        public override string Type { get { return "chatHistory"; } }
+        public override string Type => "chatHistory";
 
         public string ShortName;
         public bool Requested;

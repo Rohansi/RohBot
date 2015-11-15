@@ -1,13 +1,11 @@
-﻿
-using System;
-using System.Runtime.InteropServices;
+﻿using System;
 
 namespace RohBot.Packets
 {
     // C -> S
     public class SendMessage : Packet
     {
-        public override string Type { get { return "sendMessage"; } }
+        public override string Type => "sendMessage";
 
         public string Target;
         public string Content;

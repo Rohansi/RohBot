@@ -4,9 +4,9 @@ namespace RohBot.Commands
 {
     public class Reboot : Command
     {
-        public override string Type { get { return "reboot"; } }
+        public override string Type => "reboot";
 
-        public override string Format(CommandTarget target, string type) { return ""; }
+        public override string Format(CommandTarget target, string type) => "";
 
         public override void Handle(CommandTarget target, string type, string[] parameters)
         {

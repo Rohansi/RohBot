@@ -3,9 +3,9 @@ namespace RohBot.Commands
 {
     public class Default : Command
     {
-        public override string Type { get { return ""; } }
+        public override string Type => "";
 
-        public override string Format(CommandTarget target, string type) { return ""; }
+        public override string Format(CommandTarget target, string type) => "";
 
         public override void Handle(CommandTarget target, string type, string[] parameters)
         {

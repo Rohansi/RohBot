@@ -16,10 +16,7 @@ namespace RohBot
         public bool IsMobile { get; private set; }
         public Session Session { get; set; }
 
-        public bool Connected
-        {
-            get { return State == WebSocketState.Open; }
-        }
+        public bool Connected => State == WebSocketState.Open;
 
         public void SendJoinRoom(Room room)
         {
@@ -80,7 +77,7 @@ namespace RohBot
 
                     account = Account.Get(username);
                     tokens = existingTokens.Select(t => t.Token).ToList();
-                    message = String.Format("Logged in as {0}.", account.Name);
+                    message = $"Logged in as {account.Name}.";
                 }
                 else
                 {
@@ -121,7 +118,7 @@ namespace RohBot
                     }
 
                     tokens = existingTokens.Select(t => t.Token).ToList();
-                    message = String.Format("Logged in as {0}.", account.Name);
+                    message = $"Logged in as {account.Name}.";
                 }
             } while (false);
 
@@ -255,7 +252,7 @@ namespace RohBot
             }
             catch (Exception ex)
             {
-                Program.Logger.Error(string.Format("Bad packet from {0}: {1}", Address, e.Data), ex);
+                Program.Logger.Error($"Bad packet from {Address}: {e.Data}", ex);
             }
         }
     }

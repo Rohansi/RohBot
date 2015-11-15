@@ -4,10 +4,7 @@ namespace RohBot.Packets
 {
     public class AuthenticateResponse : Packet
     {
-        public override string Type
-        {
-            get { return "authResponse"; }
-        }
+        public override string Type => "authResponse";
 
         public string Name;
         public string Tokens;

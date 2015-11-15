@@ -4,10 +4,7 @@ namespace RohBot.Packets
 {
     public class Authenticate : Packet
     {
-        public override string Type
-        {
-            get { return "auth"; }
-        }
+        public override string Type => "auth";
 
         public string Method; // login/register/guest
         public string Username;

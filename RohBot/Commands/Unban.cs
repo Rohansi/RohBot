@@ -3,9 +3,9 @@ namespace RohBot.Commands
 {
     public class Unban : Command
     {
-        public override string Type { get { return "unban"; } }
+        public override string Type => "unban";
 
-        public override string Format(CommandTarget target, string type) { return "]"; }
+        public override string Format(CommandTarget target, string type) => "]";
 
         public override void Handle(CommandTarget target, string type, string[] parameters)
         {
@@ -67,7 +67,7 @@ namespace RohBot.Commands
                 line.ByType = "Steam";
             }
 
-            line.Content = string.Format("{0} was unbanned by {1}.", line.For, line.By);
+            line.Content = $"{line.For} was unbanned by {line.By}.";
 
             target.Room.SendLine(line);
         }

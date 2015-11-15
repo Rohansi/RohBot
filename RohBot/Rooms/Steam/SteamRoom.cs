@@ -30,7 +30,7 @@ namespace RohBot.Rooms.Steam
             var chatLine = line as ChatLine;
             if (chatLine != null && Chat != null && chatLine.UserType == "RohBot")
             {
-                Chat.Send(string.Format("[{0}] {1}", WebUtility.HtmlDecode(chatLine.Sender), WebUtility.HtmlDecode(chatLine.Content)));
+                Chat.Send($"[{WebUtility.HtmlDecode(chatLine.Sender)}] {WebUtility.HtmlDecode(chatLine.Content)}");
             }
 
             var stateLine = line as StateLine;
@@ -49,10 +49,7 @@ namespace RohBot.Rooms.Steam
 
         public override void Send(string str)
         {
-            if (Chat != null)
-            {
-                Chat.Send(str);
-            }
+            Chat?.Send(str);
 
             base.Send(str);
         }
@@ -80,8 +77,7 @@ namespace RohBot.Rooms.Steam
         {
             if (!IsActive)
             {
-                if (Chat != null)
-                    Chat.Leave(SteamChatLeaveReason.Left);
+                Chat?.Leave(SteamChatLeaveReason.Left);
 
                 return;
             }
@@ -168,15 +164,15 @@ namespace RohBot.Rooms.Steam
                     message += " disconnected.";
                     break;
                 case SteamChatLeaveReason.Kicked:
-                    message += string.Format(" was kicked by {0}.", sourceUser.DisplayName);
+                    message += $" was kicked by {sourceUser.DisplayName}.";
                     break;
                 case SteamChatLeaveReason.Banned:
-                    message += string.Format(" was banned by {0}.", sourceUser.DisplayName);
+                    message += $" was banned by {sourceUser.DisplayName}.";
                     break;
             }
 
             var by = sourceUser != null ? sourceUser.DisplayName : "";
-            var byId = sourceUser != null ? sourceUser.Id.ConvertToUInt64().ToString("D") : "0";
+            var byId = sourceUser?.Id.ConvertToUInt64().ToString("D") ?? "0";
             var byType = sourceUser != null ? "Steam" : "";
 
             var line = new StateLine(Util.GetCurrentTimestamp(), RoomInfo.ShortName, reason.ToString(), user.DisplayName, user.Id.ConvertToUInt64().ToString("D"), "Steam", by, byId, byType, message);

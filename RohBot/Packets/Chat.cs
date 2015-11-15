@@ -4,7 +4,7 @@ namespace RohBot.Packets
 {
     public class Chat : Packet
     {
-        public override string Type { get { return "chat"; } }
+        public override string Type => "chat";
 
         public string Method; // join/leave
         public string Name;

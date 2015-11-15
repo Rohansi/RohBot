@@ -28,7 +28,7 @@ namespace RohBot.Packets
             }
         }
 
-        public override string Type { get { return "userList"; } }
+        public override string Type => "userList";
         public string ShortName;
         public List<User> Users = new List<User>();
 

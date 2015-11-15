@@ -6,7 +6,7 @@ namespace RohBot
 {
     public class Session
     {
-        public Account Account { get; private set; }
+        public Account Account { get; }
         public bool IsActive { get; private set; }
 
         private readonly object _sync = new object();

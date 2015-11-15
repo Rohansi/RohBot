@@ -3,10 +3,7 @@ namespace RohBot.Rooms.Script.Commands
 {
     public class Default : Command
     {
-        public override string Type
-        {
-            get { return "script_"; }
-        }
+        public override string Type => "script_";
 
         public override string Format(CommandTarget target, string type)
         {

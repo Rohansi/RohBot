@@ -26,7 +26,7 @@ namespace RohBot.Rooms.Script
             }
         }
 
-        public override string CommandPrefix { get { return "script_"; } }
+        public override string CommandPrefix => "script_";
 
         public Dictionary<string, CommandHandler> Commands;
 

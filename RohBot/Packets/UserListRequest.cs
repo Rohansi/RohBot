@@ -3,7 +3,7 @@
     // C -> S
     public class UserListRequest : Packet
     {
-        public override string Type { get { return "userListRequest"; } }
+        public override string Type => "userListRequest";
 
         public string Target;
 

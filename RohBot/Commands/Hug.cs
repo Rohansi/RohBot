@@ -3,9 +3,9 @@ namespace RohBot.Commands
 {
     public class Hug : Command
     {
-        public override string Type { get { return "hug"; } }
+        public override string Type => "hug";
 
-        public override string Format(CommandTarget target, string type) { return "]"; }
+        public override string Format(CommandTarget target, string type) => "]";
 
         public override void Handle(CommandTarget target, string type, string[] parameters)
         {
@@ -31,7 +31,7 @@ namespace RohBot.Commands
                target.Connection.Session.Account.Id.ToString("D"),
                "RohBot",
                "", "0", "",
-               string.Format("{0} hugs {1}.", username, parameters[0]));
+               $"{username} hugs {parameters[0]}.");
 
             target.Room.SendLine(line);
         }

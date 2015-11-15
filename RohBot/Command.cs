@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using EzSteam;
-using SteamKit2;
 using RohBot.Rooms;
 
 namespace RohBot
@@ -115,8 +114,7 @@ namespace RohBot
             }
             catch (Exception e)
             {
-                if (target != null)
-                    target.Send("Command failed.");
+                target?.Send("Command failed.");
 
                 Program.Logger.Error("Command failed: ", e);
                 return true;
@@ -207,10 +205,10 @@ namespace RohBot
         public readonly SteamPersona Persona;
         public readonly Connection Connection;
 
-        public bool IsSteam { get { return Persona != null; } }
-        public bool IsRoom { get { return Room != null; } }
-        public bool IsPrivateChat { get { return PrivateChat != null; } }
-        public bool IsWeb { get { return Connection != null; } }
+        public bool IsSteam => Persona != null;
+        public bool IsRoom => Room != null;
+        public bool IsPrivateChat => PrivateChat != null;
+        public bool IsWeb => Connection != null;
 
         // For Steam rooms
         public CommandTarget(Room room, SteamPersona sender)

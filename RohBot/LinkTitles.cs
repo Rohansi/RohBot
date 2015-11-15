@@ -66,7 +66,7 @@ namespace RohBot
 
                         var formattedLength = FormatTime(TimeSpan.FromMilliseconds(length));
 
-                        var chatResponse = string.Format("{0} - {1} ({2})", name, artist, formattedLength);
+                        var chatResponse = $"{name} - {artist} ({formattedLength})";
 
                         /*
                          * Spotify2YT included with permission of glorious god-king Naarkie
@@ -140,13 +140,10 @@ namespace RohBot
 
                         if (likeCount != null && dislikeCount != null)
                         {
-                            stats += string.Format(" • {0:n0} 👍 {1:n0} 👎",
-                                likeCount.ToObject<int>(),
-                                dislikeCount.ToObject<int>()
-                            );
+                            stats += $" • {likeCount.ToObject<int>():n0} 👍 {dislikeCount.ToObject<int>():n0} 👎";
                         }
 
-                        return string.Format("YouTube: {0} ({1})", title, stats);
+                        return $"YouTube: {title} ({stats})";
                     }
                     catch (Exception e)
                     {
@@ -180,7 +177,7 @@ namespace RohBot
                         if (title == "Facepunch")
                             return null;
 
-                        return string.Format("Facepunch: {0}", title);
+                        return $"Facepunch: {title}";
                     }
                     catch (Exception e)
                     {

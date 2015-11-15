@@ -6,10 +6,7 @@ namespace RohBot.Packets
 {
     public class ChatHistoryRequest : Packet
     {
-        public override string Type
-        {
-            get { return "chatHistoryRequest"; }
-        }
+        public override string Type => "chatHistoryRequest";
 
         public string Target;
         public long AfterDate;

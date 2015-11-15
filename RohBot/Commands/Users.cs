@@ -8,9 +8,9 @@ namespace RohBot.Commands
 {
     public class Users : Command
     {
-        public override string Type { get { return "users"; } }
+        public override string Type => "users";
 
-        public override string Format(CommandTarget target, string type) { return "]"; }
+        public override string Format(CommandTarget target, string type) => "]";
 
         public override void Handle(CommandTarget target, string type, string[] parameters)
         {

@@ -102,7 +102,7 @@ namespace RohBot.Rooms
         /// <summary>
         /// If not empty, commands used in this room will potentially resolve to commands that use the prefix.
         /// </summary>
-        public virtual string CommandPrefix { get { return ""; } }
+        public virtual string CommandPrefix => "";
 
         private RoomSettings _settings;
         private readonly LinkedList<HistoryLine> _history;

@@ -3,9 +3,9 @@ namespace RohBot.Commands
 {
     public class FixSteam : Command
     {
-        public override string Type { get { return "fixsteam"; } }
+        public override string Type => "fixsteam";
 
-        public override string Format(CommandTarget target, string type) { return ""; }
+        public override string Format(CommandTarget target, string type) => "";
 
         public override void Handle(CommandTarget target, string type, string[] parameters)
         {

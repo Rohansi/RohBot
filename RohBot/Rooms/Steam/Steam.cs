@@ -15,10 +15,7 @@ namespace RohBot.Rooms.Steam
 
         public ConnectionStatus Status { get; private set; }
 
-        public SteamBot Bot
-        {
-            get { return Status == ConnectionStatus.Connected ? _bot : null; }
-        }
+        public SteamBot Bot => Status == ConnectionStatus.Connected ? _bot : null;
 
         private SteamBot _bot;
         private bool _hasConnected;
@@ -34,8 +31,7 @@ namespace RohBot.Rooms.Steam
         {
             if (_connectStarted.Elapsed.TotalSeconds > 120)
             {
-                if (_bot != null)
-                    _bot.Disconnect();
+                _bot?.Disconnect();
                 Status = ConnectionStatus.Disconnected;
             }
 

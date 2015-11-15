@@ -23,13 +23,7 @@ namespace RohBot
             return result;
         }
 
-        public ICollection<Room> List
-        {
-            get
-            {
-                return _rooms.Values;
-            }
-        }
+        public ICollection<Room> List => _rooms.Values;
 
         public void Update()
         {
