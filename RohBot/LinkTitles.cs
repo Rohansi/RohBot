@@ -129,13 +129,24 @@ namespace RohBot
                         var length = ParseDuration(item["contentDetails"]["duration"].ToObject<string>());
                         var formattedLength = FormatTime(TimeSpan.FromSeconds(length));
 
-                        return string.Format("YouTube: {0} ({1} • {2:n0} views • {3:n0} 👍 {4:n0} 👎)",
-                            title,
+                        var statistics = item["statistics"];
+                        var likeCount = statistics["likeCount"];
+                        var dislikeCount = statistics["dislikeCount"];
+
+                        var stats = string.Format("{0} • {1:n0} views",
                             formattedLength,
-                            item["statistics"]["viewCount"].ToObject<int>(),
-                            item["statistics"]["likeCount"].ToObject<int>(),
-                            item["statistics"]["dislikeCount"].ToObject<int>()
+                            statistics["viewCount"].ToObject<int>()
                         );
+
+                        if (likeCount != null && dislikeCount != null)
+                        {
+                            stats += string.Format(" • {0:n0} 👍 {1:n0} 👎",
+                                likeCount.ToObject<int>(),
+                                dislikeCount.ToObject<int>()
+                            );
+                        }
+
+                        return string.Format("YouTube: {0} ({1})", title, stats);
                     }
                     catch (Exception e)
                     {
