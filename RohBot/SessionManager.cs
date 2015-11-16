@@ -4,13 +4,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using WebSocketSharp.Server;
 
 namespace RohBot
 {
     public class SessionManager
     {
-        private WebSocketServer _server;
+        private WebSocketServer<Connection> _server;
         private ConcurrentDictionary<string, Session> _sessions;
         private Stopwatch _timer;
 
@@ -22,15 +21,7 @@ namespace RohBot
 
         public void Start()
         {
-            _server = new WebSocketServer(IPAddress.Any, 12000)
-            {
-                KeepClean = true
-            };
-
-            _server.AddWebSocketService<Connection>("/");
-            _server.AddWebSocketService<Connection>("/ws");
-
-            _server.Start();
+            _server = new WebSocketServer<Connection>(new IPEndPoint(IPAddress.Any, 12000));
         }
 
         public void Broadcast(Packet packet, Func<Session, bool> filter = null)
@@ -102,9 +93,9 @@ namespace RohBot
 
             try
             {
-                foreach (var host in _server.WebSocketServices.Hosts)
+                foreach (var client in _server.Clients)
                 {
-                    host.Sessions.Broadcast(pingStr);
+                    client.Send(pingStr);
                 }
             }
             catch (Exception e)
@@ -115,10 +106,7 @@ namespace RohBot
 
         public void Close(Connection connection)
         {
-            foreach (var host in _server.WebSocketServices.Hosts)
-            {
-                host.Sessions.CloseSession(connection.ID);
-            }
+            connection.Close();
         }
     }
 }

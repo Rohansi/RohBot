@@ -116,7 +116,7 @@ namespace RohBot
         {
             lock (_sync)
             {
-                _connections.RemoveAll(conn => !conn.Connected);
+                _connections.RemoveAll(conn => !conn.IsConnected);
 
                 if (_connections.Count > 0)
                 {

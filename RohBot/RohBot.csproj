@@ -39,7 +39,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\CSScriptLibrary.dll</HintPath>
     </Reference>
-    <Reference Include="EzSteam">
+    <Reference Include="EzSteam, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\EzSteam.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
@@ -61,20 +62,34 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\Npgsql.dll</HintPath>
     </Reference>
-    <Reference Include="protobuf-net">
+    <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\protobuf-net.dll</HintPath>
     </Reference>
-    <Reference Include="SteamKit2">
+    <Reference Include="SteamKit2, Version=1.6.5.29095, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\SteamKit2.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Threading.Tasks.Dataflow, Version=4.5.24.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Tpl.Dataflow.4.5.24\lib\portable-net45+win8+wpa81\System.Threading.Tasks.Dataflow.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Web" />
-    <Reference Include="websocket-sharp, Version=1.0.2.42043, Culture=neutral, PublicKeyToken=5660b08a1845a91e, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Libraries\websocket-sharp.dll</HintPath>
+    <Reference Include="vtortola.WebSockets, Version=2.1.9.0, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">
+      <HintPath>..\packages\vtortola.WebSocketListener.2.1.9.0\lib\net45\vtortola.WebSockets.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="vtortola.WebSockets.Deflate, Version=2.1.9.0, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">
+      <HintPath>..\packages\vtortola.WebSocketListener.2.1.9.0\lib\net45\vtortola.WebSockets.Deflate.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="vtortola.WebSockets.Rfc6455, Version=2.1.9.0, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">
+      <HintPath>..\packages\vtortola.WebSocketListener.2.1.9.0\lib\net45\vtortola.WebSockets.Rfc6455.dll</HintPath>
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -133,15 +148,25 @@
     <Compile Include="Rooms\Steam\Steam.cs" />
     <Compile Include="TaskScheduler.cs" />
     <Compile Include="Util.cs" />
+    <Compile Include="WebSocketClient.cs" />
+    <Compile Include="WebSocketServer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="settings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SharpDeflate\SharpDeflate.csproj">
+      <Project>{4b90eaea-5b83-4291-9b78-fb11ed68aaea}</Project>
+      <Name>SharpDeflate</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

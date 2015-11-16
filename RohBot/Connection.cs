@@ -5,18 +5,14 @@ using System.Text.RegularExpressions;
 using Npgsql;
 using RohBot.Packets;
 using RohBot.Rooms;
-using WebSocketSharp;
-using WebSocketSharp.Server;
 
 namespace RohBot
 {
-    public class Connection : WebSocketBehavior
+    public class Connection : WebSocketClient
     {
         public string Address { get; private set; }
         public bool IsMobile { get; private set; }
         public Session Session { get; set; }
-
-        public bool Connected => State == WebSocketState.Open;
 
         public void SendJoinRoom(Room room)
         {
@@ -208,9 +204,9 @@ namespace RohBot
             Send(Packet.WriteToMessage(packet));
         }
 
-        public new void Send(string data)
+        public void Send(string data)
         {
-            base.Send(data);
+            SendAsync(data).Wait();
         }
 
         private static readonly Regex MobileUserAgent = new Regex(@"Android|iPhone|iPad|iPod|Windows Phone", RegexOptions.Compiled);
@@ -221,10 +217,10 @@ namespace RohBot
 
             try
             {
-                if (Context.IsLocal)
-                    Address = Context.Headers["X-Real-IP"] ?? "127.0.0.1";
+                if (IsLocal)
+                    Address = Headers["X-Real-IP"] ?? "127.0.0.1";
                 else
-                    Address = Context.UserEndPoint.Address.ToString();
+                    Address = EndPoint.Address.ToString();
             }
             catch
             {
@@ -233,7 +229,7 @@ namespace RohBot
 
             try
             {
-                IsMobile = MobileUserAgent.IsMatch(Context.Headers["User-Agent"]);
+                IsMobile = MobileUserAgent.IsMatch(Headers["User-Agent"]);
             }
             catch
             {
@@ -241,19 +237,21 @@ namespace RohBot
             }
         }
 
-        protected override void OnMessage(MessageEventArgs e)
+        protected override void OnMessage(string message)
         {
-            if (e.Type != Opcode.Text)
-                return;
-
             try
             {
-                Packet.ReadFromMessage(e.Data).Handle(this);
+                Packet.ReadFromMessage(message).Handle(this);
             }
             catch (Exception ex)
             {
-                Program.Logger.Error($"Bad packet from {Address}: {e.Data}", ex);
+                Program.Logger.Error($"Bad packet from {Address}: {message}", ex);
             }
+        }
+
+        protected override void OnError(Exception exception)
+        {
+            Program.Logger.Error($"Socket error from {Address}:", exception);
         }
     }
 }

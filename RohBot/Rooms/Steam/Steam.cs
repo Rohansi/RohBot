@@ -83,10 +83,10 @@ namespace RohBot.Rooms.Steam
                     Command.Handle(new CommandTarget(chatSender, messageSender), message, "");
             };
 
-            _bot.OnChatInvite += (sender, chat, @by) =>
+            _bot.OnChatInvite += (sender, @by, chat) =>
             {
-                if (chat.Id.IsIndividualAccount)
-                    _bot.Join(chat.Id);
+                if (chat.IsIndividualAccount)
+                    _bot.Join(chat);
             };
 
             _bot.Connect();
