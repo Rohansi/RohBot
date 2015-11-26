@@ -78,9 +78,19 @@ namespace RohBot
         {
             while (_listener.IsStarted)
             {
-                var websocket = await _listener.AcceptWebSocketAsync(_cts.Token).ConfigureAwait(false);
-                if (websocket == null)
+                WebSocket websocket;
+
+                try
+                {
+                    websocket = await _listener.AcceptWebSocketAsync(_cts.Token).ConfigureAwait(false);
+                    if (websocket == null)
+                        continue;
+                }
+                catch (Exception e)
+                {
+                    Program.Logger.Error("Failed to accept websocket connection", e);
                     continue;
+                }
                 
                 var client = new TClient();
                 var clientHandle = new ClientHandle(() =>
