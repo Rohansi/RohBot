@@ -122,7 +122,7 @@ namespace RohBot.Rooms.Steam
 
         private void SendPersistentSysMessage(string str)
         {
-            var line = new ChatLine(Util.GetCurrentTimestamp(), RoomInfo.ShortName, "Steam", Program.Settings.PersonaName, "0", "", str, false);
+            var line = new ChatLine(Util.GetCurrentTimestamp(), RoomInfo.ShortName, "Steam", Program.Settings.PersonaName, "0", "", "", str, false);
             base.SendLine(line);
         }
 
@@ -132,9 +132,10 @@ namespace RohBot.Rooms.Steam
 
             var senderName = user.DisplayName;
             var senderId = user.Id.ConvertToUInt64().ToString("D");
+            var senderAvatar = BitConverter.ToString(user.Avatar).Replace("-", "").ToLower();
             var inGame = user.Playing != null && user.Playing.ToUInt64() != 0;
 
-            var line = new ChatLine(Util.GetCurrentTimestamp(), RoomInfo.ShortName, "Steam", senderName, senderId, "", message, inGame);
+            var line = new ChatLine(Util.GetCurrentTimestamp(), RoomInfo.ShortName, "Steam", senderName, senderId, senderAvatar, "", message, inGame);
             SendLine(line);
 
             Command.Handle(new CommandTarget(this, user), message, "~");

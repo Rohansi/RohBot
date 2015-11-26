@@ -199,7 +199,7 @@ namespace RohBot.Rooms
         /// </summary>
         public virtual void Send(string str)
         {
-            var line = new ChatLine(Util.GetCurrentTimestamp(), RoomInfo.ShortName, "Steam", Program.Settings.PersonaName, "0", "", str, false);
+            var line = new ChatLine(Util.GetCurrentTimestamp(), RoomInfo.ShortName, "Steam", Program.Settings.PersonaName, "0", "", "", str, false);
             SendLine(line);
         }
 
@@ -276,7 +276,7 @@ namespace RohBot.Rooms
             var userName = account.Name;
             var userId = account.Id.ToString("D");
             var userStyle = account.EnabledStyle;
-            var line = new ChatLine(Util.GetCurrentTimestamp(), roomName, "RohBot", userName, userId, userStyle, message, false);
+            var line = new ChatLine(Util.GetCurrentTimestamp(), roomName, "RohBot", userName, userId, "", userStyle, message, false);
             SendLine(line);
         }
 

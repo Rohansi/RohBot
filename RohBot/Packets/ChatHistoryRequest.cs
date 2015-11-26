@@ -54,7 +54,7 @@ namespace RohBot.Packets
             }
 
             if (lines.Count == 0)
-                lines.Add(new ChatLine(0, Target, "Steam", Program.Settings.PersonaName, "0", "", "No additional history is available.", false));
+                lines.Add(new ChatLine(0, Target, "Steam", Program.Settings.PersonaName, "0", "", "", "No additional history is available.", false));
             
             var history = new ChatHistory
             {
