@@ -80,7 +80,7 @@ module.exports = function(grunt) {
         // Other
         copy: {
             index: {
-                src: 'index.htm',
+                src: ['index.htm', 'manifest.json'],
                 dest: 'build/'
             },
             img: {
@@ -91,7 +91,7 @@ module.exports = function(grunt) {
                 filter: 'isFile'
             },
             dist: {
-                src: ['img/*', 'build/jslibs.min.js', 'build/templates.js'],
+                src: ['manifest.json', 'img/*', 'build/jslibs.min.js', 'build/templates.js'],
                 dest: 'dist/',
                 expand: true,
                 flatten: true,

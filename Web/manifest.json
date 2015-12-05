@@ -1,0 +1,14 @@
+{
+    "name": "RohBot",
+    "icons": [
+        {
+            "src": "rohbot.png",
+            "sizes": "184x184",
+            "type": "image/png",
+            "density": 4.0
+        }
+    ],
+    "start_url": "",
+    "display": "standalone",
+    "orientation": "any"
+}
