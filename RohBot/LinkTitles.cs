@@ -135,7 +135,7 @@ namespace RohBot
 
                         var stats = string.Format("{0} • {1:n0} views",
                             formattedLength,
-                            statistics["viewCount"].ToObject<int>()
+                            statistics["viewCount"].ToObject<long>()
                         );
 
                         if (likeCount != null && dislikeCount != null)
