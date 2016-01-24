@@ -12,7 +12,7 @@ ol.user-list {
         > div {
             padding-left: @userlist-padding;
             overflow: hidden;
-            text-overflow: ellipsis;
+            text-overflow: clip;
             
             &[data-rank=Administrator]:before {
                 content: '\2605\00a0';
@@ -74,7 +74,7 @@ ol.user-list {
             }
             
             img,
-            span {
+            div > :not(:first-child) {
                 display: none;
             }
         }
