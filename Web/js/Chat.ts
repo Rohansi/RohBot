@@ -140,13 +140,15 @@ class Chat {
     }
 
     statusMessage(message: string) {
-        this.addLine({
+        var statusLine: StatusLine = {
             Type: "state",
             Date: Date.now(),
             Chat: this.shortName,
             State: "Client",
             Content: message
-        });
+        };
+
+        this.addLine(statusLine);
     }
 
     renderLine(line: HistoryLine) {
@@ -408,7 +410,7 @@ class Chat {
         // Put spaces infront of emoticons to terminate urls
         text = text.replace(/ː(\w+?)ː/g, " ː<img src=\"/economy/emoticon/$1\" alt=\":$1:\" class=\"emote\" title=\"$1\">");
         text = text.replace(/((?:https?|ftps?|steam):\/\/\S+)/gi, "<a href=\"$1\" target=\"_blank\">$1</a>");
-        text = text.replace(/(^|[\s,;"'])([A-Za-z0-9\-.:]+?\.(?:com|net|org|uk|edu|gov|biz|me|ch|tv)(?:[\/:]\S*|\b))/gi, "$1<a href=\"http://$2\" target=\"_blank\">$2</a>");
+        text = text.replace(/(^|[\s,;"'])([A-Za-z0-9\-.:]+?\.(?:com|net|org|uk|edu|gov|biz|me|ch|tv|io|ca|nz)(?:[\/:]\S*|\b))/gi, "$1<a href=\"http://$2\" target=\"_blank\">$2</a>");
         text = text.replace("\n", "<br>");
         text = text.replace(/\ ː/g, ""); // Get rid of the sentinel chars. (triangle colons are guaranteed to never appear in normal text)
         return text;

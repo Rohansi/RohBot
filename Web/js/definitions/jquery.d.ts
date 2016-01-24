@@ -1597,7 +1597,7 @@ interface JQuery {
      *
      * @param obj An object of key-value pairs of data to update.
      */
-    data(obj: { [key: string]: any; }): JQuery;
+    //data(obj: { [key: string]: any; }): JQuery;
     /**
      * Return the value at the named data store for the first element in the jQuery collection, as set by data(name, value) or by an HTML5 data-* attribute.
      *

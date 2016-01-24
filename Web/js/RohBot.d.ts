@@ -89,3 +89,8 @@ interface StateLine extends HistoryLine {
     ById: string;
     ByType: string;
 }
+
+// Doesn't actually exist, used internally by this client.
+interface StatusLine extends HistoryLine {
+    State: string;
+}
