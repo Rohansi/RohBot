@@ -1,12 +1,13 @@
 ﻿
 class ChatManager {
 
-    private chats: { [shortName: string]: Chat; };
+    private chats: { [shortName: string]: Chat };
     rohbot: RohBot;
 
     private loggingIn: boolean;
 
     lineFilter: Event3<HistoryLine, boolean, { filtered: boolean }> = new TypedEvent();
+    userFilter: Event2<UserListUser, { filtered: boolean }> = new TypedEvent();
 
     constructor(rohbot: RohBot) {
         this.chats = {};
@@ -206,6 +207,12 @@ class ChatManager {
                 console.warn("userList without existing chat");
                 return;
             }
+
+            packet.Users = packet.Users.filter(user => {
+                var result = { filtered: false };
+                this.userFilter.trigger(user, result);
+                return !result.filtered;
+            });
 
             chat.setUserList(packet.Users);
         });
