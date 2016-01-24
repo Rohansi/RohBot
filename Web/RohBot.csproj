@@ -69,6 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="js\Chat.ts" />
+    <TypeScriptCompile Include="js\CommandDispatcher.ts" />
     <TypeScriptCompile Include="js\definitions\underscore.d.ts" />
     <TypeScriptCompile Include="js\Event.ts" />
     <TypeScriptCompile Include="js\RohBot.d.ts" />

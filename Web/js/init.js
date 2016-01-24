@@ -4,7 +4,8 @@ if (window.location.protocol !== "https:")
 
 var rohbot = new RohBot(server);
 var chatMgr = new ChatManager(rohbot);
-var ui = new UserInterface(rohbot, chatMgr);
+var cmd = new CommandDispatcher();
+var ui = new UserInterface(rohbot, chatMgr, cmd);
 
 function send(room, message) {
     ui.sendPressed.trigger(room, message);
