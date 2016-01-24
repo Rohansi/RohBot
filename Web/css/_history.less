@@ -23,16 +23,6 @@
             }
         }
 
-        a {
-            text-decoration: underline;
-            color: @color-chat-url;
-
-            &:hover {
-                cursor: pointer;
-                color: @color-chat-text;
-            }
-        }
-
         a.inherit {
             color: inherit;
             text-decoration: inherit;
@@ -49,8 +39,18 @@
             white-space: nowrap;
         }
     }
-}
 
+
+}
+        a {
+            text-decoration: underline;
+            color: @color-chat-url;
+
+            &:hover {
+                cursor: pointer;
+                color: @color-chat-text;
+            }
+        }
 .inline-users {
     padding: 4px 4px 1px 4px !important;
     background-color: @color-userlist-background;
@@ -66,7 +66,6 @@
         }
 
         a {
-            color: inherit !important;
             text-decoration: none !important;
         }
 

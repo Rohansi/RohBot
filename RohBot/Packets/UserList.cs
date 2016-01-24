@@ -15,8 +15,9 @@ namespace RohBot.Packets
             public readonly string Status;      // Online/Busy/Away/Snooze/Looking to Trade/Looking to Play/Offline OR empty if using web
             public readonly string Playing;     // Null if not playing OR using web
             public readonly bool Web;           // True if the account is using the RohBot client
+            public readonly string Style;       // Username style
 
-            internal User(string name, string userId, string rank, string avatar, string status, string playing, bool web)
+            internal User(string name, string userId, string rank, string avatar, string status, string playing, bool web, string style)
             {
                 Name = Util.HtmlEncode(name);
                 UserId = userId;
@@ -25,6 +26,7 @@ namespace RohBot.Packets
                 Status = status;
                 Playing = playing;
                 Web = web;
+                Style = style;
             }
         }
 
@@ -32,9 +34,9 @@ namespace RohBot.Packets
         public string ShortName;
         public List<User> Users = new List<User>();
 
-        public void AddUser(string name, string userId, string rank, string avatar, string status, string playing, bool web)
+        public void AddUser(string name, string userId, string rank, string avatar, string status, string playing, bool web, string style)
         {
-            Users.Add(new User(name, userId, rank, avatar, status, playing, web));
+            Users.Add(new User(name, userId, rank, avatar, status, playing, web, style));
         }
 
         public override void Handle(Connection connection)

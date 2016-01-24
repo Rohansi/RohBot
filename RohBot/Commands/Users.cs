@@ -45,7 +45,7 @@ namespace RohBot.Commands
                         var rank = groupMember != null ? GetRankString(groupMember.Rank) : "Guest";
                         var avatar = BitConverter.ToString(persona.Avatar).Replace("-", "").ToLower();
                         var status = GetStatusString(persona.State);
-                        userList.AddUser(persona.DisplayName, steamId, rank, avatar, status, persona.PlayingName, false);
+                        userList.AddUser(persona.DisplayName, steamId, rank, avatar, status, persona.PlayingName, false, "");
                     }
                 }
 
@@ -53,7 +53,7 @@ namespace RohBot.Commands
                 {
                     var userId = account.Id.ToString("D");
                     var rank = GetRankString(target.Room, account.Name);
-                    userList.AddUser(account.Name, userId, rank, "", "", null, true);
+                    userList.AddUser(account.Name, userId, rank, "", "", null, true, account.EnabledStyle);
                 }
 
                 userList.ShortName = roomName;

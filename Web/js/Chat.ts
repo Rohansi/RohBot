@@ -372,11 +372,11 @@ class Chat {
                 u.Status = u.Playing;
 
             if (u.Playing)
-                u.Color = "ingame";
+                u.Class = "inGame";
             else if (u.Web)
-                u.Color = "web";
+                u.Class = "rohBot";
             else
-                u.Color = "";
+                u.Class = "steam";
 
             return u;
         };

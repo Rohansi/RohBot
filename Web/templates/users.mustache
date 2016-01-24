@@ -7,16 +7,14 @@
 	{{^ Avatar }}
 	<img alt="" src="rohbot.png">
 	{{/ Avatar }}
-	<div data-color="{{ Color }}" data-rank="{{ Rank }}">
-		{{# Web }}
-		{{{ Name }}}
+	<div data-rank="{{ Rank }}" class="styled-names">{{# Web }}<span class="{{ Class }} {{ Style }}">{{{ Name }}}</span> <!-- I LOVE SPACES -->
 		{{/ Web }}
 		{{^ Web }}
-		<a href="http://steamcommunity.com/profiles/{{ UserId }}" target="_blank">
+		<a class="{{ Class }}" href="http://steamcommunity.com/profiles/{{ UserId }}" target="_blank">
 			{{{ Name }}}
 		</a>
 		{{/ Web }}
-		<span>
+		<span class="{{ Class }}">
 			<br>
 			{{{ Status }}}
 		</span>
