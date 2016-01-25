@@ -1,4 +1,8 @@
 ﻿
+function htmlUnescape(value: string): string {
+    return $("<textarea/>").html(value).text();
+}
+
 class ChatManager {
 
     private chats: { [shortName: string]: Chat };

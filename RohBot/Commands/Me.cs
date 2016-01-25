@@ -15,7 +15,8 @@ namespace RohBot.Commands
             if (Program.DelayManager.AddAndCheck(target.Connection, DelayManager.Message))
                 return;
 
-            var username = target.Connection.Session.Account.Name;
+            var account = target.Connection.Session.Account;
+            var username = account.Name;
             var room = target.Room;
             if (room.IsBanned(username))
             {
@@ -27,10 +28,8 @@ namespace RohBot.Commands
                 Util.GetCurrentTimestamp(),
                 target.Room.RoomInfo.ShortName,
                 "Action",
-                username,
-                target.Connection.Session.Account.Id.ToString("D"),
-                "RohBot",
-                "", "0", "",
+                username, account.Id.ToString("D"), "RohBot", account.EnabledStyle,
+                "", "0", "", "",
                 $"{username} {parameters[0]}");
 
             target.Room.SendLine(line);

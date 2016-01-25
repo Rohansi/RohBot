@@ -58,6 +58,7 @@ interface UserListUser {
     Status: string;
     Playing: string;
     Web: boolean;
+    Style: string;
 }
 
 interface UserListPacket extends Packet {
@@ -85,9 +86,11 @@ interface StateLine extends HistoryLine {
     For: string;
     ForId: string;
     ForType: string;
+    ForStyle: string;
     By: string;
     ById: string;
     ByType: string;
+    ByStyle: string;
 }
 
 // Doesn't actually exist, used internally by this client.

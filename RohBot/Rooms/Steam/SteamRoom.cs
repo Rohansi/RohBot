@@ -146,7 +146,14 @@ namespace RohBot.Rooms.Steam
 
             var message = user.DisplayName + " entered chat.";
 
-            var line = new StateLine(Util.GetCurrentTimestamp(), RoomInfo.ShortName, "Enter", user.DisplayName, user.Id.ConvertToUInt64().ToString("D"), "Steam", "", "0", "", message);
+            var line = new StateLine(
+                Util.GetCurrentTimestamp(),
+                RoomInfo.ShortName,
+                "Enter",
+                user.DisplayName, user.Id.ConvertToUInt64().ToString("D"), "Steam", "",
+                "", "0", "", "",
+                message);
+
             SendLine(line);
         }
 
@@ -175,7 +182,14 @@ namespace RohBot.Rooms.Steam
             var byId = sourceUser?.Id.ConvertToUInt64().ToString("D") ?? "0";
             var byType = sourceUser != null ? "Steam" : "";
 
-            var line = new StateLine(Util.GetCurrentTimestamp(), RoomInfo.ShortName, reason.ToString(), user.DisplayName, user.Id.ConvertToUInt64().ToString("D"), "Steam", by, byId, byType, message);
+            var line = new StateLine(
+                Util.GetCurrentTimestamp(),
+                RoomInfo.ShortName,
+                reason.ToString(),
+                user.DisplayName, user.Id.ConvertToUInt64().ToString("D"), "Steam", "",
+                by, byId, byType, "",
+                message);
+
             SendLine(line);
         }
     }

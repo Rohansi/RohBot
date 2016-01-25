@@ -294,10 +294,8 @@ namespace RohBot.Rooms
                 Util.GetCurrentTimestamp(),
                 RoomInfo.ShortName,
                 "Enter",
-                account.Name,
-                account.Id.ToString("D"),
-                "RohBot",
-                "", "0", "",
+                account.Name, account.Id.ToString("D"), "RohBot", account.EnabledStyle,
+                "", "0", "", "",
                 account.Name + " entered chat.");
 
             SendLine(line);
@@ -313,10 +311,8 @@ namespace RohBot.Rooms
                 Util.GetCurrentTimestamp(),
                 RoomInfo.ShortName,
                 "Left",
-                account.Name,
-                account.Id.ToString("D"),
-                "RohBot",
-                "", "0", "",
+                account.Name, account.Id.ToString("D"), "RohBot", account.EnabledStyle,
+                "", "0", "", "",
                 account.Name + " left chat.");
 
             SendLine(line);
@@ -332,10 +328,8 @@ namespace RohBot.Rooms
                 Util.GetCurrentTimestamp(),
                 RoomInfo.ShortName,
                 "Disconnected",
-                account.Name,
-                account.Id.ToString("D"),
-                "RohBot",
-                "", "0", "",
+                account.Name, account.Id.ToString("D"), "RohBot", account.EnabledStyle,
+                "", "0", "", "",
                 account.Name + " disconnected.");
 
             SendLine(line);

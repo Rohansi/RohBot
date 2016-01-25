@@ -52,9 +52,11 @@ namespace RohBot
                         For = row.@for,
                         ForId = row.forid,
                         ForType = row.fortype,
+                        ForStyle = row.forstyle.Equals(DBNull.Value) ? "" : row.forstyle,
                         By = row.by,
                         ById = row.byid,
-                        ByType = row.bytype
+                        ByType = row.bytype,
+                        ByStyle = row.bystyle.Equals(DBNull.Value) ? "" : row.bystyle
                     };
 
                 default:
@@ -77,7 +79,10 @@ namespace RohBot
 
         public ChatLine() { }
 
-        public ChatLine(long date, string chat, string userType, string sender, string senderId, string senderStyle, string content, bool inGame)
+        public ChatLine(
+            long date, string chat, string userType,
+            string sender, string senderId, string senderStyle,
+            string content, bool inGame)
             : base(date, chat, content)
         {
             UserType = userType;
@@ -115,22 +120,29 @@ namespace RohBot
         public string For;
         public string ForId;
         public string ForType;
+        public string ForStyle;
         public string By;
         public string ById;
         public string ByType;
+        public string ByStyle;
 
         public StateLine() { }
 
-        public StateLine(long date, string chat, string state, string @for, string forId, string forType, string by, string byId, string byType, string content)
+        public StateLine(
+            long date, string chat, string state,
+            string @for, string forId, string forType, string forStyle,
+            string by, string byId, string byType, string byStyle, string content)
             : base(date, chat, content)
         {
             State = state;
             For = Util.HtmlEncode(Util.TrimZalgoCharacters(@for));
             ForId = forId;
             ForType = forType;
+            ForStyle = forStyle;
             By = Util.HtmlEncode(Util.TrimZalgoCharacters(by));
             ById = byId;
             ByType = byType;
+            ByStyle = byStyle;
         }
 
         public override void Insert()
@@ -138,8 +150,8 @@ namespace RohBot
             if (Id != 0)
                 throw new InvalidOperationException("Cannot insert existing row");
 
-            var cmd = new SqlCommand("INSERT INTO rohbot.chathistory (type,date,chat,content,state,\"for\",forid,fortype,by,byid,bytype)" + 
-                                     "VALUES (:type,:date,:chat,:content,:state,:for,:forid,:fortype,:by,:byid,:bytype) RETURNING id;");
+            var cmd = new SqlCommand("INSERT INTO rohbot.chathistory (type,date,chat,content,state,\"for\",forid,fortype,forstyle,by,byid,bytype,bystyle)" + 
+                                     "VALUES (:type,:date,:chat,:content,:state,:for,:forid,:fortype,:forstyle,:by,:byid,:bytype,:bystyle) RETURNING id;");
             cmd["type"] = Type;
             cmd["date"] = Date;
             cmd["chat"] = Chat;
@@ -148,9 +160,11 @@ namespace RohBot
             cmd["for"] = For;
             cmd["forid"] = ForId;
             cmd["fortype"] = ForType;
+            cmd["forstyle"] = ForStyle;
             cmd["by"] = By;
             cmd["byid"] = ById;
             cmd["bytype"] = ByType;
+            cmd["bystyle"] = ByStyle;
             Id = (long)cmd.ExecuteScalar();
         }
     }

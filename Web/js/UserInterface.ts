@@ -230,12 +230,12 @@ class UserInterface {
 
                     switch (line.Type) {
                         case "chat":
-                            var sender = $("<textarea/>").html(chatLine.Sender).text();
-                            var content = $("<textarea/>").html(chatLine.Content).text();
+                            var sender = htmlUnescape(chatLine.Sender);
+                            var content = htmlUnescape(chatLine.Content);
                             notificationText = sender + ": " + content;
                             break;
                         case "state":
-                            notificationText = $("<textarea/>").html(stateLine.Content).text();
+                            notificationText = htmlUnescape(stateLine.Content);
                             break;
                         default:
                             notificationText = "error";

@@ -102,10 +102,10 @@ class Chat {
         word = word.toLowerCase();
 
         return this.userList.map(user => {
-            return $("<textarea/>").html(user.Name).text();
+            return htmlUnescape(user.Name);
         }).filter(name => {
-                return name.toLowerCase().indexOf(word) === 0;
-            });
+            return name.toLowerCase().indexOf(word) === 0;
+        });
     }
 
     addHistory(data: ChatHistoryPacket) {
@@ -186,15 +186,18 @@ class Chat {
 
             case "state": {
                 var stateLine = <StateLine>line;
-                if (stateLine.State === "Action" || stateLine.State === "Client") {
+                if (stateLine.State === "Client") {
                     if (stateLine.Chat !== "home")
                         data.Message = this.linkify(stateLine.Content);
                     break;
                 }
-                var style = t => t === "Steam" ? "steam" : "rohBot";
+
+                var style = t => t === "Steam" ? "steam " : "rohBot ";
+
                 var stateData: any = {
+                    Class: "state",
                     For: stateLine.For,
-                    ForStyle: style(stateLine.ForType)
+                    ForStyle: style(stateLine.ForType) + stateLine.ForStyle
                 };
 
                 if (stateLine.ForType === "Steam" && stateLine.ForId !== "0")
@@ -202,7 +205,7 @@ class Chat {
 
                 if (stateLine.By !== "") {
                     stateData.By = stateLine.By;
-                    stateData.ByStyle = style(stateLine.ByType);
+                    stateData.ByStyle = style(stateLine.ByType) + stateLine.ByStyle;
 
                     if (stateLine.ByType === "Steam" && stateLine.ById !== "0")
                         stateData.BySteamId = stateLine.ById;
@@ -234,6 +237,11 @@ class Chat {
                     case "Unbanned":
                         stateData.Content1 = " was unbanned by ";
                         stateData.Content2 = ".";
+                        break;
+
+                    case "Action":
+                        stateData.Class = "";
+                        stateData.Content1 = htmlUnescape(stateLine.Content.substr(stateLine.For.length));
                         break;
 
                     default:
@@ -312,7 +320,8 @@ class Chat {
                     Avatar: "0000000000000000000000000000000000000000",
                     Status: stateLine.ForType === "RohBot" ? "" : "Online",
                     Playing: null,
-                    Web: stateLine.ForType === "RohBot"
+                    Web: stateLine.ForType === "RohBot",
+                    Style: ""
                 });
                 break;
 
