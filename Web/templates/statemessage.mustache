@@ -1,6 +1,6 @@
 ﻿<span class="{{ Class }}">
 	{{# ForSteamId }}
-	<a href="http://steamcommunity.com/profiles/{{ ForSteamId }}" target="_blank" class="inherit">
+	<a href="http://steamcommunity.com/profiles/{{ ForSteamId }}" target="_blank" class="inherit {{ ForStyle }}">
 	{{/ ForSteamId }}
 	<span class="{{ ForStyle }}">{{{ For }}}</span>
 	{{# ForSteamId }}
@@ -11,7 +11,7 @@
 
 	{{# By }}
 		{{# BySteamId }}
-		<a href="http://steamcommunity.com/profiles/{{ BySteamId }}" target="_blank" class="inherit">
+		<a href="http://steamcommunity.com/profiles/{{ BySteamId }}" target="_blank" class="inherit {{ ByStyle }}">
 		{{/ BySteamId }}
 		<span class="{{ ByStyle }}">{{{ By }}}</span>
 		{{# BySteamId }}

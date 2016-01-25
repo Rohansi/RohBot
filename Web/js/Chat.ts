@@ -171,9 +171,13 @@ class Chat {
                 var senderClasses = "";
 
                 if (chatLine.UserType === "RohBot")
-                    senderClasses = "rohBot " + chatLine.SenderStyle;
+                    senderClasses = "rohBot ";
                 else if (chatLine.InGame)
-                    senderClasses = "inGame";
+                    senderClasses = "inGame ";
+                else
+                    senderClasses = "steam ";
+
+                senderClasses += chatLine.SenderStyle;
 
                 if (chatLine.UserType === "Steam" && chatLine.SenderId !== "0")
                     data.SteamId = chatLine.SenderId;
