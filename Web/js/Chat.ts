@@ -244,7 +244,7 @@ class Chat {
                         break;
 
                     case "Action":
-                        stateData.Class = "";
+                        stateData.Class = "action";
                         stateData.Content1 = htmlUnescape(stateLine.Content.substr(stateLine.For.length));
                         break;
 
