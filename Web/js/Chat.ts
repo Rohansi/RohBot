@@ -245,7 +245,7 @@ class Chat {
 
                     case "Action":
                         stateData.Class = "action";
-                        stateData.Content1 = htmlUnescape(stateLine.Content.substr(stateLine.For.length));
+                        stateData.Content1 = this.linkify(stateLine.Content.substr(stateLine.For.length));
                         break;
 
                     default:
