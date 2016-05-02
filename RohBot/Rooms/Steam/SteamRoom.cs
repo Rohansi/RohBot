@@ -54,14 +54,18 @@ namespace RohBot.Rooms.Steam
             base.Send(str);
         }
 
+        public void Disconnect()
+        {
+            if (Chat == null)
+                return;
+
+            Chat.Leave(SteamChatLeaveReason.Left);
+            Chat = null;
+        }
+
         public override void Leave()
         {
-            if (Chat != null)
-            {
-                Chat.Leave(SteamChatLeaveReason.Left);
-                Chat = null;
-            }
-
+            Disconnect();
             base.Leave();
         }
 

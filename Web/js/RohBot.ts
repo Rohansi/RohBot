@@ -36,7 +36,7 @@ class RohBot {
                 console.log("timed out");
                 this.disconnect();
             }
-        }, 1000);
+        }, 5000);
 
         this.manualSysMessage("Connecting to RohBot...");
         this.connect();
@@ -64,8 +64,8 @@ class RohBot {
         this.socket.onclose = () => this.disconnect();
 
         this.socket.onerror = e => {
-            this.disconnect();
             console.error("websocket error", e);
+            this.disconnect();
         };
 
         this.socket.onmessage = e => {
@@ -134,7 +134,7 @@ class RohBot {
     isConnected(): boolean {
         if (this.socket == null)
             return false;
-        return this.socket.readyState === WebSocket.OPEN;
+        return this.socket.readyState === 1;
     }
 
     getUsername(): string {
