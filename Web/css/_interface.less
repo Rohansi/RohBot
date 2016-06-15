@@ -27,16 +27,20 @@
     textarea {
         display: block;
         height: 16px;
+        width: 0; /* let flex size it */
         padding: 6px;
         font-size: 10pt;
         outline: none;
         transition: all 0.1s ease-in-out;
-        margin: 0px;
         margin-right: 6px;
 
         &:last-child {
             margin-right: 0;
         }
+    }
+    
+    input {
+        min-width: 100px;
     }
 
     .btn {
@@ -48,6 +52,7 @@
         font-weight: bold;
         text-decoration: none;
         cursor: pointer;
+        min-width: 55px;
 
         &:hover {
             background-color: @color-button-hover;
@@ -72,7 +77,7 @@
     padding-bottom: 0px;
 
     h1 {
-        flex: 20 0 auto;
+        flex: 2 0 auto;
         font-size: 17pt;
     }
 }
@@ -99,10 +104,16 @@
 }
 
 @media all and (max-width: 599px) {
-    div.container > #header {
+    #header {
         h1 {
             display: none;
         }
+    }
+    
+    .fixed-bar input {
+        /* don't ask */
+        width: 0;
+        min-width: 0;
     }
 }
 
