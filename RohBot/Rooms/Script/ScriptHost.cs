@@ -31,5 +31,15 @@ namespace RohBot.Rooms.Script
         {
             _room.SendLine(line);
         }
+
+        public bool IsBanned(string name)
+        {
+            return _room.IsBanned(name);
+        }
+
+        public bool IsMod(string name)
+        {
+            return _room.IsMod(name);
+        }
     }
 }

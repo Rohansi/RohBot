@@ -250,7 +250,7 @@ namespace RohBot.Rooms
         /// <summary>
         /// Called when somebody sends a message.
         /// </summary>
-        public void SendMessage(Connection connection, string message)
+        public virtual void SendMessage(Connection connection, string message)
         {
             if (connection.Session == null) // should never happen
                 return;

@@ -8,5 +8,6 @@ namespace RohBot.Rooms.Script
 
         bool OnSendHistory(Connection connection);
         bool OnSendLine(HistoryLine line);
+        bool OnSendMessage(Connection connection, string message);
     }
 }

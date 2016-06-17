@@ -93,6 +93,19 @@ namespace RohBot.Rooms.Script
             base.SendHistory(connection);
         }
 
+        public override void SendMessage(Connection connection, string message)
+        {
+            if (_script != null)
+            {
+                bool cont = true;
+                SafeInvoke(() => cont = _script.OnSendMessage(connection, message));
+                if (!cont)
+                    return;
+            }
+
+            base.SendMessage(connection, message);
+        }
+
         public override void Update()
         {
             var delta = (float)_timer.Elapsed.TotalSeconds;
