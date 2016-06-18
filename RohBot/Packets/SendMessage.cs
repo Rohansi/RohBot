@@ -34,14 +34,17 @@ namespace RohBot.Packets
                 return;
 
             var room = Program.RoomManager.Get(Target);
+            var roomName = room != null ? Target : Program.Settings.DefaultRoom;
+
+            var isEscapedCommand = Content.StartsWith("//");
+            if (!isEscapedCommand && Command.Handle(new CommandTarget(connection, roomName), Content, "/"))
+                return;
+
+            if (isEscapedCommand)
+                Content = Content.Substring(1);
+
             if (room == null)
             {
-                if (Command.Handle(new CommandTarget(connection, Program.Settings.DefaultRoom), Content, "/"))
-                    return;
-
-                if (Command.Handle(new CommandTarget(connection, Program.Settings.DefaultRoom), Content, "~"))
-                    return;
-
                 connection.SendSysMessage("RohBot is not in this room.");
                 return;
             }

@@ -258,15 +258,6 @@ namespace RohBot.Rooms
             var roomName = RoomInfo.ShortName;
             var account = connection.Session.Account;
 
-            if (!message.StartsWith("//") && Command.Handle(new CommandTarget(connection, roomName), message, "/"))
-                return;
-
-            if (!message.StartsWith("~~") && Command.Handle(new CommandTarget(connection, roomName), message, "~"))
-                return;
-
-            if (message.StartsWith("//") || message.StartsWith("~~"))
-                message = message.Substring(1);
-
             if (IsBanned(account.Name))
             {
                 connection.SendSysMessage("You are banned from this room.");
