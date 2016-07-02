@@ -119,6 +119,7 @@
     <Compile Include="DelayManager.cs" />
     <Compile Include="HistoryLine.cs" />
     <Compile Include="LinkTitles.cs" />
+    <Compile Include="NotificationManager.cs" />
     <Compile Include="OrderedSet.cs" />
     <Compile Include="Packet.cs" />
     <Compile Include="Packets\Authenticate.cs" />
@@ -127,6 +128,8 @@
     <Compile Include="Packets\ChatHistoryRequest.cs" />
     <Compile Include="Packets\Chat.cs" />
     <Compile Include="Packets\Message.cs" />
+    <Compile Include="Packets\NotificationSubscription.cs" />
+    <Compile Include="Packets\NotificationSubscriptionRequest.cs" />
     <Compile Include="Packets\Ping.cs" />
     <Compile Include="Packets\SendMessage.cs" />
     <Compile Include="Packets\SysMessage.cs" />
