@@ -24,10 +24,13 @@ namespace RohBot.Packets
             notification.UserID = account.Id;
             notification.Regex = new Regex(RegexPattern);
             notification.DeviceToken = DeviceToken;
+            
+            if (Notification.Exists(DeviceToken))
+                notification.Save();
+            else
+                notification.Insert();
 
-            //notification.Insert();
-
-            //Program.NotificationManager.InvalidateNotificationCache();
+            Program.NotificationManager.InvalidateNotificationCache();
         }
     }
 }

@@ -37,5 +37,21 @@ namespace RohBot
 
             ID = (long) cmd.ExecuteScalar();
         }
+
+        public void Save()
+        {
+            var cmd = new SqlCommand("UPDATE rohbot.notifications SET regex=:regex WHERE id=:id");
+            cmd["id"] = ID;
+            cmd["regex"] = Regex.ToString();
+
+            cmd.ExecuteNonQuery();
+        }
+
+        public static bool Exists(string deviceToken)
+        {
+            return Program.NotificationManager.Notifications
+                                                    .Where(n => n.DeviceToken == deviceToken)
+                                                    .Any();
+        }
     }
 }

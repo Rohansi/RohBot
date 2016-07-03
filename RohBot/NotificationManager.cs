@@ -20,6 +20,8 @@ namespace RohBot
 
     public class NotificationManager
     {
+        public List<Notification> Notifications => notifications;
+
         private string apiKey;
         private string appID;
         private List<Notification> notifications;
