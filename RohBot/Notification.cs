@@ -53,5 +53,11 @@ namespace RohBot
                                                     .Where(n => n.DeviceToken == deviceToken)
                                                     .Any();
         }
+
+        public static IEnumerable<Notification> FindWithID(long userID)
+        {
+            return Program.NotificationManager.Notifications
+                                                    .Where(n => n.UserID == userID);
+        }
     }
 }

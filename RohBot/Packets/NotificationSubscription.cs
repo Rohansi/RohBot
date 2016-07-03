@@ -10,7 +10,8 @@ namespace RohBot.Packets
     {
         public override string Type => "notificationSubscription";
 
-        public List<string> NotificationKeywords;
+        public string RegexPattern;
+        public string DeviceToken;
 
         public override void Handle(Connection connection)
         {
