@@ -3,7 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
@@ -35,9 +36,10 @@ namespace RohBot
             var content = message.Line.Content;
             var recipientDevices = notifications
                                         .Where(n => n.Regex.IsMatch(content))
-                                        .Select(n => n.DeviceToken);
+                                        .Select(n => n.DeviceToken)
+                                        .ToList<string>();
 
-            if (recipientDevices.Count() > 0)
+            if (recipientDevices.Count > 0)
                 Notify(recipientDevices, content);
         }
 
@@ -53,46 +55,22 @@ namespace RohBot
             notifications = LoadNotifications().ToList<Notification>();
         }
 
-        private static void PostNotificationRequest(OneSignalNotificationPacket notificationPacket)
+        private static async void PostNotificationRequest(OneSignalNotificationPacket notificationPacket)
         {
-            var request = WebRequest.Create("https://onesignal.com/api/v1/notifications") as HttpWebRequest;
+            var httpClient = new HttpClient();
+            var content = new StringContent(JsonConvert.SerializeObject(notificationPacket), Encoding.UTF8, "application/json");
 
-            request.KeepAlive = true;
-            request.Method = "POST";
-            request.ContentType = "application/json";
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Program.Settings.NotificationAPIKey);
 
-            request.Headers.Add("authorization", "Basic " + Program.Settings.NotificationAPIKey);
+            var response = await httpClient.PostAsync("https://onesignal.com/api/v1/notifications", content);
 
-            byte[] byteArray = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(notificationPacket));
-
-            string responseContent = null;
-
-            try
-            {
-                using (var writer = request.GetRequestStream())
-                {
-                    writer.Write(byteArray, 0, byteArray.Length);
-                }
-
-                using (var response = request.GetResponse() as HttpWebResponse)
-                {
-                    using (var reader = new StreamReader(response.GetResponseStream()))
-                    {
-                        responseContent = reader.ReadToEnd();
-                    }
-                }
-            }
-            catch (WebException ex)
-            {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
-                System.Diagnostics.Debug.WriteLine(new StreamReader(ex.Response.GetResponseStream()).ReadToEnd());
-            }
+            Console.WriteLine(response);
         }
 
-        public static void Notify(IEnumerable<string> deviceTokens, string message)
+        public static void Notify(List<string> deviceTokens, string message)
         {
             var notificationPacket = new OneSignalNotificationPacket();
-            notificationPacket.include_player_ids = deviceTokens.ToList<String>();
+            notificationPacket.include_player_ids = deviceTokens;
             notificationPacket.contents = new Dictionary<string, string>(){
                 { "en", message }
             };
