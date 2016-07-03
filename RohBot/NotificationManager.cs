@@ -13,13 +13,36 @@ namespace RohBot
 {
     class OneSignalNotificationPacket
     {
-        public string app_id => Program.Settings.NotificationAppID;
-        public Dictionary<string, string> contents { get; set; }
-        public List<String> include_player_ids { get; set; }
+        [JsonProperty("app_id")]
+        public string AppID => Program.Settings.NotificationAppID;
+        [JsonProperty("contents")]
+        public Dictionary<string, string> Contents { get; set; }
+        [JsonProperty("include_player_ids")]
+        public List<String> DeviceTokens { get; set; }
 
-        public string ios_badgeType => "Increase";
-        public int ios_badgeCount => 1;
-        public string ios_sound = "pop.wav";
+        [JsonIgnore]
+        public string Sound { get; set; }
+
+        [JsonProperty("data")]
+        public Dictionary<string, string> Data { get; set; }
+
+        // iOS
+        [JsonProperty("ios_badgeType")]
+        public string IOSBadgeType => "Increase";
+        [JsonProperty("ios_badgeCount")]
+        public int IOSBadgeCount => 1;
+        [JsonProperty("ios_sound")]
+        public string IOSSound => Sound;
+
+        // Android
+        [JsonProperty("android_sound")]
+        public string AndroidSound
+        {
+            get
+            {
+                return Path.GetFileNameWithoutExtension(Sound);
+            }
+        }
     }
 
     public class NotificationManager
@@ -80,8 +103,9 @@ namespace RohBot
         public static void Notify(List<string> deviceTokens, string message)
         {
             var notificationPacket = new OneSignalNotificationPacket();
-            notificationPacket.include_player_ids = deviceTokens;
-            notificationPacket.contents = new Dictionary<string, string>(){
+            notificationPacket.Sound = "pop.wav";
+            notificationPacket.DeviceTokens = deviceTokens;
+            notificationPacket.Contents = new Dictionary<string, string>(){
                 { "en", message }
             };
 
