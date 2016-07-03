@@ -182,6 +182,7 @@ namespace RohBot.Rooms
             sessions = SendLineFilter(line, sessions);
 
             Program.SessionManager.Send(message, sessions);
+            Program.NotificationManager.HandleMessage(message);
 
             AddHistory(line);
         }

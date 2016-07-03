@@ -14,6 +14,7 @@ namespace RohBot
         public static SessionManager SessionManager;
         public static RoomManager RoomManager;
         public static DelayManager DelayManager;
+        public static NotificationManager NotificationManager;
         public static Steam Steam;
 
         private static TaskScheduler _taskScheduler;
@@ -48,6 +49,7 @@ namespace RohBot
             SessionManager = new SessionManager();
             RoomManager = new RoomManager();
             DelayManager = new DelayManager();
+            NotificationManager = new NotificationManager();
             Steam = new Steam();
 
             RoomManager.Update();

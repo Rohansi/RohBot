@@ -14,7 +14,7 @@
     "DbPort": 5432,
     "DbName": "rohbot",
     "DbUser": "server",
-	"DbPass": "",
+    "DbPass": "",
 
     "NotificationAPIKey": "",
     "NotificationAppID": "",

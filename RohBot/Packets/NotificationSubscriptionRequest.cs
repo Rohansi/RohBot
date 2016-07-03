@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace RohBot.Packets
 {
@@ -10,13 +11,23 @@ namespace RohBot.Packets
     {
         public override string Type => "notificationSubscriptionRequest";
 
-        public ICollection<String> Keywords;
+        public string RegexPattern;
+        public string DeviceToken;
 
         public override void Handle(Connection connection)
         {
             Console.WriteLine("Received notificationSubscriptionRequest from {0}", connection.Session.Account.Name);
 
-            //throw new NotImplementedException();
+            var account = connection.Session.Account;
+            var notification = new Notification();
+
+            notification.UserID = account.Id;
+            notification.Regex = new Regex(RegexPattern);
+            notification.DeviceToken = DeviceToken;
+
+            //notification.Insert();
+
+            //Program.NotificationManager.InvalidateNotificationCache();
         }
     }
 }
