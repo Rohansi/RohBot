@@ -35,7 +35,6 @@ namespace RohBot.Packets
                     return;
                 }
             }
-                
 
             Program.NotificationManager.InvalidateNotificationCache();
 

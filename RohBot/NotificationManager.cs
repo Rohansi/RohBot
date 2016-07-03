@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 
 namespace RohBot
@@ -95,9 +96,17 @@ namespace RohBot
 
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Program.Settings.NotificationAPIKey);
 
-            var response = await httpClient.PostAsync("https://onesignal.com/api/v1/notifications", content);
+            var responseMessage = await httpClient.PostAsync("https://onesignal.com/api/v1/notifications", content);
+            var responseBody = await responseMessage.Content.ReadAsStringAsync();
+            dynamic response = JsonConvert.DeserializeObject(responseBody);
 
-            Console.WriteLine(await response.Content.ReadAsStringAsync());
+            if (response.errors != null)
+            {
+                var errors = ((JArray)response.errors).ToObject<List<string>>();
+                var errorMessage = String.Format("Notification server returned following error(s): {0}", String.Join(", ", errors));
+
+                Program.Logger.Warn(errorMessage);
+            }
         }
 
         public static void Notify(List<string> deviceTokens, string message)
