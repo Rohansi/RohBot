@@ -12,6 +12,7 @@ namespace RohBot.Packets
 
         public string RegexPattern;
         public string DeviceToken;
+        public bool Registered;
 
         public override void Handle(Connection connection)
         {

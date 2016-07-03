@@ -39,7 +39,7 @@ namespace RohBot
 
         public void HandleMessage(Message message) 
         {
-            if (message.Line notis ChatLine)
+            if (message.Line is ChatLine == false)
                 return;
 
             var chatLine = (ChatLine)message.Line;

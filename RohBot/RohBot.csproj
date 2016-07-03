@@ -132,6 +132,7 @@
     <Compile Include="Packets\Chat.cs" />
     <Compile Include="Packets\Message.cs" />
     <Compile Include="Packets\NotificationSubscription.cs" />
+    <Compile Include="Packets\NotificationUnsubscriptionRequest.cs" />
     <Compile Include="Packets\NotificationSubscriptionRequest.cs" />
     <Compile Include="Packets\Ping.cs" />
     <Compile Include="Packets\SendMessage.cs" />

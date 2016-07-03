@@ -59,5 +59,21 @@ namespace RohBot
             return Program.NotificationManager.Notifications
                                                     .Where(n => n.UserID == userID);
         }
+
+        public static Notification Get(string deviceToken)
+        {
+            return Program.NotificationManager.Notifications
+                                                    .Where(n => n.DeviceToken == deviceToken)
+                                                    .FirstOrDefault();
+        }
+
+        public void Remove()
+        {
+            var cmd = new SqlCommand("DELETE FROM rohbot.notifications WHERE devicetoken=:devicetoken AND userid=:userid");
+            cmd["devicetoken"] = DeviceToken;
+            cmd["userid"] = UserID;
+
+            cmd.ExecuteNonQuery();
+        }
     }
 }

@@ -42,6 +42,7 @@ namespace RohBot.Packets
             var notificationSubscription = new NotificationSubscription();
             notificationSubscription.DeviceToken = DeviceToken;
             notificationSubscription.RegexPattern = RegexPattern;
+            notificationSubscription.Registered = true;
 
             connection.Send(notificationSubscription);
         }
