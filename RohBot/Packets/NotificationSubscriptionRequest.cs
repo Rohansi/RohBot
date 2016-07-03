@@ -16,8 +16,6 @@ namespace RohBot.Packets
 
         public override void Handle(Connection connection)
         {
-            Console.WriteLine("Received notificationSubscriptionRequest from {0}", connection.Session.Account.Name);
-
             var account = connection.Session.Account;
             var notification = new Notification();
 
@@ -28,7 +26,16 @@ namespace RohBot.Packets
             if (Notification.Exists(DeviceToken))
                 notification.Save();
             else
-                notification.Insert();
+            {
+                if (Notification.FindWithID(account.Id).Count() < 10)
+                    notification.Insert();
+                else
+                {
+                    connection.SendSysMessage("You may only have 10 devices registered for push notifications.");
+                    return;
+                }
+            }
+                
 
             Program.NotificationManager.InvalidateNotificationCache();
 

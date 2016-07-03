@@ -15,7 +15,11 @@ namespace RohBot
     {
         public string app_id => Program.Settings.NotificationAppID;
         public Dictionary<string, string> contents { get; set; }
-        public List<String> include_player_ids { get; set; } 
+        public List<String> include_player_ids { get; set; }
+
+        public string ios_badgeType => "Increase";
+        public int ios_badgeCount => 1;
+        public string ios_sound = "pop.wav";
     }
 
     public class NotificationManager
@@ -35,7 +39,11 @@ namespace RohBot
 
         public void HandleMessage(Message message) 
         {
-            var content = message.Line.Content;
+            if (message.Line notis ChatLine)
+                return;
+
+            var chatLine = (ChatLine)message.Line;
+            var content = String.Format("{0} - {1}", chatLine.Sender, chatLine.Content);
             var recipientDevices = notifications
                                         .Where(n => n.Regex.IsMatch(content))
                                         .Select(n => n.DeviceToken)
@@ -66,7 +74,7 @@ namespace RohBot
 
             var response = await httpClient.PostAsync("https://onesignal.com/api/v1/notifications", content);
 
-            Console.WriteLine(response);
+            Console.WriteLine(await response.Content.ReadAsStringAsync());
         }
 
         public static void Notify(List<string> deviceTokens, string message)
