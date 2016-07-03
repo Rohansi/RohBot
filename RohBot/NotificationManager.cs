@@ -36,13 +36,7 @@ namespace RohBot
 
         // Android
         [JsonProperty("android_sound")]
-        public string AndroidSound
-        {
-            get
-            {
-                return Path.GetFileNameWithoutExtension(Sound);
-            }
-        }
+        public string AndroidSound => Path.GetFileNameWithoutExtension(Sound);
     }
 
     public class NotificationManager
