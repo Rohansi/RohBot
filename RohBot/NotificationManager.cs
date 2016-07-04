@@ -75,7 +75,7 @@ namespace RohBot
             var chatLine = (ChatLine)message.Line;
             var content = $"[{chatLine.Chat}] {chatLine.Sender}: {chatLine.Content}";
             var recipientDevices = Notifications
-                .Where(n => n.Regex.IsMatch(content))
+                .Where(n => n.Regex.IsMatch(chatLine.Content))
                 .Select(n => n.DeviceToken)
                 .ToList();
 
