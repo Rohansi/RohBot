@@ -10,16 +10,17 @@
         public override void Handle(Connection connection)
         {
             var account = connection.Session.Account;
-            var notification = Notification.Get(DeviceToken);
+            var notification = Program.NotificationManager.Get(DeviceToken);
 
             if (notification == null)
             {
-                connection.SendSysMessage("Device is not registered for push notifications");
+                connection.SendSysMessage("This device is not registered for push notifications.");
                 return;
             }
-            else if(notification.UserID != account.Id)
+
+            if (notification.UserId != account.Id)
             {
-                connection.SendSysMessage("You do not own this device");
+                connection.SendSysMessage("This device is not registered with your account.");
                 return;
             }
 

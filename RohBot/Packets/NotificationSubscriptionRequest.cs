@@ -15,19 +15,23 @@ namespace RohBot.Packets
             var account = connection.Session.Account;
             var notification = new Notification();
 
-            notification.UserID = account.Id;
+            notification.UserId = account.Id;
             notification.Regex = new Regex(RegexPattern);
             notification.DeviceToken = DeviceToken;
 
-            if (Notification.Exists(DeviceToken))
+            if (Program.NotificationManager.Exists(DeviceToken))
+            {
                 notification.Save();
+            }
             else
             {
-                if (Notification.FindWithID(account.Id).Count() < 10)
+                if (Program.NotificationManager.FindWithId(account.Id).Count() < 5)
+                {
                     notification.Insert();
+                }
                 else
                 {
-                    connection.SendSysMessage("You may only have 10 devices registered for push notifications.");
+                    connection.SendSysMessage("You may only have 5 devices registered for push notifications.");
                     return;
                 }
             }

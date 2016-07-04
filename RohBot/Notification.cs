@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace RohBot
 {
     public class Notification
     {
-        public long ID { get; private set; }
-        public long UserID { get; set; }
+        public long Id { get; private set; }
+        public long UserId { get; set; }
         public Regex Regex { get; set; }
         public string DeviceToken { get; set; }
 
@@ -18,8 +16,8 @@ namespace RohBot
 
         public Notification(dynamic row)
         {
-            ID = row.id;
-            UserID = row.userid;
+            Id = row.id;
+            UserId = row.userid;
             Regex = new Regex(row.regex);
             DeviceToken = row.devicetoken;
         }
@@ -27,48 +25,28 @@ namespace RohBot
         public void Insert()
         {
             var cmd = new SqlCommand("INSERT INTO rohbot.notifications (id, userid, regex, devicetoken) VALUES(:id, :userid, :regex, :devicetoken) RETURNING id;");
-            cmd["id"] = ID;
-            cmd["userid"] = UserID;
+            cmd["id"] = Id;
+            cmd["userid"] = UserId;
             cmd["regex"] = Regex.ToString();
             cmd["devicetoken"] = DeviceToken;
 
-            ID = (long) cmd.ExecuteScalar();
+            Id = (long)cmd.ExecuteScalar();
         }
 
         public void Save()
         {
             var cmd = new SqlCommand("UPDATE rohbot.notifications SET regex=:regex WHERE id=:id");
-            cmd["id"] = ID;
+            cmd["id"] = Id;
             cmd["regex"] = Regex.ToString();
 
             cmd.ExecuteNonQuery();
-        }
-
-        public static bool Exists(string deviceToken)
-        {
-            return Program.NotificationManager.Notifications
-                                                    .Where(n => n.DeviceToken == deviceToken)
-                                                    .Any();
-        }
-
-        public static IEnumerable<Notification> FindWithID(long userID)
-        {
-            return Program.NotificationManager.Notifications
-                                                    .Where(n => n.UserID == userID);
-        }
-
-        public static Notification Get(string deviceToken)
-        {
-            return Program.NotificationManager.Notifications
-                                                    .Where(n => n.DeviceToken == deviceToken)
-                                                    .FirstOrDefault();
         }
 
         public void Remove()
         {
             var cmd = new SqlCommand("DELETE FROM rohbot.notifications WHERE devicetoken=:devicetoken AND userid=:userid");
             cmd["devicetoken"] = DeviceToken;
-            cmd["userid"] = UserID;
+            cmd["userid"] = UserId;
 
             cmd.ExecuteNonQuery();
         }

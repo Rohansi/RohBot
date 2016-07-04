@@ -1,5 +1,4 @@
 ﻿using RohBot.Packets;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,11 +13,13 @@ namespace RohBot
     class OneSignalNotificationPacket
     {
         [JsonProperty("app_id")]
-        public string AppID => Program.Settings.NotificationAppID;
+        public string AppId => Program.Settings.NotificationAppID;
+
         [JsonProperty("contents")]
         public Dictionary<string, string> Contents { get; set; }
+
         [JsonProperty("include_player_ids")]
-        public List<String> DeviceTokens { get; set; }
+        public List<string> DeviceTokens { get; set; }
 
         [JsonIgnore]
         public string Sound { get; set; }
@@ -28,11 +29,13 @@ namespace RohBot
 
         // iOS
         [JsonProperty("ios_badgeType")]
-        public string IOSBadgeType => "Increase";
+        public string IosBadgeType => "Increase";
+
         [JsonProperty("ios_badgeCount")]
-        public int IOSBadgeCount => 1;
+        public int IosBadgeCount => 1;
+
         [JsonProperty("ios_sound")]
-        public string IOSSound => Sound;
+        public string IosSound => Sound;
 
         // Android
         [JsonProperty("android_sound")]
@@ -41,45 +44,63 @@ namespace RohBot
 
     public class NotificationManager
     {
-        public List<Notification> Notifications => notifications;
-
-        private string apiKey;
-        private string appID;
-        private List<Notification> notifications;
+        public List<Notification> Notifications { get; private set; }
 
         public NotificationManager()
         {
-            apiKey = Program.Settings.NotificationAPIKey;
-            appID = Program.Settings.NotificationAppID;
-            notifications = LoadNotifications().ToList<Notification>(); 
+            InvalidateNotificationCache();
         }
 
-        public void HandleMessage(Message message) 
+        // TODO: optimize these getters?
+        public bool Exists(string deviceToken)
+        {
+            return Notifications.Any(n => n.DeviceToken == deviceToken);
+        }
+
+        public IEnumerable<Notification> FindWithId(long userId)
+        {
+            return Notifications.Where(n => n.UserId == userId);
+        }
+
+        public Notification Get(string deviceToken)
+        {
+            return Notifications.FirstOrDefault(n => n.DeviceToken == deviceToken);
+        }
+
+        public void HandleMessage(Message message)
         {
             if (message.Line is ChatLine == false)
                 return;
 
             var chatLine = (ChatLine)message.Line;
-            var content = String.Format("{0} - {1}", chatLine.Sender, chatLine.Content);
-            var recipientDevices = notifications
-                                        .Where(n => n.Regex.IsMatch(content))
-                                        .Select(n => n.DeviceToken)
-                                        .ToList<string>();
+            var content = $"[{chatLine.Chat}] {chatLine.Sender}: {chatLine.Content}";
+            var recipientDevices = Notifications
+                .Where(n => n.Regex.IsMatch(content))
+                .Select(n => n.DeviceToken)
+                .ToList();
 
             if (recipientDevices.Count > 0)
                 Notify(recipientDevices, content);
         }
 
-        private IEnumerable<Notification> LoadNotifications()
-        {
-            var cmd = new SqlCommand("SELECT * FROM rohbot.notifications");
-
-            return cmd.Execute().Select(row => new Notification(row));
-        }
-
+        // TODO: don't use this as often
         public void InvalidateNotificationCache()
         {
-            notifications = LoadNotifications().ToList<Notification>();
+            var cmd = new SqlCommand("SELECT * FROM rohbot.notifications");
+            Notifications = cmd.Execute().Select(row => new Notification(row)).ToList();
+        }
+
+        private static void Notify(List<string> deviceTokens, string message)
+        {
+            var notificationPacket = new OneSignalNotificationPacket();
+            notificationPacket.Sound = "rohbotNotification.wav";
+            notificationPacket.DeviceTokens = deviceTokens;
+            notificationPacket.Contents = new Dictionary<string, string>()
+            {
+                { "en", message }
+            };
+
+            PostNotificationRequest(notificationPacket);
         }
 
         private static async void PostNotificationRequest(OneSignalNotificationPacket notificationPacket)
@@ -96,22 +117,10 @@ namespace RohBot
             if (response.errors != null)
             {
                 var errors = ((JArray)response.errors).ToObject<List<string>>();
-                var errorMessage = String.Format("Notification server returned following error(s): {0}", String.Join(", ", errors));
+                var errorMessage = $"Notification server returned following error(s): {string.Join(", ", errors)}";
 
                 Program.Logger.Warn(errorMessage);
             }
-        }
-
-        public static void Notify(List<string> deviceTokens, string message)
-        {
-            var notificationPacket = new OneSignalNotificationPacket();
-            notificationPacket.Sound = "pop.wav";
-            notificationPacket.DeviceTokens = deviceTokens;
-            notificationPacket.Contents = new Dictionary<string, string>(){
-                { "en", message }
-            };
-
-            PostNotificationRequest(notificationPacket);
         }
     }
 }
