@@ -15,6 +15,9 @@
     "DbName": "rohbot",
     "DbUser": "server",
     "DbPass": "",
+
+    "NotificationAPIKey": "",
+    "NotificationAppID": "",
     
     "EmoticonRegex": "/:(box):/i",
     

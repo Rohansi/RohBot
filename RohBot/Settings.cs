@@ -39,6 +39,9 @@ namespace RohBot
         public string DbUser;
         public string DbPass;
 
+        public string NotificationAPIKey;
+        public string NotificationAppID;
+
         public string DefaultRoom;
         public List<Dictionary<string, string>> Rooms;
 

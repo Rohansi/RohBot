@@ -152,3 +152,44 @@ CREATE INDEX roomsettings_lower_idx
   ON rohbot.roomsettings
   USING btree
   (lower(room) COLLATE pg_catalog."default");
+
+-- Table: rohbot.notifications
+
+-- DROP TABLE rohbot.notifications;
+
+CREATE TABLE rohbot.notifications
+(
+  id bigserial NOT NULL,
+  userid bigint NOT NULL,
+  regex text NOT NULL,
+  devicetoken text NOT NULL,
+  CONSTRAINT notifications_pkey PRIMARY KEY (id),
+  CONSTRAINT notifications_userid_fkey FOREIGN KEY (userid)
+      REFERENCES rohbot.accounts (id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT notifications_devicetoken_key UNIQUE (devicetoken)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE rohbot.notifications
+  OWNER TO server_group;
+
+-- Index: rohbot.notifications_devicetoken_idx
+
+-- DROP INDEX rohbot.notifications_devicetoken_idx;
+
+CREATE UNIQUE INDEX notifications_devicetoken_idx
+  ON rohbot.notifications
+  USING btree
+  (devicetoken COLLATE pg_catalog."default");
+
+-- Index: rohbot.notifications_userid_idx
+
+-- DROP INDEX rohbot.notifications_userid_idx;
+
+CREATE INDEX notifications_userid_idx
+  ON rohbot.notifications
+  USING btree
+  (userid);
+
