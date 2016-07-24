@@ -1,10 +1,14 @@
 ﻿using RohBot.Packets;
+using RohBot.Rooms;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -67,30 +71,36 @@ namespace RohBot
             return Notifications.FirstOrDefault(n => n.DeviceToken == deviceToken);
         }
 
-        public void HandleMessage(Message message)
+        public async void HandleMessage(Room room, Message message)
         {
-            if (message.Line is ChatLine == false)
+            var chatLine = message.Line as ChatLine;
+            if (chatLine == null || chatLine.SenderId == "0")
                 return;
 
-            var chatLine = (ChatLine)message.Line;
-            var content = $"[{chatLine.Chat}] {chatLine.Sender}: {chatLine.Content}";
+            await Task.Yield();
+
+            var senderId = long.Parse(chatLine.SenderId);
+
             var recipientDevices = Notifications
-                .Where(n => n.Regex.IsMatch(chatLine.Content))
+                .Where(n => n.UserId != senderId && !room.IsBanned(n.Name) && n.Rooms.Contains(chatLine.Chat))
+                .Where(n => IsMatch(n.Regex, chatLine.Content))
                 .Select(n => n.DeviceToken)
                 .ToList();
 
             if (recipientDevices.Count > 0)
-                Notify(recipientDevices, content);
+            {
+                var content = $"[{chatLine.Chat}] {WebUtility.HtmlDecode(chatLine.Sender)}: {WebUtility.HtmlDecode(chatLine.Content)}";
+                await Notify(recipientDevices, content);
+            }
         }
-
-        // TODO: don't use this as often
+        
         public void InvalidateNotificationCache()
         {
-            var cmd = new SqlCommand("SELECT * FROM rohbot.notifications");
+            var cmd = new SqlCommand("SELECT notifications.*, accounts.name, accounts.rooms FROM rohbot.accounts INNER JOIN rohbot.notifications ON (rohbot.accounts.id = rohbot.notifications.userid)");
             Notifications = cmd.Execute().Select(row => new Notification(row)).ToList();
         }
 
-        private static void Notify(List<string> deviceTokens, string message)
+        private static async Task Notify(List<string> deviceTokens, string message)
         {
             var notificationPacket = new OneSignalNotificationPacket();
             notificationPacket.Sound = "rohbotNotification.wav";
@@ -100,10 +110,10 @@ namespace RohBot
                 { "en", message }
             };
 
-            PostNotificationRequest(notificationPacket);
+            await PostNotificationRequest(notificationPacket);
         }
 
-        private static async void PostNotificationRequest(OneSignalNotificationPacket notificationPacket)
+        private static async Task PostNotificationRequest(OneSignalNotificationPacket notificationPacket)
         {
             var httpClient = new HttpClient();
             var content = new StringContent(JsonConvert.SerializeObject(notificationPacket), Encoding.UTF8, "application/json");
@@ -120,6 +130,18 @@ namespace RohBot
                 var errorMessage = $"Notification server returned following error(s): {string.Join(", ", errors)}";
 
                 Program.Logger.Warn(errorMessage);
+            }
+        }
+
+        private static bool IsMatch(Regex regex, string input)
+        {
+            try
+            {
+                return regex.IsMatch(input);
+            }
+            catch
+            {
+                return false;
             }
         }
     }

@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace RohBot
 {
@@ -8,7 +10,9 @@ namespace RohBot
         public long UserId { get; set; }
         public Regex Regex { get; set; }
         public string DeviceToken { get; set; }
-
+        public string Name { get; set; }
+        public HashSet<string> Rooms { get; set; }
+         
         public Notification()
         {
 
@@ -18,14 +22,15 @@ namespace RohBot
         {
             Id = row.id;
             UserId = row.userid;
-            Regex = new Regex(row.regex);
+            Regex = new Regex(row.regex, RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(15));
             DeviceToken = row.devicetoken;
+            Name = row.name;
+            Rooms = new HashSet<string>((string[])row.rooms);
         }
 
         public void Insert()
         {
-            var cmd = new SqlCommand("INSERT INTO rohbot.notifications (id, userid, regex, devicetoken) VALUES(:id, :userid, :regex, :devicetoken) RETURNING id;");
-            cmd["id"] = Id;
+            var cmd = new SqlCommand("INSERT INTO rohbot.notifications (userid, regex, devicetoken) VALUES(:userid, :regex, :devicetoken) RETURNING id;");
             cmd["userid"] = UserId;
             cmd["regex"] = Regex.ToString();
             cmd["devicetoken"] = DeviceToken;

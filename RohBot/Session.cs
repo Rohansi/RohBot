@@ -171,6 +171,8 @@ namespace RohBot
 
                 Account.Rooms = _rooms.ToArray();
                 Account.Save();
+                
+                Program.NotificationsDirty = true;
             }
 
             return true;
@@ -202,6 +204,8 @@ namespace RohBot
             
                 Account.Rooms = _rooms.ToArray();
                 Account.Save();
+
+                Program.NotificationsDirty = true;
             }
         }
 

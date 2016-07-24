@@ -15,6 +15,7 @@ namespace RohBot
         public static RoomManager RoomManager;
         public static DelayManager DelayManager;
         public static NotificationManager NotificationManager;
+        public static bool NotificationsDirty = false;
         public static Steam Steam;
 
         private static TaskScheduler _taskScheduler;
@@ -64,14 +65,23 @@ namespace RohBot
                 Steam.Update();
             });
 
-            _taskScheduler.Add(TimeSpan.FromSeconds(5), () => SessionManager.Ping());
+            //_taskScheduler.Add(TimeSpan.FromSeconds(5), () => SessionManager.Ping());
 
-            _taskScheduler.Add(TimeSpan.FromMinutes(1), GC.Collect);
+            //_taskScheduler.Add(TimeSpan.FromMinutes(1), GC.Collect);
 
             _taskScheduler.Add(TimeSpan.FromHours(1), () =>
             {
                 var t = Util.GetTimestamp(DateTime.UtcNow - TimeSpan.FromDays(30));
                 LoginToken.RemoveOlderThan(t);
+            });
+
+            _taskScheduler.Add(TimeSpan.FromSeconds(10), () =>
+            {
+                if (!NotificationsDirty)
+                    return;
+
+                NotificationManager.InvalidateNotificationCache();
+                NotificationsDirty = false;
             });
 
             _taskScheduler.Add(TimeSpan.FromMinutes(2.5), () =>

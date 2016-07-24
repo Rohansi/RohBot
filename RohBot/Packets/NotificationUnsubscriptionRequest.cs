@@ -26,7 +26,7 @@
 
             notification.Remove();
 
-            Program.NotificationManager.InvalidateNotificationCache();
+            Program.NotificationsDirty = true;
 
             var notificationSubscription = new NotificationSubscription();
             notificationSubscription.DeviceToken = DeviceToken;
