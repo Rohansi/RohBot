@@ -1,4 +1,5 @@
-﻿using RohBot.Packets;
+﻿using System;
+using RohBot.Packets;
 using RohBot.Rooms;
 using System.Collections.Generic;
 using System.IO;
@@ -110,7 +111,14 @@ namespace RohBot
                 { "en", message }
             };
 
-            await PostNotificationRequest(notificationPacket);
+            try
+            {
+                await PostNotificationRequest(notificationPacket);
+            }
+            catch (Exception e)
+            {
+                Program.Logger.Error("Failed to send push notification", e);
+            }
         }
 
         private static async Task PostNotificationRequest(OneSignalNotificationPacket notificationPacket)

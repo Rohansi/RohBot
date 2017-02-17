@@ -158,8 +158,7 @@ namespace RohBot.Rooms.Script
             }
             catch (Exception e)
             {
-                _script = null;
-                SendException(e);
+                Program.Logger.Error("ScriptRoom SafeInvoke", e);
             }
         }
 

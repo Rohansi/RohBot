@@ -65,7 +65,7 @@ namespace RohBot
                 Steam.Update();
             });
 
-            //_taskScheduler.Add(TimeSpan.FromSeconds(5), () => SessionManager.Ping());
+            _taskScheduler.Add(TimeSpan.FromSeconds(15), () => SessionManager.Ping());
 
             //_taskScheduler.Add(TimeSpan.FromMinutes(1), GC.Collect);
 

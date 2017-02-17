@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace RohBot
 {
@@ -35,8 +36,9 @@ namespace RohBot
 
         public static Packet ReadFromMessage(string msg)
         {
-            var type = PacketTypes[(string)JsonConvert.DeserializeObject<dynamic>(msg).Type];
-            return (Packet)JsonConvert.DeserializeObject(msg, type);
+            var obj = JObject.Parse(msg);
+            var type = PacketTypes[obj["Type"].ToObject<string>()];
+            return (Packet)obj.ToObject(type);
         }
         #endregion
     }
