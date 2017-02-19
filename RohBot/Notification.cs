@@ -22,7 +22,7 @@ namespace RohBot
         {
             Id = row.id;
             UserId = row.userid;
-            Regex = new Regex(row.regex, RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(15));
+            Regex = CreateRegex(row.regex);
             DeviceToken = row.devicetoken;
             Name = row.name;
             Rooms = new HashSet<string>((string[])row.rooms);
@@ -54,6 +54,11 @@ namespace RohBot
             cmd["userid"] = UserId;
 
             cmd.ExecuteNonQuery();
+        }
+
+        public static Regex CreateRegex(string pattern)
+        {
+            return new Regex(pattern, RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(15));
         }
     }
 }

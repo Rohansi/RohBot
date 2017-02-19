@@ -9,18 +9,19 @@
 
         public override void Handle(Connection connection)
         {
-            var account = connection.Session.Account;
-            var notification = Program.NotificationManager.Get(DeviceToken);
+            if (Program.DelayManager.AddAndCheck(connection, DelayManager.Database))
+                return;
 
+            if (connection.Session == null)
+            {
+                connection.SendSysMessage("You need to be logged in to do that.");
+                return;
+            }
+            
+            var notification = Program.NotificationManager.Get(DeviceToken);
             if (notification == null)
             {
                 connection.SendSysMessage("This device is not registered for push notifications.");
-                return;
-            }
-
-            if (notification.UserId != account.Id)
-            {
-                connection.SendSysMessage("This device is not registered with your account.");
                 return;
             }
 

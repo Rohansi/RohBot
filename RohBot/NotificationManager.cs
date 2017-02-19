@@ -15,41 +15,42 @@ using Newtonsoft.Json.Linq;
 
 namespace RohBot
 {
-    class OneSignalNotificationPacket
-    {
-        [JsonProperty("app_id")]
-        public string AppId => Program.Settings.NotificationAppID;
-
-        [JsonProperty("contents")]
-        public Dictionary<string, string> Contents { get; set; }
-
-        [JsonProperty("include_player_ids")]
-        public List<string> DeviceTokens { get; set; }
-
-        [JsonIgnore]
-        public string Sound { get; set; }
-
-        [JsonProperty("data")]
-        public Dictionary<string, string> Data { get; set; }
-
-        // iOS
-        [JsonProperty("ios_badgeType")]
-        public string IosBadgeType => "Increase";
-
-        [JsonProperty("ios_badgeCount")]
-        public int IosBadgeCount => 1;
-
-        [JsonProperty("ios_sound")]
-        public string IosSound => Sound;
-
-        // Android
-        [JsonProperty("android_sound")]
-        public string AndroidSound => Path.GetFileNameWithoutExtension(Sound);
-    }
-
     public class NotificationManager
     {
-        public List<Notification> Notifications { get; private set; }
+        private class OneSignalNotificationPacket
+        {
+            [JsonProperty("app_id")]
+            public string AppId => Program.Settings.NotificationAppID;
+
+            [JsonProperty("contents")]
+            public Dictionary<string, string> Contents { get; set; }
+
+            [JsonProperty("include_player_ids")]
+            public List<string> DeviceTokens { get; set; }
+
+            [JsonIgnore]
+            public string Sound { get; set; }
+
+            [JsonProperty("data")]
+            public Dictionary<string, string> Data { get; set; }
+
+            // iOS
+            [JsonProperty("ios_badgeType")]
+            public string IosBadgeType => "Increase";
+
+            [JsonProperty("ios_badgeCount")]
+            public int IosBadgeCount => 1;
+
+            [JsonProperty("ios_sound")]
+            public string IosSound => Sound;
+
+            // Android
+            [JsonProperty("android_sound")]
+            public string AndroidSound => Path.GetFileNameWithoutExtension(Sound);
+        }
+
+        private readonly object _sync = new object();
+        private List<Notification> _notifications;
 
         public NotificationManager()
         {
@@ -57,19 +58,29 @@ namespace RohBot
         }
 
         // TODO: optimize these getters?
-        public bool Exists(string deviceToken)
+        public bool Exists(string deviceToken, out Notification subscription)
         {
-            return Notifications.Any(n => n.DeviceToken == deviceToken);
+            lock (_sync)
+            {
+                subscription = _notifications.FirstOrDefault(n => n.DeviceToken == deviceToken);
+                return subscription != null;
+            }
         }
 
         public IEnumerable<Notification> FindWithId(long userId)
         {
-            return Notifications.Where(n => n.UserId == userId);
+            lock (_sync)
+            {
+                return _notifications.Where(n => n.UserId == userId);
+            }
         }
 
         public Notification Get(string deviceToken)
         {
-            return Notifications.FirstOrDefault(n => n.DeviceToken == deviceToken);
+            lock (_sync)
+            {
+                return _notifications.FirstOrDefault(n => n.DeviceToken == deviceToken);
+            }
         }
 
         public async void HandleMessage(Room room, Message message)
@@ -82,11 +93,16 @@ namespace RohBot
 
             var senderId = long.Parse(chatLine.SenderId);
 
-            var recipientDevices = Notifications
-                .Where(n => n.UserId != senderId && !room.IsBanned(n.Name) && n.Rooms.Contains(chatLine.Chat))
-                .Where(n => IsMatch(n.Regex, chatLine.Content))
-                .Select(n => n.DeviceToken)
-                .ToList();
+            List<string> recipientDevices;
+
+            lock (_sync)
+            {
+                recipientDevices = _notifications
+                    .Where(n => n.UserId != senderId && !room.IsBanned(n.Name) && n.Rooms.Contains(chatLine.Chat))
+                    .Where(n => IsMatch(n.Regex, chatLine.Content))
+                    .Select(n => n.DeviceToken)
+                    .ToList();
+            }
 
             if (recipientDevices.Count > 0)
             {
@@ -97,8 +113,17 @@ namespace RohBot
         
         public void InvalidateNotificationCache()
         {
-            var cmd = new SqlCommand("SELECT notifications.*, accounts.name, accounts.rooms FROM rohbot.accounts INNER JOIN rohbot.notifications ON (rohbot.accounts.id = rohbot.notifications.userid)");
-            Notifications = cmd.Execute().Select(row => new Notification(row)).ToList();
+            var cmd = new SqlCommand(@"
+                SELECT notifications.*, accounts.name, accounts.rooms
+                FROM rohbot.accounts
+                INNER JOIN rohbot.notifications ON (rohbot.accounts.id = rohbot.notifications.userid)");
+
+            var newNotifications = cmd.Execute().Select(row => new Notification(row)).ToList();
+
+            lock (_sync)
+            {
+                _notifications = newNotifications;
+            }
         }
 
         private static async Task Notify(List<string> deviceTokens, string message)
