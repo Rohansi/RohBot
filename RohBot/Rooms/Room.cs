@@ -426,7 +426,7 @@ namespace RohBot.Rooms
             }
 
             if (IsLogging)
-                line.Insert();
+                Program.BatchInserter.Add(line);
         }
 
         private void ClearScrollbackFor(Connection connection)

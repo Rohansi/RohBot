@@ -36,9 +36,9 @@ namespace RohBot
     {
         private readonly NpgsqlCommand _command;
 
-        public SqlCommand(string sql)
+        public SqlCommand(string sql, NpgsqlConnection connection = null, NpgsqlTransaction transaction = null)
         {
-            _command = new NpgsqlCommand(sql, Database.CreateConnection());
+            _command = new NpgsqlCommand(sql, connection ?? Database.CreateConnection(), transaction);
         }
 
         public object this[string name]
@@ -79,10 +79,20 @@ namespace RohBot
                 _command.ExecuteNonQuery();
         }
 
+        public void ExecuteNonQueryNoDispose()
+        {
+            _command.ExecuteNonQuery();
+        }
+
         public object ExecuteScalar()
         {
             using (_command.Connection)
                 return _command.ExecuteScalar();
+        }
+
+        public object ExecuteScalarNoDispose()
+        {
+            return _command.ExecuteScalar();
         }
     }
 

@@ -15,6 +15,7 @@ namespace RohBot
         public static RoomManager RoomManager;
         public static DelayManager DelayManager;
         public static NotificationManager NotificationManager;
+        public static BatchInserter BatchInserter;
         public static bool NotificationsDirty = false;
         public static Steam Steam;
 
@@ -51,6 +52,7 @@ namespace RohBot
             RoomManager = new RoomManager();
             DelayManager = new DelayManager();
             NotificationManager = new NotificationManager();
+            BatchInserter = new BatchInserter();
             Steam = new Steam();
 
             RoomManager.Update();

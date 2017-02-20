@@ -1,9 +1,10 @@
 ﻿using System;
 using Newtonsoft.Json;
+using Npgsql;
 
 namespace RohBot
 {
-    public abstract class HistoryLine
+    public abstract class HistoryLine : IInsertable
     {
         public abstract string Type { get; }
 
@@ -64,7 +65,7 @@ namespace RohBot
             }
         }
 
-        public abstract void Insert();
+        public abstract void Insert(NpgsqlConnection connection, NpgsqlTransaction transaction);
     }
 
     public class ChatLine : HistoryLine
@@ -92,13 +93,13 @@ namespace RohBot
             InGame = inGame;
         }
 
-        public override void Insert()
+        public override void Insert(NpgsqlConnection connection, NpgsqlTransaction transaction)
         {
             if (Id != 0)
                 throw new InvalidOperationException("Cannot insert existing row");
 
             var cmd = new SqlCommand("INSERT INTO rohbot.chathistory (type,date,chat,content,usertype,sender,senderid,senderstyle,ingame)" +
-                                     "VALUES (:type,:date,:chat,:content,:usertype,:sender,:senderid,:senderstyle,:ingame) RETURNING id;");
+                                     "VALUES (:type,:date,:chat,:content,:usertype,:sender,:senderid,:senderstyle,:ingame) RETURNING id;", connection, transaction);
             cmd["type"] = Type;
             cmd["date"] = Date;
             cmd["chat"] = Chat;
@@ -108,7 +109,7 @@ namespace RohBot
             cmd["senderid"] = SenderId;
             cmd["senderstyle"] = SenderStyle;
             cmd["ingame"] = InGame;
-            Id = (long)cmd.ExecuteScalar();
+            Id = (long)cmd.ExecuteScalarNoDispose();
         }
     }
 
@@ -145,13 +146,13 @@ namespace RohBot
             ByStyle = byStyle;
         }
 
-        public override void Insert()
+        public override void Insert(NpgsqlConnection connection, NpgsqlTransaction transaction)
         {
             if (Id != 0)
                 throw new InvalidOperationException("Cannot insert existing row");
 
             var cmd = new SqlCommand("INSERT INTO rohbot.chathistory (type,date,chat,content,state,\"for\",forid,fortype,forstyle,by,byid,bytype,bystyle)" + 
-                                     "VALUES (:type,:date,:chat,:content,:state,:for,:forid,:fortype,:forstyle,:by,:byid,:bytype,:bystyle) RETURNING id;");
+                                     "VALUES (:type,:date,:chat,:content,:state,:for,:forid,:fortype,:forstyle,:by,:byid,:bytype,:bystyle) RETURNING id;", connection, transaction);
             cmd["type"] = Type;
             cmd["date"] = Date;
             cmd["chat"] = Chat;
@@ -165,7 +166,7 @@ namespace RohBot
             cmd["byid"] = ById;
             cmd["bytype"] = ByType;
             cmd["bystyle"] = ByStyle;
-            Id = (long)cmd.ExecuteScalar();
+            Id = (long)cmd.ExecuteScalarNoDispose();
         }
     }
 }
