@@ -22,6 +22,9 @@ namespace RohBot
             [JsonProperty("app_id")]
             public string AppId => Program.Settings.NotificationAppID;
 
+            [JsonProperty("headings")]
+            public Dictionary<string, string> Headings { get; set; }
+
             [JsonProperty("contents")]
             public Dictionary<string, string> Contents { get; set; }
 
@@ -30,6 +33,12 @@ namespace RohBot
 
             [JsonIgnore]
             public string Sound { get; set; }
+
+            [JsonIgnore]
+            public string Group { get; set; }
+
+            [JsonIgnore]
+            public Dictionary<string, string> GroupMessage { get; set; }
 
             [JsonProperty("data")]
             public Dictionary<string, string> Data { get; set; }
@@ -47,6 +56,12 @@ namespace RohBot
             // Android
             [JsonProperty("android_sound")]
             public string AndroidSound => Path.GetFileNameWithoutExtension(Sound);
+
+            [JsonProperty("android_group")]
+            public string AndroidGroup => Group;
+
+            [JsonProperty("android_group_message")]
+            public Dictionary<string, string> AndroidGroupMessage => GroupMessage;
         }
 
         private readonly object _sync = new object();
@@ -106,8 +121,9 @@ namespace RohBot
 
             if (recipientDevices.Count > 0)
             {
-                var content = $"[{chatLine.Chat}] {WebUtility.HtmlDecode(chatLine.Sender)}: {WebUtility.HtmlDecode(chatLine.Content)}";
-                await Notify(recipientDevices, content);
+                var title = Program.RoomManager.Get(chatLine.Chat)?.RoomInfo.Name ?? chatLine.Chat;
+                var content = $"{WebUtility.HtmlDecode(chatLine.Sender)}: {WebUtility.HtmlDecode(chatLine.Content)}";
+                await Notify(recipientDevices, title, content);
             }
         }
         
@@ -126,14 +142,26 @@ namespace RohBot
             }
         }
 
-        private static async Task Notify(List<string> deviceTokens, string message)
+        private static async Task Notify(List<string> deviceTokens, string title, string content)
         {
             var notificationPacket = new OneSignalNotificationPacket();
             notificationPacket.Sound = "rohbotNotification.wav";
             notificationPacket.DeviceTokens = deviceTokens;
-            notificationPacket.Contents = new Dictionary<string, string>()
+
+            notificationPacket.Headings = new Dictionary<string, string>
             {
-                { "en", message }
+                { "en", title }
+            };
+
+            notificationPacket.Contents = new Dictionary<string, string>
+            {
+                { "en", content }
+            };
+
+            notificationPacket.Group = title;
+            notificationPacket.GroupMessage = new Dictionary<string, string>
+            {
+                { "en", "$[notif_count] mentions" }
             };
 
             try
