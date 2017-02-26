@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Npgsql;
@@ -11,7 +10,9 @@ namespace RohBot
     public class Connection : WebSocketClient
     {
         public string Address { get; private set; }
+        public string UserAgent { get; private set; }
         public bool IsMobile { get; private set; }
+        public bool IsTokenLogin { get; private set; }
         public Session Session { get; set; }
 
         public void SendJoinRoom(Room room)
@@ -36,13 +37,21 @@ namespace RohBot
             });
         }
 
-        public void Login(string username, string password, List<string> tokens)
+        public void Login(string username, string password, string token)
         {
-            Account account = null;
+            bool loggedIn = false;
+            Account account;
             string message;
 
             do
             {
+                account = Account.Get(username);
+                if (account == null)
+                {
+                    message = "Invalid username or password.";
+                    break;
+                }
+
                 if (Session != null)
                 {
                     message = "You are already logged in.";
@@ -55,24 +64,25 @@ namespace RohBot
                     break;
                 }
 
-                var existingTokens = LoginToken.FindAll(username).ToList();
-
-                if (String.IsNullOrEmpty(password))
+                if (string.IsNullOrEmpty(password))
                 {
-                    if (tokens.Count == 0)
+                    if (string.IsNullOrEmpty(token))
                     {
                         message = "Missing password.";
                         break;
                     }
 
-                    if (!existingTokens.Any(t => t.Address == Address && tokens.Contains(t.Token)))
+                    var loginToken = LoginToken.Find(account.Id, token);
+                    if (loginToken == null)
                     {
                         message = "Automatic login failed. Login with your username and password.";
                         break;
                     }
 
-                    account = Account.Get(username);
-                    tokens = existingTokens.Select(t => t.Token).ToList();
+                    loginToken.UpdateAccessed(UserAgent, Address);
+
+                    IsTokenLogin = true;
+                    loggedIn = true;
                     message = $"Logged in as {account.Name}.";
                 }
                 else
@@ -80,13 +90,6 @@ namespace RohBot
                     if (!Util.IsValidPassword(password))
                     {
                         message = Util.InvalidPasswordMessage;
-                        break;
-                    }
-
-                    account = Account.Get(username);
-                    if (account == null)
-                    {
-                        message = "Invalid username or password.";
                         break;
                     }
 
@@ -98,32 +101,31 @@ namespace RohBot
                         break;
                     }
 
-                    LoginToken newToken = existingTokens.FirstOrDefault(t => t.Address == Address);
-                    if (newToken == null)
+                    var newToken = new LoginToken
                     {
-                        newToken = new LoginToken
-                        {
-                            Name = account.Name.ToLower(),
-                            Address = Address,
-                            Token = Util.GenerateLoginToken(),
-                            Created = Util.GetCurrentTimestamp()
-                        };
+                        UserId = account.Id,
+                        Created = Util.GetCurrentTimestamp(),
+                        Accessed = Util.GetCurrentTimestamp(),
+                        UserAgent = UserAgent,
+                        Address = Address,
+                        Token = Util.GenerateLoginToken(),
+                    };
 
-                        newToken.Insert();
-                        existingTokens.Add(newToken);
-                    }
+                    newToken.Insert();
 
-                    tokens = existingTokens.Select(t => t.Token).ToList();
+                    IsTokenLogin = false;
+                    token = newToken.Token;
+                    loggedIn = true;
                     message = $"Logged in as {account.Name}.";
                 }
             } while (false);
 
-            if (account != null)
+            if (loggedIn)
             {
                 Send(new AuthenticateResponse
                 {
                     Name = account.Name,
-                    Tokens = string.Join(",", tokens),
+                    Tokens = token,
                     Success = true
                 });
 
@@ -226,10 +228,11 @@ namespace RohBot
             {
                 Address = "127.0.0.1";
             }
-
+            
             try
             {
-                IsMobile = MobileUserAgent.IsMatch(Headers["User-Agent"]);
+                UserAgent = Headers["User-Agent"] ?? "";
+                IsMobile = MobileUserAgent.IsMatch(UserAgent);
             }
             catch
             {

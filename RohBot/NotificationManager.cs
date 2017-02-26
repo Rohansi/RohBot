@@ -104,7 +104,7 @@ namespace RohBot
             if (chatLine == null || chatLine.SenderId == "0")
                 return;
 
-            await Task.Yield();
+            await Task.Delay(1); // force into threadpool
 
             var senderId = long.Parse(chatLine.SenderId);
 
@@ -121,9 +121,10 @@ namespace RohBot
 
             if (recipientDevices.Count > 0)
             {
-                var title = Program.RoomManager.Get(chatLine.Chat)?.RoomInfo.Name ?? chatLine.Chat;
+                var chat = chatLine.Chat;
+                var title = Program.RoomManager.Get(chat)?.RoomInfo.Name ?? chat;
                 var content = $"{WebUtility.HtmlDecode(chatLine.Sender)}: {WebUtility.HtmlDecode(chatLine.Content)}";
-                await Notify(recipientDevices, title, content);
+                await Notify(recipientDevices, title, content, chat, chatLine.Date);
             }
         }
         
@@ -142,7 +143,7 @@ namespace RohBot
             }
         }
 
-        private static async Task Notify(List<string> deviceTokens, string title, string content)
+        private static async Task Notify(List<string> deviceTokens, string title, string content, string chat, long date)
         {
             var notificationPacket = new OneSignalNotificationPacket();
             notificationPacket.Sound = "rohbotNotification.wav";
@@ -158,10 +159,16 @@ namespace RohBot
                 { "en", content }
             };
 
-            notificationPacket.Group = title;
+            notificationPacket.Group = chat;
             notificationPacket.GroupMessage = new Dictionary<string, string>
             {
                 { "en", "$[notif_count] mentions" }
+            };
+
+            notificationPacket.Data = new Dictionary<string, string>
+            {
+                { "chat", chat },
+                { "date", date.ToString("D") }
             };
 
             try
@@ -183,15 +190,43 @@ namespace RohBot
 
             var responseMessage = await httpClient.PostAsync("https://onesignal.com/api/v1/notifications", content);
             var responseBody = await responseMessage.Content.ReadAsStringAsync();
-            dynamic response = JsonConvert.DeserializeObject(responseBody);
+            var response = JObject.Parse(responseBody);
 
-            if (response.errors != null)
+            JToken errors;
+            if (response.TryGetValue("errors", out errors))
             {
-                var errors = ((JArray)response.errors).ToObject<List<string>>();
-                var errorMessage = $"Notification server returned following error(s): {string.Join(", ", errors)}";
-
-                Program.Logger.Warn(errorMessage);
+                if (errors.Type == JTokenType.Object)
+                {
+                    var invalidIds = errors.Value<JArray>("invalid_player_ids");
+                    UnsubscribeDeviceTokens(invalidIds.ToObject<List<string>>());
+                }
+                else
+                {
+                    var errorMessage = $"Notification server returned following error(s): {errors}";
+                    Program.Logger.Warn(errorMessage);
+                }
             }
+        }
+
+        private static void UnsubscribeDeviceTokens(List<string> deviceTokens)
+        {
+            if (deviceTokens.Count == 0)
+                return;
+            
+            using (var connection = Database.CreateConnection())
+            using (var transaction = connection.BeginTransaction())
+            {
+                foreach (var token in deviceTokens)
+                {
+                    var cmd = new SqlCommand("DELETE FROM rohbot.notifications WHERE devicetoken=:devicetoken", connection, transaction);
+                    cmd["devicetoken"] = token;
+                    cmd.ExecuteNonQueryNoDispose();
+                }
+
+                transaction.Commit();
+            }
+
+            Program.NotificationsDirty = true;
         }
 
         private static bool IsMatch(Regex regex, string input)

@@ -102,10 +102,12 @@ namespace RohBot
     public class LoginToken
     {
         public long Id { get; private set; }
-        public string Name;
+        public long UserId;
+        public long Created;
+        public long Accessed;
+        public string UserAgent;
         public string Address;
         public string Token;
-        public long Created;
 
         public LoginToken()
         {
@@ -115,10 +117,12 @@ namespace RohBot
         internal LoginToken(dynamic row)
         {
             Id = row.id;
-            Name = row.name;
+            UserId = row.userid;
+            Created = row.created;
+            Accessed = row.accessed;
+            UserAgent = row.useragent;
             Address = row.address;
             Token = row.token;
-            Created = row.created;
         }
 
         public void Insert()
@@ -126,25 +130,64 @@ namespace RohBot
             if (Id != 0)
                 throw new InvalidOperationException("Cannot insert existing row");
 
-            var cmd = new SqlCommand("INSERT INTO rohbot.logintokens (name,address,token,created) VALUES(:name,:addr,:token,:created) RETURNING id;");
-            cmd["name"] = Name;
-            cmd["addr"] = Address;
-            cmd["token"] = Token;
+            var cmd = new SqlCommand(@"
+                INSERT INTO rohbot.logintokens2 (userid,created,accessed,useragent,address,token)
+                VALUES(:userid,:created,:accessed,:useragent,:address,:token) RETURNING id;");
+
+            cmd["userid"] = UserId;
             cmd["created"] = Created;
+            cmd["accessed"] = Accessed;
+            cmd["useragent"] = UserAgent;
+            cmd["address"] = Address;
+            cmd["token"] = Token;
             Id = (long)cmd.ExecuteScalar();
         }
 
-        public static IEnumerable<LoginToken> FindAll(string username)
+        public void UpdateAccessed(string userAgent, string address)
         {
-            var cmd = new SqlCommand("SELECT * FROM rohbot.logintokens WHERE lower(name)=lower(:name);");
-            cmd["name"] = username;
+            if (Id == 0)
+                throw new InvalidOperationException("Cannot update non-existing row");
+
+            var now = Util.GetCurrentTimestamp();
+            var cmd = new SqlCommand("UPDATE rohbot.logintokens2 SET accessed=:accessed, useragent=:useragent, address=:address WHERE id=:id;");
+            cmd["id"] = Id;
+            cmd["accessed"] = now;
+            cmd["useragent"] = userAgent;
+            cmd["address"] = address;
+            cmd.ExecuteNonQuery();
+
+            Accessed = now;
+            UserAgent = userAgent;
+            Address = address;
+        }
+
+        public static IEnumerable<LoginToken> FindAll(long userId)
+        {
+            var cmd = new SqlCommand("SELECT * FROM rohbot.logintokens2 WHERE userid=:userid ORDER BY accessed DESC;");
+            cmd["userid"] = userId;
 
             return cmd.Execute().Select(row => new LoginToken(row));
         }
 
+        public static LoginToken Find(long userId, string token)
+        {
+            var cmd = new SqlCommand("SELECT * FROM rohbot.logintokens2 WHERE userid=:userid AND token=:token;");
+            cmd["userid"] = userId;
+            cmd["token"] = token;
+
+            return cmd.Execute().Select(row => new LoginToken(row)).SingleOrDefault();
+        }
+
+        public static void RemoveAll(long userId)
+        {
+            var cmd = new SqlCommand("DELETE FROM rohbot.logintokens2 WHERE userid=:userid;");
+            cmd["userid"] = userId;
+            cmd.ExecuteNonQuery();
+        }
+
         public static void RemoveOlderThan(long time)
         {
-            var cmd = new SqlCommand("DELETE FROM rohbot.logintokens WHERE created<:time;");
+            var cmd = new SqlCommand("DELETE FROM rohbot.logintokens2 WHERE accessed<:time;");
             cmd["time"] = time;
             cmd.ExecuteNonQuery();
         }

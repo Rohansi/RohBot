@@ -182,11 +182,10 @@ class UserInterface {
     private setupRohBotHandlers() {
         this.rohbot.connected.add(() => {
             var username = RohStore.get("name");
-            var password = RohStore.get("password");
             var tokens = RohStore.get("tokens");
 
-            if (username != null && (password != null || tokens != null)) {
-                this.rohbot.login(username, password, tokens);
+            if (username != null && tokens != null) {
+                this.rohbot.login(username, "", tokens);
             } else {
                 this.rohbot.loginGuest();
             }
@@ -198,7 +197,6 @@ class UserInterface {
             if (packet.Name === null) {
                 RohStore.remove("name");
                 RohStore.remove("tokens");
-                RohStore.remove("password");
             } else if (packet.Success) {
                 RohStore.set("name", packet.Name);
                 RohStore.set("tokens", packet.Tokens);
@@ -258,19 +256,6 @@ class UserInterface {
 
         this.cmd.register("logout", "", () => {
             this.rohbot.loginGuest();
-        });
-
-        this.cmd.register("password", "]", (chat, args) => {
-            var pass = args[0];
-            if (pass.length === 0) {
-                RohStore.remove("password");
-                chat.statusMessage("Password removed.");
-            } else if (pass.length < 6) {
-                chat.statusMessage("Password too short.");
-            } else {
-                RohStore.set("password", pass);
-                chat.statusMessage("Password saved.");
-            }
         });
 
         this.cmd.register("notify", "]", (chat, args) => {

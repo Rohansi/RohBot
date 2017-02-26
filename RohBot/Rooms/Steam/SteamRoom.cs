@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Net;
 using EzSteam;
+using RohBot.Packets;
 using SteamKit2;
 
 namespace RohBot.Rooms.Steam
@@ -74,7 +75,13 @@ namespace RohBot.Rooms.Steam
             base.SendHistory(connection);
 
             if (Chat == null)
-                connection.SendSysMessage("Not connected to Steam.");
+            {
+                connection.Send(new Message
+                {
+                    Line = new StateLine(
+                        Util.GetCurrentTimestamp(), RoomInfo.ShortName, "Client", "", "", "", "", "", "", "", "", "Not connected to Steam.")
+                });
+            }
         }
 
         public override void Update()

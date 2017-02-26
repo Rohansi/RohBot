@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace RohBot.Packets
+﻿namespace RohBot.Packets
 {
     public class Authenticate : Packet
     {
@@ -22,7 +20,7 @@ namespace RohBot.Packets
             {
                 case "login":
                     Program.Logger.InfoFormat("Login '{1}' from {0}", connection.Address, Username);
-                    connection.Login(Username, Password, (Tokens ?? "").Split(',').ToList());
+                    connection.Login(Username, Password, Tokens);
                     break;
 
                 case "register":

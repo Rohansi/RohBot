@@ -208,7 +208,7 @@ namespace RohBot
         public bool IsSteam => Persona != null;
         public bool IsRoom => Room != null;
         public bool IsPrivateChat => PrivateChat != null;
-        public bool IsWeb => Connection != null;
+        public bool IsWeb => Connection != null && Connection.Session != null;
 
         // For Steam rooms
         public CommandTarget(Room room, SteamPersona sender)

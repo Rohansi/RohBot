@@ -161,13 +161,13 @@ namespace RohBot
 
             lock (_sync)
             {
-                _rooms.Add(room.RoomInfo.ShortName);
-                room.SessionEnter(this);
-
                 foreach (var conn in _connections)
                 {
                     conn.SendJoinRoom(room);
                 }
+
+                _rooms.Add(room.RoomInfo.ShortName);
+                room.SessionEnter(this);
 
                 Account.Rooms = _rooms.ToArray();
                 Account.Save();

@@ -221,15 +221,13 @@ namespace RohBot.Rooms
             {
                 if (connection.Session == null)
                 {
-                    ClearScrollbackFor(connection);
-                    connection.SendSysMessage("You must login to view this room.");
+                    ClearScrollbackFor(connection, "You must login to view this room.");
                     return;
                 }
 
                 if (IsBanned(connection.Session.Account.Name))
                 {
-                    ClearScrollbackFor(connection);
-                    connection.SendSysMessage("You are banned from this room.");
+                    ClearScrollbackFor(connection, "You are banned from this room.");
                     return;
                 }
             }
@@ -429,9 +427,16 @@ namespace RohBot.Rooms
                 Program.BatchInserter.Add(line);
         }
 
-        private void ClearScrollbackFor(Connection connection)
+        private void ClearScrollbackFor(Connection connection, string message)
         {
             var chatHistory = new ChatHistory { ShortName = RoomInfo.ShortName, Requested = false, Lines = new List<HistoryLine>() };
+
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                chatHistory.Lines.Add(new StateLine(
+                    Util.GetCurrentTimestamp(), chatHistory.ShortName, "Client", "", "", "", "", "", "", "", "", message));
+            }
+
             connection.Send(chatHistory);
         }
     }
