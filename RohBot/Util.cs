@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using RohBot.Rooms.Steam;
@@ -199,6 +200,13 @@ namespace RohBot
         {
             return Type.GetType("Mono.Runtime") != null;
         }
+
+        private static readonly Regex ImgurReplaceRegex =
+            new Regex(@"https?://i\.imgur\.com/(\w+\.(?:png|jpe?g|gifv?|mp4|webm))", RegexOptions.Compiled);
+
+        public static string FixImgurLinks(string message) =>
+            ImgurReplaceRegex.Replace(message, "https://rohbot.net/imgur/$1");
+
         #endregion
 
         #region HtmlEncode
@@ -341,6 +349,9 @@ namespace RohBot
 
             for (var i = 0; i < value.Length; i++)
             {
+                if (value[i] == 0x200B) // ZERO-WIDTH SPACE
+                    continue;
+
                 if (IsCombiningCharacter(value, i))
                     combiningCharacters++;
                 else

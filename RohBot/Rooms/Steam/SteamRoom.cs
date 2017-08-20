@@ -28,21 +28,28 @@ namespace RohBot.Rooms.Steam
 
         public override void SendLine(HistoryLine line)
         {
-            var chatLine = line as ChatLine;
-            if (chatLine != null && Chat != null && chatLine.UserType == "RohBot")
+            try
             {
-                Chat.Send($"[{WebUtility.HtmlDecode(chatLine.Sender)}] {WebUtility.HtmlDecode(chatLine.Content)}");
-            }
+                var chatLine = line as ChatLine;
+                if (chatLine != null && Chat != null && chatLine.UserType == "RohBot")
+                {
+                    Chat.Send($"[{WebUtility.HtmlDecode(chatLine.Sender)}] {WebUtility.HtmlDecode(chatLine.Content)}");
+                }
 
-            var stateLine = line as StateLine;
-            if (EchoWebStates && stateLine != null && Chat != null && stateLine.ForType == "RohBot" && stateLine.State != "Action")
-            {
-                Chat.Send("> " + WebUtility.HtmlDecode(stateLine.Content));
-            }
+                var stateLine = line as StateLine;
+                if (EchoWebStates && stateLine != null && Chat != null && stateLine.ForType == "RohBot" && stateLine.State != "Action")
+                {
+                    Chat.Send("> " + WebUtility.HtmlDecode(stateLine.Content));
+                }
 
-            if (stateLine != null && Chat != null && stateLine.State == "Action")
+                if (stateLine != null && Chat != null && stateLine.State == "Action")
+                {
+                    Chat.Send(WebUtility.HtmlDecode(stateLine.Content));
+                }
+            }
+            catch (Exception e)
             {
-                Chat.Send(WebUtility.HtmlDecode(stateLine.Content));
+                Program.Logger.Error("Failed to forward message to Steam", e);
             }
 
             base.SendLine(line);
@@ -50,7 +57,14 @@ namespace RohBot.Rooms.Steam
 
         public override void Send(string str)
         {
-            Chat?.Send(str);
+            try
+            {
+                Chat.Send(str);
+            }
+            catch (Exception e)
+            {
+                Program.Logger.Error("Failed to send message to Steam", e);
+            }
 
             base.Send(str);
         }

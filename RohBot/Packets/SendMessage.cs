@@ -23,6 +23,12 @@ namespace RohBot.Packets
             if (Content.Length == 0)
                 return;
 
+            if (Program.DelayManager.AddAndCheck(connection, CalculateMessageCost(Content)))
+                return;
+
+            // normalize line endings
+            Content = Content.Replace("\r\n", "\n").Replace('\r', '\n');
+
             // can't send emoticons from web
             Content = Content.Replace('ː', ':');
 
@@ -30,8 +36,8 @@ namespace RohBot.Packets
             if (Content.Length > 2000)
                 Content = Content.Substring(0, 2000) + "...";
 
-            if (Program.DelayManager.AddAndCheck(connection, CalculateMessageCost(Content)))
-                return;
+            // imgur is scum
+            Content = Util.FixImgurLinks(Content);
 
             var room = Program.RoomManager.Get(Target);
             var roomName = room != null ? Target : Program.Settings.DefaultRoom;

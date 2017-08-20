@@ -91,17 +91,19 @@ namespace RohBot
             var ping = new Packets.Ping();
             var pingStr = Packet.WriteToMessage(ping);
 
-            try
+            foreach (var client in _server.Clients)
             {
-                foreach (var client in _server.Clients)
+                try
                 {
                     client.Send(pingStr);
                 }
+                catch (Exception e)
+                {
+                    Program.Logger.Warn("ping failed", e);
+                    client.Close();
+                }
             }
-            catch (Exception e)
-            {
-                Program.Logger.Warn("ping failed", e);
-            }
+
         }
 
         public void Close(Connection connection)
